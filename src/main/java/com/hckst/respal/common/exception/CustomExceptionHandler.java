@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.RejectedExecutionException;
 
 @Slf4j
-@RestControllerAdvice("hocheoltech.boos.controller") // exception 스코프를 패키지 레벨로
+@RestControllerAdvice("com.hckst.respal.controller") // exception 스코프를 패키지 레벨로
 public class CustomExceptionHandler {
     @ExceptionHandler(RejectedExecutionException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
