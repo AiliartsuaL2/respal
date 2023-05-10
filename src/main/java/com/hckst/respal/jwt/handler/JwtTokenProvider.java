@@ -39,7 +39,6 @@ public class JwtTokenProvider {
     // refreshToken 기한
     private long refreshTokenValidTime = 60 * 60 * 24 * 14 * 1000L; // 2주
 
-
     private final UserDetailsService userDetailsService;
 
     // 객체 초기화, secretKey를 Base64로 인코딩한다.

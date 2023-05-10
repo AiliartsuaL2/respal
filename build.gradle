@@ -69,14 +69,14 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-// submodule 설정
-//task copyPrivate(type: Copy) {
-//	copy {
-//		from './boos-private/private'
-//		include "application.yml"
-//		into 'src/main/resources'
-//	}
-//}
+// submodule > application.yml 설정
+task copyPrivate(type: Copy) {
+	copy {
+		from './respal-private'
+		include "application.yml"
+		into 'src/main/resources'
+	}
+}
 
 // QueryDSL
 def generated = 'src/main/generated'
