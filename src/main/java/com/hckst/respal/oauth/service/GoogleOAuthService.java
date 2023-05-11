@@ -8,7 +8,7 @@ import com.hckst.respal.jwt.dto.Token;
 import com.hckst.respal.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.oauth.info.GoogleUserInfo;
 import com.hckst.respal.oauth.properties.OAuthProperties;
-import com.hckst.respal.oauth.token.GoogleOAuthToken;
+import com.hckst.respal.oauth.token.OAuthToken;
 import com.hckst.respal.repository.MembersRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +45,7 @@ public class GoogleOAuthService implements OAuthService {
     }
 
     @Override
-    public GoogleOAuthToken getAccessToken(String code) {
+    public OAuthToken getAccessToken(String code) {
         RestTemplate restTemplate = new RestTemplate();
 
         // 헤더 설정
@@ -77,10 +77,10 @@ public class GoogleOAuthService implements OAuthService {
 
         // UnderScoreCase To Camel GsonBuilder,, googleOAuth2Token 객체에 매핑
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-        GoogleOAuthToken googleOAuthToken = gson.fromJson(response.getBody(), GoogleOAuthToken.class);
-        log.info("구글 액세스 토큰 : " + googleOAuthToken.getAccessToken());
+        OAuthToken oAuthToken = gson.fromJson(response.getBody(), OAuthToken.class);
+        log.info("구글 액세스 토큰 : " + oAuthToken.getAccessToken());
 
-        return googleOAuthToken;
+        return oAuthToken;
     }
 
     @Override

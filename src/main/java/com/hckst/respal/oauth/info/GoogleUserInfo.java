@@ -9,7 +9,4 @@ import lombok.*;
 @ToString
 public class GoogleUserInfo extends UserInfo{
     private String name;
-    private String id;
-    private String email;
-    private String picture;
 }

@@ -6,9 +6,7 @@ import com.hckst.respal.jwt.service.JwtService;
 import com.hckst.respal.oauth.service.GithubOAuthService;
 import com.hckst.respal.oauth.service.GoogleOAuthService;
 import com.hckst.respal.oauth.service.KakaoOAuthService;
-import com.hckst.respal.oauth.token.GithubOAuthToken;
-import com.hckst.respal.oauth.token.GoogleOAuthToken;
-import com.hckst.respal.oauth.token.KakaoOAuthToken;
+import com.hckst.respal.oauth.token.OAuthToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,18 +31,18 @@ public class OAuthController {
 
         if("kakao".equals(socialType)){
             log.info("kakao social login 진입");
-            KakaoOAuthToken kakaoAccessTOken = kakaoOAuthService.getAccessToken(code);
-            token = kakaoOAuthService.login(kakaoAccessTOken.getAccessToken());
+            OAuthToken oAuthToken = kakaoOAuthService.getAccessToken(code);
+            token = kakaoOAuthService.login(oAuthToken.getAccessToken());
         }
         else if("google".equals(socialType)){
             log.info("google social login 진입");
-            GoogleOAuthToken googleAccessToken = googleOAuthService.getAccessToken(code);
-            token = googleOAuthService.login(googleAccessToken.getAccessToken());
+            OAuthToken oAuthToken = googleOAuthService.getAccessToken(code);
+            token = googleOAuthService.login(oAuthToken.getAccessToken());
         }
         else if("github".equals(socialType)){
             log.info("github social login 진입");
-            GithubOAuthToken githubAccessToken = githubOAuthService.getAccessToken(code);
-            token = githubOAuthService.login(githubAccessToken.getAccessToken());
+            OAuthToken oAuthToken = githubOAuthService.getAccessToken(code);
+            token = githubOAuthService.login(oAuthToken.getAccessToken());
         }
         jwtService.login(token);
         return gson.toJson(token);

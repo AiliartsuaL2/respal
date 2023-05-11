@@ -8,7 +8,7 @@ import com.hckst.respal.jwt.dto.Token;
 import com.hckst.respal.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.oauth.info.GithubUserInfo;
 import com.hckst.respal.oauth.properties.OAuthProperties;
-import com.hckst.respal.oauth.token.GithubOAuthToken;
+import com.hckst.respal.oauth.token.OAuthToken;
 import com.hckst.respal.repository.MembersRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +45,7 @@ public class GithubOAuthService implements OAuthService{
     }
 
     @Override
-    public GithubOAuthToken getAccessToken(String code) {
+    public OAuthToken getAccessToken(String code) {
         // POST 방식으로 key=value 데이터를 요청 (카카오쪽으로)
         // 이 때 필요한 라이브러리가 RestTemplate, 얘를 쓰면 http 요청을 편하게 할 수 있다.
         RestTemplate restTemplate = new RestTemplate();
@@ -72,12 +72,12 @@ public class GithubOAuthService implements OAuthService{
                 String.class
         );
 
-        // UnderScoreCase To Camel GsonBuilder,, githubOAuthToken 객체에 매핑
+        // UnderScoreCase To Camel GsonBuilder,, OAuthToken 객체에 매핑
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-        GithubOAuthToken githubOAuthToken = gson.fromJson(response.getBody(), GithubOAuthToken.class);
-        log.info("깃허브 액세스 토큰 : " + githubOAuthToken.getAccessToken());
+        OAuthToken oAuthToken = gson.fromJson(response.getBody(), OAuthToken.class);
+        log.info("깃허브 액세스 토큰 : " + oAuthToken.getAccessToken());
 
-        return githubOAuthToken;
+        return oAuthToken;
     }
 
     @Override

@@ -8,7 +8,7 @@ import com.hckst.respal.jwt.dto.Token;
 import com.hckst.respal.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.oauth.info.KakaoUserInfo;
 import com.hckst.respal.oauth.properties.OAuthProperties;
-import com.hckst.respal.oauth.token.KakaoOAuthToken;
+import com.hckst.respal.oauth.token.OAuthToken;
 import com.hckst.respal.repository.MembersRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +45,7 @@ public class KakaoOAuthService implements OAuthService{
     }
 
     @Override
-    public KakaoOAuthToken getAccessToken(String code) {
+    public OAuthToken getAccessToken(String code) {
         // POST 방식으로 key=value 데이터를 요청 (카카오쪽으로)
         // 이 때 필요한 라이브러리가 RestTemplate, 얘를 쓰면 http 요청을 편하게 할 수 있다.
         RestTemplate restTemplate = new RestTemplate();
@@ -71,10 +71,10 @@ public class KakaoOAuthService implements OAuthService{
         );
         // UnderScoreCase To Camel GsonBuilder,, KakaoOAuth2Token 객체에 매핑
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-        KakaoOAuthToken kakaoOAuthToken = gson.fromJson(response.getBody(), KakaoOAuthToken.class);
-        log.info("카카오 액세스 토큰 : " + kakaoOAuthToken.getAccessToken());
+        OAuthToken oAuthToken = gson.fromJson(response.getBody(), OAuthToken.class);
+        log.info("카카오 액세스 토큰 : " + oAuthToken.getAccessToken());
 
-        return kakaoOAuthToken;
+        return oAuthToken;
     }
 
     @Override

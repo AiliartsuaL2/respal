@@ -9,7 +9,4 @@ import lombok.*;
 @ToString
 public class GithubUserInfo extends UserInfo{
     private String nickname;
-    private String id;
-    private String email;
-    private String picture;
 }

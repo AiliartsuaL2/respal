@@ -10,7 +10,6 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class KakaoUserInfo extends UserInfo{
-    private long id;
     private String connectedAt;
     private KakaoPropertiesDto properties;
     private KakaoAccountDto kakaoAccount;
