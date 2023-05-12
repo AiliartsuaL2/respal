@@ -39,6 +39,11 @@ public class Members implements UserDetails {
     // 가입일시
     private LocalDateTime regTime;
 
+    // 의존관계 설정
+    @OneToMany(mappedBy = "membersId")
+    private List<OAuth> OAuthList = new ArrayList<>();
+
+
     @Builder
     public Members(String password, String nickname, String email){
         this.password = password;

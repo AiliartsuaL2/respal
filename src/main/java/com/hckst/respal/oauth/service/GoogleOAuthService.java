@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -38,6 +39,7 @@ public class GoogleOAuthService implements OAuthService {
             Members newMembers = Members.builder()
                     .email(email)
                     .nickname(googleUserInfo.getName())
+                    .password(UUID.randomUUID().toString().replace("-", ""))
                     .build();
             members = membersRepository.save(newMembers);
         }

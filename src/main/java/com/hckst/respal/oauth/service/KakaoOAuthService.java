@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -33,11 +34,14 @@ public class KakaoOAuthService implements OAuthService{
         KakaoUserInfo kakaoUserInfo = getUserInfo(accessToken);
         String email = Optional.ofNullable(kakaoUserInfo.getKakaoAccount().getEmail()).orElse("none");
         Members members = membersRepository.findMembersByEmail(email).orElse(null);
+
+
         // 신규회원인경우 회원 새로 생성
         if(members == null){
             Members newMembers = Members.builder()
                     .email(email)
                     .nickname(kakaoUserInfo.getProperties().getNickname())
+                    .password(UUID.randomUUID().toString().replace("-", ""))
                     .build();
             members = membersRepository.save(newMembers);
         }

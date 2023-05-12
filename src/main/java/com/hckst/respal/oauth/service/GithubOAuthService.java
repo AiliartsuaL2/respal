@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +39,7 @@ public class GithubOAuthService implements OAuthService{
             Members newMembers = Members.builder()
                     .email(email)
                     .nickname(githubUserInfo.getNickname())
+                    .password(UUID.randomUUID().toString().replace("-", ""))
                     .build();
             members = membersRepository.save(newMembers);
         }
