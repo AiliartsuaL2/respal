@@ -3,11 +3,15 @@ package com.hckst.respal.oauth.service;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.hckst.respal.common.converter.SocialType;
+import com.hckst.respal.common.exception.ErrorMessage;
 import com.hckst.respal.domain.Members;
+import com.hckst.respal.domain.Oauth;
 import com.hckst.respal.jwt.dto.Token;
 import com.hckst.respal.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.oauth.info.GithubUserInfo;
 import com.hckst.respal.oauth.properties.OAuthProperties;
+import com.hckst.respal.oauth.repository.OAuthRepository;
 import com.hckst.respal.oauth.token.OAuthToken;
 import com.hckst.respal.repository.MembersRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,23 +31,17 @@ import java.util.UUID;
 @Slf4j
 public class GithubOAuthService implements OAuthService{
     private final MembersRepository membersRepository;
+    private final OAuthRepository oAuthRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuthProperties oAuthProperties;
 
     @Override
     public Token login(String accessToken) {
         GithubUserInfo githubUserInfo = getUserInfo(accessToken);
-        String email = Optional.ofNullable(githubUserInfo.getEmail()).orElse("none");
-        Members members = membersRepository.findMembersByEmail(email).orElse(null);
-        // 신규회원인경우 회원 새로 생성
-        if(members == null){
-            Members newMembers = Members.builder()
-                    .email(email)
-                    .nickname(githubUserInfo.getNickname())
-                    .password(UUID.randomUUID().toString().replace("-", ""))
-                    .build();
-            members = membersRepository.save(newMembers);
-        }
+        String email = Optional.ofNullable(githubUserInfo.getEmail()).orElse(UUID.randomUUID().toString().replace("-", ""));
+        Members members = membersRepository.findMembersOauth(email, SocialType.GITHUB).orElseThrow(
+                // Todo 회원가입 redirect처리하기(controller 에서)
+                () -> new NoSuchElementException(ErrorMessage.NOT_EXIST_MEMBER.getMsg()));
         return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }
 

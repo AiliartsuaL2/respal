@@ -9,12 +9,10 @@ import com.hckst.respal.oauth.service.KakaoOAuthService;
 import com.hckst.respal.oauth.token.OAuthToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
-@RestController
+@Controller
 @RequestMapping("/oauth")
 @RequiredArgsConstructor
 @Slf4j
@@ -25,6 +23,7 @@ public class OAuthController {
     private final JwtService jwtService;
 
     @GetMapping("/{socialType}/login")
+    @ResponseBody
     public String oAuthLogin(@PathVariable String socialType, String code){
         Token token = null;
         Gson gson = new Gson();
@@ -47,4 +46,16 @@ public class OAuthController {
         jwtService.login(token);
         return gson.toJson(token);
     }
+    // redirect용 url
+    @GetMapping("/{socialType}/join")
+    public String oAuthJoinRedirect(@PathVariable String socialType){
+        return "/member/join.html";
+    }
+    // 가입용 url
+    @PostMapping("/{socialType}/join")
+    @ResponseBody
+    public String oAuthJoin(@PathVariable String socialType){
+        return "";
+    }
+
 }

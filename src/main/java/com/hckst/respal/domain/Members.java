@@ -5,9 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,10 +37,13 @@ public class Members implements UserDetails {
     // 가입일시
     private LocalDateTime regTime;
 
-    // 의존관계 설정
-    @OneToMany(mappedBy = "membersId")
-    private List<OAuth> OAuthList = new ArrayList<>();
+    //권한
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles = new ArrayList<>();
 
+    //oauth
+    @OneToMany(mappedBy = "membersId")
+    private List<Oauth> oauthList;
 
     @Builder
     public Members(String password, String nickname, String email){
@@ -51,6 +52,7 @@ public class Members implements UserDetails {
         this.roles = new ArrayList<>();
         this.regTime = LocalDateTime.now();
         this.email = email;
+        this.oauthList = new ArrayList<>();
     }
 
     //업데이트 처리 메서드
@@ -61,8 +63,6 @@ public class Members implements UserDetails {
 
 
     // 시큐리티 설정
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> roles = new ArrayList<>();
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;

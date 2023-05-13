@@ -22,7 +22,6 @@ public class CustomExceptionHandler {
         return message;
     }
 
-
     @ExceptionHandler(NoSuchElementException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String NoSuchElementException(NoSuchElementException ex) {
@@ -49,6 +48,4 @@ public class CustomExceptionHandler {
         log.error(message,stackTraceElements[0]);
         return message;
     }
-
-
 }

@@ -3,6 +3,8 @@ package com.hckst.respal.oauth.service;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.hckst.respal.common.converter.SocialType;
+import com.hckst.respal.common.exception.ErrorMessage;
 import com.hckst.respal.domain.Members;
 import com.hckst.respal.jwt.dto.Token;
 import com.hckst.respal.jwt.handler.JwtTokenProvider;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,19 +35,10 @@ public class KakaoOAuthService implements OAuthService{
     @Override
     public Token login(String accessToken){
         KakaoUserInfo kakaoUserInfo = getUserInfo(accessToken);
-        String email = Optional.ofNullable(kakaoUserInfo.getKakaoAccount().getEmail()).orElse("none");
-        Members members = membersRepository.findMembersByEmail(email).orElse(null);
-
-
-        // 신규회원인경우 회원 새로 생성
-        if(members == null){
-            Members newMembers = Members.builder()
-                    .email(email)
-                    .nickname(kakaoUserInfo.getProperties().getNickname())
-                    .password(UUID.randomUUID().toString().replace("-", ""))
-                    .build();
-            members = membersRepository.save(newMembers);
-        }
+        String email = Optional.ofNullable(kakaoUserInfo.getEmail()).orElse(UUID.randomUUID().toString().replace("-", ""));
+        Members members = membersRepository.findMembersOauth(email, SocialType.KAKAO).orElseThrow(
+                // Todo 회원가입 redirect처리하기(controller 에서)
+                () -> new NoSuchElementException(ErrorMessage.NOT_EXIST_MEMBER.getMsg()));
         return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }
 

@@ -3,6 +3,8 @@ package com.hckst.respal.oauth.service;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.hckst.respal.common.converter.SocialType;
+import com.hckst.respal.common.exception.ErrorMessage;
 import com.hckst.respal.domain.Members;
 import com.hckst.respal.jwt.dto.Token;
 import com.hckst.respal.jwt.handler.JwtTokenProvider;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,17 +35,12 @@ public class GoogleOAuthService implements OAuthService {
     @Override
     public Token login(String accessToken) {
         GoogleUserInfo googleUserInfo = getUserInfo(accessToken);
-        String email = Optional.ofNullable(googleUserInfo.getEmail()).orElse("none");
-        Members members = membersRepository.findMembersByEmail(email).orElse(null);
-        // 신규회원인경우 회원 새로 생성
-        if(members == null){
-            Members newMembers = Members.builder()
-                    .email(email)
-                    .nickname(googleUserInfo.getName())
-                    .password(UUID.randomUUID().toString().replace("-", ""))
-                    .build();
-            members = membersRepository.save(newMembers);
-        }
+        String email = Optional.ofNullable(googleUserInfo.getEmail()).orElse(UUID.randomUUID().toString());
+        // email 필수값이지만, 카카오 developer 관계로 uuid 처리
+        Members members = membersRepository.findMembersOauth(email, SocialType.GOOGLE).orElseThrow(
+                // Todo 회원가입 redirect처리하기(controller 에서)
+                () -> new NoSuchElementException(ErrorMessage.NOT_EXIST_MEMBER.getMsg())
+        );
         return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }
 
@@ -67,8 +65,6 @@ public class GoogleOAuthService implements OAuthService {
                 .queryParam("client_secret",  oAuthProperties.getGoogle().getClientSecret())
                 .queryParam("redirect_uri",  oAuthProperties.getGoogle().getRedirectUri())
                 .queryParam("code", code);
-
-        log.info("debug point");
 
         ResponseEntity<String> response = restTemplate.exchange(
                 uriComponentsBuilder.toUriString(),

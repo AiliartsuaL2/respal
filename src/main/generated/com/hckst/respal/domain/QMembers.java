@@ -26,6 +26,8 @@ public class QMembers extends EntityPathBase<Members> {
 
     public final StringPath nickname = createString("nickname");
 
+    public final ListPath<Oauth, QOauth> oauthList = this.<Oauth, QOauth>createList("oauthList", Oauth.class, QOauth.class, PathInits.DIRECT2);
+
     public final StringPath password = createString("password");
 
     public final DateTimePath<java.time.LocalDateTime> regTime = createDateTime("regTime", java.time.LocalDateTime.class);
