@@ -36,10 +36,8 @@ public class KakaoOAuthService implements OAuthService{
     public Token login(String accessToken){
         KakaoUserInfo kakaoUserInfo = getUserInfo(accessToken);
         String email = Optional.ofNullable(kakaoUserInfo.getEmail()).orElse(UUID.randomUUID().toString().replace("-", ""));
-        Members members = membersRepository.findMembersOauth(email, SocialType.KAKAO).orElseThrow(
-                // Todo 회원가입 redirect처리하기(controller 에서)
-                () -> new NoSuchElementException(ErrorMessage.NOT_EXIST_MEMBER.getMsg()));
-        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
+        Optional<Members> members = membersRepository.findMembersOauth(email, SocialType.KAKAO);
+        return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
     }
 
     @Override

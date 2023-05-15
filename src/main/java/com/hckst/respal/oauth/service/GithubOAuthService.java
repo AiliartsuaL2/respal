@@ -39,10 +39,8 @@ public class GithubOAuthService implements OAuthService{
     public Token login(String accessToken) {
         GithubUserInfo githubUserInfo = getUserInfo(accessToken);
         String email = Optional.ofNullable(githubUserInfo.getEmail()).orElse(UUID.randomUUID().toString().replace("-", ""));
-        Members members = membersRepository.findMembersOauth(email, SocialType.GITHUB).orElseThrow(
-                // Todo 회원가입 redirect처리하기(controller 에서)
-                () -> new NoSuchElementException(ErrorMessage.NOT_EXIST_MEMBER.getMsg()));
-        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
+        Optional<Members> members = membersRepository.findMembersOauth(email, SocialType.GITHUB);
+        return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
     }
 
     @Override

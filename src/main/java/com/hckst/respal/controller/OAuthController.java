@@ -9,8 +9,13 @@ import com.hckst.respal.oauth.service.KakaoOAuthService;
 import com.hckst.respal.oauth.token.OAuthToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/oauth")
@@ -21,12 +26,14 @@ public class OAuthController {
     private final GoogleOAuthService googleOAuthService;
     private final GithubOAuthService githubOAuthService;
     private final JwtService jwtService;
+    private static final String REDIRECT_URL = "/oauth/join/";
 
-    @GetMapping("/{socialType}/login")
+    @GetMapping("/login/{socialType}")
     @ResponseBody
-    public String oAuthLogin(@PathVariable String socialType, String code){
+    public ResponseEntity<String> oAuthLogin(@PathVariable String socialType, String code){
         Token token = null;
         Gson gson = new Gson();
+        // oauth accesstoken을 폼을 넘겨줄때 준다
 
         if("kakao".equals(socialType)){
             log.info("kakao social login 진입");
@@ -43,16 +50,25 @@ public class OAuthController {
             OAuthToken oAuthToken = githubOAuthService.getAccessToken(code);
             token = githubOAuthService.login(oAuthToken.getAccessToken());
         }
+        // 존재하지 않는 사용자인경우
+        if(token == null){
+            Map<String, String> map = new HashMap<>();
+            map.put("newMember","true");
+            map.put("redirectUrl",REDIRECT_URL+socialType);
+            String response = gson.toJson(map);
+            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+        }
         jwtService.login(token);
-        return gson.toJson(token);
+        String response = gson.toJson(token);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
     // redirect용 url
-    @GetMapping("/{socialType}/join")
+    @GetMapping("/join/{socialType}")
     public String oAuthJoinRedirect(@PathVariable String socialType){
         return "/member/join.html";
     }
     // 가입용 url
-    @PostMapping("/{socialType}/join")
+    @PostMapping("/join/{socialType}")
     @ResponseBody
     public String oAuthJoin(@PathVariable String socialType){
         return "";

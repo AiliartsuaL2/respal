@@ -37,11 +37,8 @@ public class GoogleOAuthService implements OAuthService {
         GoogleUserInfo googleUserInfo = getUserInfo(accessToken);
         String email = Optional.ofNullable(googleUserInfo.getEmail()).orElse(UUID.randomUUID().toString());
         // email 필수값이지만, 카카오 developer 관계로 uuid 처리
-        Members members = membersRepository.findMembersOauth(email, SocialType.GOOGLE).orElseThrow(
-                // Todo 회원가입 redirect처리하기(controller 에서)
-                () -> new NoSuchElementException(ErrorMessage.NOT_EXIST_MEMBER.getMsg())
-        );
-        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
+        Optional<Members> members = membersRepository.findMembersOauth(email, SocialType.GOOGLE);
+        return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
     }
 
     @Override
