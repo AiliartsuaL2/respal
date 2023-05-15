@@ -11,5 +11,5 @@ public class Token {
     private String grantType;
     private String accessToken;
     private String refreshToken;
-    private String membersLoginId;
+    private String membersEmail;
 }

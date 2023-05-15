@@ -27,13 +27,13 @@ public class JwtService {
     @Transactional
     public void login(Token tokenDto){
         RefreshToken refreshToken = RefreshToken.builder()
-                .keyId(tokenDto.getMembersLoginId())
+                .keyId(tokenDto.getMembersEmail())
                 .refreshToken(tokenDto.getRefreshToken())
                 .build();
-        String loginUserId = refreshToken.getKeyId();
-        if(refreshTokenRepository.existsByKeyId(loginUserId)){
+        String email = refreshToken.getKeyId();
+        if(refreshTokenRepository.existsByKeyId(email)){
             log.info("기존의 존재하는 refresh 토큰 삭제");
-            refreshTokenRepository.deleteByKeyId(loginUserId);
+            refreshTokenRepository.deleteByKeyId(email);
         }
         refreshTokenRepository.save(refreshToken);
     }

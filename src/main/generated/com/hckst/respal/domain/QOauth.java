@@ -22,11 +22,13 @@ public class QOauth extends EntityPathBase<Oauth> {
 
     public static final QOauth oauth = new QOauth("oauth");
 
+    public final StringPath accessToken = createString("accessToken");
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final QMembers membersId;
 
-    public final EnumPath<com.hckst.respal.common.converter.SocialType> socialType = createEnum("socialType", com.hckst.respal.common.converter.SocialType.class);
+    public final EnumPath<com.hckst.respal.common.converter.Provider> provider = createEnum("provider", com.hckst.respal.common.converter.Provider.class);
 
     public QOauth(String variable) {
         this(Oauth.class, forVariable(variable), INITS);

@@ -1,8 +1,10 @@
 package com.hckst.respal.controller;
 
 import com.google.gson.Gson;
+import com.hckst.respal.common.converter.Provider;
 import com.hckst.respal.jwt.dto.Token;
 import com.hckst.respal.jwt.service.JwtService;
+import com.hckst.respal.oauth.dto.OAuthJoinDto;
 import com.hckst.respal.oauth.service.GithubOAuthService;
 import com.hckst.respal.oauth.service.GoogleOAuthService;
 import com.hckst.respal.oauth.service.KakaoOAuthService;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -28,50 +31,82 @@ public class OAuthController {
     private final JwtService jwtService;
     private static final String REDIRECT_URL = "/oauth/join/";
 
-    @GetMapping("/login/{socialType}")
+    @GetMapping("/login/{provider}")
     @ResponseBody
-    public ResponseEntity<String> oAuthLogin(@PathVariable String socialType, String code){
+    public ResponseEntity<String> oAuthLogin(@PathVariable String provider, String code){
+        /**
+         *- 기존 회원인 경우
+         *  - respal의 accessToken과 refreshToken을 응답해준다.
+         *
+         * - 신규 회원인 경우
+         *   1. 서버 - oauth 인증을 받으면 oauth의 accessToken과 provider(socialType) 정보와 redirectUrl을 보내준다.
+         *   2. 클라이언트 - 회원가입 폼에서 닉네임, 비밀번호를 설정 후(email과 profileImage는 oauth에서 받아옴) redirectUrl로 Post 요청을 한다.
+         *   3. 서버 - 해당 정보를 db에 저장 후 respal의 accessToken과 refreshToken을 응답해준다.
+         */
         Token token = null;
+        OAuthToken oAuthToken = null;
         Gson gson = new Gson();
-        // oauth accesstoken을 폼을 넘겨줄때 준다
 
-        if("kakao".equals(socialType)){
+        if("kakao".equals(provider)){
             log.info("kakao social login 진입");
-            OAuthToken oAuthToken = kakaoOAuthService.getAccessToken(code);
+            oAuthToken = kakaoOAuthService.getAccessToken(code);
             token = kakaoOAuthService.login(oAuthToken.getAccessToken());
         }
-        else if("google".equals(socialType)){
+        else if("google".equals(provider)){
             log.info("google social login 진입");
-            OAuthToken oAuthToken = googleOAuthService.getAccessToken(code);
+            oAuthToken = googleOAuthService.getAccessToken(code);
             token = googleOAuthService.login(oAuthToken.getAccessToken());
         }
-        else if("github".equals(socialType)){
+        else if("github".equals(provider)){
             log.info("github social login 진입");
-            OAuthToken oAuthToken = githubOAuthService.getAccessToken(code);
+            oAuthToken = githubOAuthService.getAccessToken(code);
             token = githubOAuthService.login(oAuthToken.getAccessToken());
         }
-        // 존재하지 않는 사용자인경우
+
+        // 신규 회원인경우
         if(token == null){
             Map<String, String> map = new HashMap<>();
-            map.put("newMember","true");
-            map.put("redirectUrl",REDIRECT_URL+socialType);
+            map.put("oauthAccessToken",oAuthToken.getAccessToken());
+            map.put("redirectUrl",REDIRECT_URL+provider);
             String response = gson.toJson(map);
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         }
+
         jwtService.login(token);
         String response = gson.toJson(token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
     // redirect용 url
-    @GetMapping("/join/{socialType}")
-    public String oAuthJoinRedirect(@PathVariable String socialType){
+    @GetMapping("/join/{provider}")
+    public String oAuthJoinRedirect(@PathVariable String provider, Model model, String oauthToken){
+        model.addAttribute("oauthToken", oauthToken);
         return "/member/join.html";
     }
+
     // 가입용 url
-    @PostMapping("/join/{socialType}")
+    @PostMapping("/join/{provider}")
     @ResponseBody
-    public String oAuthJoin(@PathVariable String socialType){
-        return "";
+    public ResponseEntity<String> oAuthJoin(@PathVariable String provider,
+                            @RequestBody OAuthJoinDto oAuthJoinDto){
+        Token token = null;
+        if(Provider.KAKAO.getValue().equals(provider)){
+            log.info("kakao social join 진입");
+            token = kakaoOAuthService.join(oAuthJoinDto,oAuthJoinDto.getOauthAccessToken(),Provider.KAKAO);
+        }
+        else if(Provider.GOOGLE.getValue().equals(provider)){
+            log.info("google social join 진입");
+            token = googleOAuthService.join(oAuthJoinDto,oAuthJoinDto.getOauthAccessToken(), Provider.GOOGLE);
+        }
+        else if(Provider.GITHUB.getValue().equals(provider)){
+            log.info("github social join 진입");
+            token = githubOAuthService.join(oAuthJoinDto,oAuthJoinDto.getOauthAccessToken(),Provider.GITHUB);
+        }
+
+        Gson gson = new Gson();
+        jwtService.login(token);
+        String response = gson.toJson(token);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.hckst.respal.domain;
 
-import com.hckst.respal.common.converter.SocialType;
-import com.hckst.respal.common.converter.SocialTypeConverter;
+import com.hckst.respal.common.converter.Provider;
+import com.hckst.respal.common.converter.ProviderConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,12 +26,16 @@ public class Oauth {
     @JoinColumn(name= "MEMBERS_ID")
     private Members membersId;
 
-//    @Column(length = 100)
-//    private String accessToken;
+    @Column(length = 255)
+    private String accessToken;
 
     //소셜 타입
-    @Convert(converter = SocialTypeConverter.class)
+    @Convert(converter = ProviderConverter.class)
     @Column(columnDefinition = "varchar(10)")
-    private SocialType socialType;
+    private Provider provider;
+
+    public void updateAccessToken(String accessToken){
+        this.accessToken = accessToken;
+    }
 
 }

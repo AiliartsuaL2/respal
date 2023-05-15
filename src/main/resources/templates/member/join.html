@@ -1,28 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
     <title>회원가입</title>
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
 </head>
 <body>
-<div class="container mt-5">
-    <form th:action="@{/oauth/login/{socialType}(socialType=${socialType})}" method="post">
-        <div class="form-group">
-            <label for="email">이메일:</label>
-            <input type="email" id="email" name="email" class="form-control" required />
-        </div>
-        <div class="form-group">
-            <label for="nickname">닉네임:</label>
-            <input type="text" id="nickname" name="nickname" class="form-control" required />
-        </div>
-        <div class="form-group">
-            <label for="password">비밀번호:</label>
-            <input type="password" id="password" name="password" class="form-control" required />
-        </div>
-        <button type="submit" class="btn btn-primary">가입하기</button>
-    </form>
-</div>
-<script src="/js/bootstrap.min.js"></script>
+<form th:action="@{/oauth/join/google}" method="post" enctype="application/x-www-form-urlencoded">
+    <!-- OAuth 토큰을 Authorization 헤더에 동적으로 설정 -->
+    <input type="hidden" name="Authorization" th:value="${oauthToken}" />
+
+    <div>
+        <label for="nickname">닉네임:</label>
+        <input type="text" id="nickname" name="nickname" required />
+    </div>
+    <div>
+        <label for="password">비밀번호:</label>
+        <input type="password" id="password" name="password" required />
+    </div>
+
+    <!-- 가입하기 버튼 클릭 시 폼 전송 -->
+    <div>
+        <button type="submit">가입하기</button>
+    </div>
+</form>
 </body>
 </html>

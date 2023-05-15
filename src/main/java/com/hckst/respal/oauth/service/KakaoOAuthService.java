@@ -3,13 +3,15 @@ package com.hckst.respal.oauth.service;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.hckst.respal.common.converter.SocialType;
-import com.hckst.respal.common.exception.ErrorMessage;
+import com.hckst.respal.common.converter.Provider;
 import com.hckst.respal.domain.Members;
+import com.hckst.respal.domain.Oauth;
 import com.hckst.respal.jwt.dto.Token;
 import com.hckst.respal.jwt.handler.JwtTokenProvider;
+import com.hckst.respal.oauth.dto.OAuthJoinDto;
 import com.hckst.respal.oauth.info.KakaoUserInfo;
 import com.hckst.respal.oauth.properties.OAuthProperties;
+import com.hckst.respal.oauth.repository.OAuthRepository;
 import com.hckst.respal.oauth.token.OAuthToken;
 import com.hckst.respal.repository.MembersRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,14 +30,20 @@ import java.util.UUID;
 public class KakaoOAuthService implements OAuthService{
 
     private final MembersRepository membersRepository;
+    private final OAuthRepository oAuthRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuthProperties oAuthProperties;
 
     @Override
     public Token login(String accessToken){
         KakaoUserInfo kakaoUserInfo = getUserInfo(accessToken);
-        String email = Optional.ofNullable(kakaoUserInfo.getEmail()).orElse(UUID.randomUUID().toString().replace("-", ""));
-        Optional<Members> members = membersRepository.findMembersOauth(email, SocialType.KAKAO);
+        String email = Optional.ofNullable(kakaoUserInfo.getKakaoAccount().getEmail()).orElse(UUID.randomUUID().toString().replace("-", ""));
+        Optional<Members> members = membersRepository.findMembersOauth(email, Provider.KAKAO);
+        // 기존 회원인경우 oauthAccessToken 업데이트
+        if(members.isPresent()){
+            Oauth oauth = oAuthRepository.findOauthByMembersId(members.get());
+            oauth.updateAccessToken(accessToken);
+        }
         return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
     }
 
@@ -97,4 +104,21 @@ public class KakaoOAuthService implements OAuthService{
         return kakaoUserInfo;
     }
 
+    @Override
+    public Token join(OAuthJoinDto oAuthJoinDto, String oauthAccessToken, Provider provider) {
+        String email = getUserInfo(oauthAccessToken).getKakaoAccount().getEmail();
+        Members members = Members.builder()
+                .email(email)
+                .password(oAuthJoinDto.getPassword())
+                .nickname(oAuthJoinDto.getNickname())
+                .build();
+        Oauth oauth = Oauth.builder()
+                .membersId(members)
+                .accessToken(oauthAccessToken)
+                .provider(provider)
+                .build();
+        membersRepository.save(members);
+        oAuthRepository.save(oauth);
+        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
+    }
 }
