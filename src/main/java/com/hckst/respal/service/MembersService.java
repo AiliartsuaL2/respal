@@ -23,15 +23,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class MembersService implements UserDetailsService {
+public class MembersService {
     private final MembersRepository membersRepository;
     private final JwtTokenProvider jwtTokenProvider;
-
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return membersRepository.findMembersByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(ErrorMessage.NOT_EXIST_MEMBER.getMsg()));
-    }
     public Token loginMembers(MemberJoinDto memberJoinDto){
         // 존재하지 않는 회원인경우
         Optional<Members> members = membersRepository.findMembersByEmailAndPassword(memberJoinDto.getEmail(), memberJoinDto.getPassword());
@@ -41,9 +35,9 @@ public class MembersService implements UserDetailsService {
         return jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
     }
     
-    // email 중복체크
+    // email 중복체크 ,, 이미 존재하는경우 false, 존재하지 않는경우 true
     public boolean duplicationCheckEmail(String email){
-        return membersRepository.existsMembersByEmail(email);
+        return !membersRepository.existsMembersByEmail(email);
     }
 
     // 회원가입,, 중복체크가 되었다고 가정
