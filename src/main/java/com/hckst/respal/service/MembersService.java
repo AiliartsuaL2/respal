@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,10 +34,11 @@ public class MembersService implements UserDetailsService {
     }
     public Token loginMembers(MemberJoinDto memberJoinDto){
         // 존재하지 않는 회원인경우
-        Members members = membersRepository.findMembersByEmailAndPassword(memberJoinDto.getEmail(), memberJoinDto.getPassword()).orElseThrow(
-                () -> new NoSuchElementException(ErrorMessage.NOT_EXIST_MEMBER.getMsg())
-        );
-        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
+        Optional<Members> members = membersRepository.findMembersByEmailAndPassword(memberJoinDto.getEmail(), memberJoinDto.getPassword());
+        if(members.isEmpty()){
+            return null;
+        }
+        return jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
     }
     
     // email 중복체크
