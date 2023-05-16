@@ -32,7 +32,7 @@ public class QMembers extends EntityPathBase<Members> {
 
     public final DateTimePath<java.time.LocalDateTime> regTime = createDateTime("regTime", java.time.LocalDateTime.class);
 
-    public final ListPath<String, StringPath> roles = this.<String, StringPath>createList("roles", String.class, StringPath.class, PathInits.DIRECT2);
+    public final ListPath<Role, QRole> roles = this.<Role, QRole>createList("roles", Role.class, QRole.class, PathInits.DIRECT2);
 
     public QMembers(String variable) {
         super(Members.class, forVariable(variable));

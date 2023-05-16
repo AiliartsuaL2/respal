@@ -2,6 +2,7 @@ package com.hckst.respal.jwt.handler;
 
 import com.hckst.respal.common.exception.ErrorMessage;
 import com.hckst.respal.domain.RefreshToken;
+import com.hckst.respal.domain.Role;
 import com.hckst.respal.jwt.dto.Token;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +19,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
-@Component // 빈등록을 해줘야함
+@Component // jwt를 발급해주고 Role을 부여
 public class JwtTokenProvider {
 
     // 암호화키는 매우 중요하므로 따로 빼서 관리, application.yml의 @Value 사용 및 git 분리
@@ -48,9 +50,15 @@ public class JwtTokenProvider {
     }
 
     // 토큰에 저장할 유저 pk와 권한 리스트를 매개변수로 받아 access, refresh토큰을 생성하여 tokenDto 만들어 반환
-    public Token createTokenWithRefresh(String membersEmail, List<String> roles){
+    public Token createTokenWithRefresh(String membersEmail, List<Role> roles){
         Claims claims = Jwts.claims().setSubject(membersEmail); // JWT payload 에 저장되는 정보단위, 보통 여기서 user를 식별하는 값을 넣는다.
-        claims.put("roles", roles); // 정보는 key / value 쌍으로 저장된다.
+
+        // claims String 처리를 위해 생성
+        List<String> roleStrList = roles.stream()
+                .map(r -> r.getRoles().getValue())
+                .collect(Collectors.toList());
+
+        claims.put("roles", roleStrList); // 정보는 key / value 쌍으로 저장된다.
         Date now = new Date();
 
         String accessToken = Jwts.builder()

@@ -4,8 +4,10 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hckst.respal.common.converter.Provider;
+import com.hckst.respal.common.converter.RoleType;
 import com.hckst.respal.domain.Members;
 import com.hckst.respal.domain.Oauth;
+import com.hckst.respal.domain.Role;
 import com.hckst.respal.jwt.dto.Token;
 import com.hckst.respal.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.oauth.dto.OAuthJoinDto;
@@ -107,10 +109,12 @@ public class KakaoOAuthService implements OAuthService{
     @Override
     public Token join(OAuthJoinDto oAuthJoinDto, String oauthAccessToken, Provider provider) {
         String email = getUserInfo(oauthAccessToken).getKakaoAccount().getEmail();
+        Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()
                 .email(email)
                 .password(oAuthJoinDto.getPassword())
                 .nickname(oAuthJoinDto.getNickname())
+                .role(role)
                 .build();
         Oauth oauth = Oauth.builder()
                 .membersId(members)

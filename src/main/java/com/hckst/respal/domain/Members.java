@@ -38,21 +38,26 @@ public class Members implements UserDetails {
     private LocalDateTime regTime;
 
     //권한
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> roles = new ArrayList<>();
+    @ManyToMany(cascade=CascadeType.ALL)
+    @JoinTable(
+            name="members_role",
+            joinColumns={@JoinColumn(name="MEMBERS_ID", referencedColumnName="MEMBERS_ID")},
+            inverseJoinColumns={@JoinColumn(name="ROLE_ID", referencedColumnName="ROLE_ID")})
+    private List<Role> roles;
 
     //oauth
     @OneToMany(mappedBy = "membersId")
     private List<Oauth> oauthList;
 
     @Builder
-    public Members(String password, String nickname, String email){
+    public Members(String password, String nickname, String email, Role role){
         this.password = password;
         this.nickname = nickname;
         this.roles = new ArrayList<>();
         this.regTime = LocalDateTime.now();
         this.email = email;
         this.oauthList = new ArrayList<>();
+        this.roles.add(role);
     }
 
     //업데이트 처리 메서드
