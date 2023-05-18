@@ -58,7 +58,7 @@ class MembersServiceTest {
     }
 
     @Test
-    void duplicationCheckEmailSuccessTest() {
+    void duplicationCheckEmailFailTest() {
         //given
 
         //when
@@ -69,7 +69,7 @@ class MembersServiceTest {
 
     }
     @Test
-    void duplicationCheckEmailFailTest() {
+    void duplicationCheckEmailSuccessTest() {
         //given
 
         //when

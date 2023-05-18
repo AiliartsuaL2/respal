@@ -9,7 +9,7 @@ public enum ErrorMessage {
     NOT_EXIST_MEMBER(HttpStatus.BAD_REQUEST, "사용자가 존재하지 않습니다."),
     NOT_EXIST_BOARD(HttpStatus.BAD_REQUEST, "게시판이 존재하지 않습니다."),
     UNAUTHORIZED_PERMISSION(HttpStatus.FORBIDDEN, "해당 작업에 대해 권한이 없습니다."),
-    DUPLICATE_MEMBER_ID(HttpStatus.BAD_REQUEST,"중복된 사용자 ID 입니다."),
+    DUPLICATE_MEMBER_EMAIL(HttpStatus.BAD_REQUEST,"중복된 사용자 이메일 입니다."),
     DUPLICATE_CATEGORY_NAME(HttpStatus.BAD_REQUEST, "중복된 카테고리 이름 입니다."),
     NOT_REGISTED_BUSINESS_REG_NUM(HttpStatus.BAD_REQUEST, "진위 확인이 되지 않는 사업자 정보 입니다."),
     DUPLICATE_BUSINESS_REG_NUM(HttpStatus.BAD_REQUEST,"중복된 사업자 등록번호 입니다."),

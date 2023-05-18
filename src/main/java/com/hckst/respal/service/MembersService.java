@@ -29,18 +29,16 @@ public class MembersService {
     public Token loginMembers(MemberJoinDto memberJoinDto){
         // 존재하지 않는 회원인경우
         Optional<Members> members = membersRepository.findMembersByEmailAndPassword(memberJoinDto.getEmail(), memberJoinDto.getPassword());
-        if(members.isEmpty()){
-            return null;
-        }
-        return jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
+        return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
     }
     
     // email 중복체크 ,, 이미 존재하는경우 false, 존재하지 않는경우 true
     public boolean duplicationCheckEmail(String email){
-        return !membersRepository.existsMembersByEmail(email);
+        return membersRepository.existsMembersByEmail(email);
     }
 
     // 회원가입,, 중복체크가 되었다고 가정
+    @Transactional // insert query,, read-only false
     public void joinMembers(MemberJoinDto memberJoinDto){
         Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()
