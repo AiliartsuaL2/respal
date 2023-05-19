@@ -110,6 +110,7 @@ public class GithubOAuthService implements OAuthService{
 
     @Override
     public Token join(OAuthJoinDto oAuthJoinDto, String oauthAccessToken, Provider provider) {
+        log.info("github login 진입");
         String email = getUserInfo(oauthAccessToken).getEmail();
         Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()

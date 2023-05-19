@@ -108,6 +108,7 @@ public class KakaoOAuthService implements OAuthService{
 
     @Override
     public Token join(OAuthJoinDto oAuthJoinDto, String oauthAccessToken, Provider provider) {
+        log.info("kakao login 진입");
         String email = getUserInfo(oauthAccessToken).getKakaoAccount().getEmail();
         Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()

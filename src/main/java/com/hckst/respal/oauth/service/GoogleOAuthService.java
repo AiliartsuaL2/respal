@@ -38,6 +38,7 @@ public class GoogleOAuthService implements OAuthService {
 
     @Override
     public Token login(String accessToken) {
+        log.info("google login 진입");
         GoogleUserInfo googleUserInfo = getUserInfo(accessToken);
         String email = Optional.ofNullable(googleUserInfo.getEmail()).orElse(UUID.randomUUID().toString());
         // email 필수값이지만, 카카오 developer 관계로 uuid 처리
