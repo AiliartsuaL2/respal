@@ -90,9 +90,9 @@ public class OAuthController {
 
     // redirect용 url
     @GetMapping("/join/{provider}")
-    public String oAuthJoinRedirect(@PathVariable String provider, Model model, String oauthToken){
+    public String oAuthJoinRedirect(Model model, String oauthToken){
         model.addAttribute("oauthToken", oauthToken);
-        return "/member/join.html";
+        return "member/join.html";
     }
 
     // 가입용 url

@@ -25,7 +25,7 @@ public class MembersController {
     private final MembersService membersService;
     @GetMapping("/member/login")
     public String loginPage(){
-        return "/member/login.html";
+        return "member/login.html";
     }
 
     @PostMapping("/member/login")
