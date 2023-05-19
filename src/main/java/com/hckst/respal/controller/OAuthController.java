@@ -2,6 +2,7 @@ package com.hckst.respal.controller;
 
 import com.google.gson.Gson;
 import com.hckst.respal.common.converter.Provider;
+import com.hckst.respal.dto.response.ResponseDto;
 import com.hckst.respal.jwt.dto.Token;
 import com.hckst.respal.jwt.service.JwtService;
 import com.hckst.respal.oauth.dto.OAuthJoinDto;
@@ -33,7 +34,7 @@ public class OAuthController {
 
     @GetMapping("/login/{provider}")
     @ResponseBody
-    public ResponseEntity<String> oAuthLogin(@PathVariable String provider, String code){
+    public ResponseEntity<ResponseDto> oAuthLogin(@PathVariable String provider, String code){
         /**
          *- 기존 회원인 경우
          *  - respal의 accessToken과 refreshToken을 응답해준다.
@@ -63,31 +64,41 @@ public class OAuthController {
             token = githubOAuthService.login(oAuthToken.getAccessToken());
         }
 
-        // 신규 회원인경우
+        // 신규 회원인경우 로그인 페이지로 리다이렉트
         if(token == null){
             Map<String, String> map = new HashMap<>();
             map.put("oauthAccessToken",oAuthToken.getAccessToken());
             map.put("redirectUrl",REDIRECT_URL+provider);
-            String response = gson.toJson(map);
+            String json = gson.toJson(map);
+            ResponseDto response = ResponseDto.builder()
+                    .success(true)
+                    .code(202)
+                    .data(json)
+                    .build();
             return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
         }
 
         jwtService.login(token);
-        String response = gson.toJson(token);
+        String json = gson.toJson(token);
+        ResponseDto response = ResponseDto.builder()
+                .success(true)
+                .code(200)
+                .data(json)
+                .build();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // redirect용 url
     @GetMapping("/join/{provider}")
-    public String oAuthJoinRedirect(@PathVariable String provider, Model model, String oauthToken){
+    public String oAuthJoinRedirect(Model model, String oauthToken){
         model.addAttribute("oauthToken", oauthToken);
-        return "/member/join.html";
+        return "member/join.html";
     }
 
     // 가입용 url
     @PostMapping("/join/{provider}")
     @ResponseBody
-    public ResponseEntity<String> oAuthJoin(@PathVariable String provider,
+    public ResponseEntity<ResponseDto> oAuthJoin(@PathVariable String provider,
                             @RequestBody OAuthJoinDto oAuthJoinDto){
         Token token = null;
         if(Provider.KAKAO.getValue().equals(provider)){
@@ -105,8 +116,13 @@ public class OAuthController {
 
         Gson gson = new Gson();
         jwtService.login(token);
-        String response = gson.toJson(token);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        String json = gson.toJson(token);
+        ResponseDto response = ResponseDto.builder()
+                .success(true)
+                .code(201)
+                .data(json)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
 }
