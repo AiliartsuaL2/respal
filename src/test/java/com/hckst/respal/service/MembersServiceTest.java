@@ -1,20 +1,18 @@
 package com.hckst.respal.service;
 
-import com.hckst.respal.domain.Members;
-import com.hckst.respal.dto.MemberJoinDto;
-import com.hckst.respal.jwt.dto.Token;
-import com.hckst.respal.repository.MembersRepository;
-import org.assertj.core.api.Assertions;
+import com.hckst.respal.members.application.MembersService;
+import com.hckst.respal.members.domain.Members;
+import com.hckst.respal.members.presentation.dto.MemberJoinDto;
+import com.hckst.respal.authentication.jwt.dto.Token;
+import com.hckst.respal.members.domain.repository.MembersRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
