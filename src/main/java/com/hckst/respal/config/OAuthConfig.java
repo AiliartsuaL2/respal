@@ -1,4 +1,4 @@
-package com.hckst.respal.authentication.oauth.dto.properties;
+package com.hckst.respal.config;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConstructorBinding;
 @ConstructorBinding
 @AllArgsConstructor
 @Getter
-public class OAuthProperties {
+public class OAuthConfig {
     private final Social kakao;
     private final Social google;
     private final Social github;

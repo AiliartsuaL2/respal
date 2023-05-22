@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @SpringBootApplication
-@ConfigurationPropertiesScan("com.hckst.respal.authentication.oauth.dto.properties")
+@ConfigurationPropertiesScan("com.hckst.respal.config")
 public class RespalApplication {
 
 	public static void main(String[] args) {

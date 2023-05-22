@@ -2,8 +2,8 @@ package com.hckst.respal.authentication.oauth.service;
 
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.converter.Provider;
-import com.hckst.respal.authentication.oauth.dto.OAuthJoinDto;
-import com.hckst.respal.authentication.oauth.dto.info.UserInfo;
+import com.hckst.respal.authentication.oauth.dto.request.OAuthJoinRequestDto;
+import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 
 public interface OAuthService {
@@ -11,5 +11,5 @@ public interface OAuthService {
     OAuthToken getAccessToken(String code);
     UserInfo getUserInfo(String accessToken);
 
-    Token join(OAuthJoinDto oAuthJoinDto, String oauthAccessToken, Provider provider);
+    Token join(OAuthJoinRequestDto oAuthJoinRequestDto, String oauthAccessToken, Provider provider);
 }

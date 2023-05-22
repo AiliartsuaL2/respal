@@ -1,4 +1,4 @@
-package com.hckst.respal.members.presentation.dto;
+package com.hckst.respal.members.presentation.dto.request;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MemberJoinDto {
+public class MembersJoinRequestDto {
     private String email;
     private String password;
     private String nickname;

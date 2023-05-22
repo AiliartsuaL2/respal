@@ -3,7 +3,7 @@ package com.hckst.respal.members.application;
 import com.hckst.respal.converter.RoleType;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.Role;
-import com.hckst.respal.members.presentation.dto.MemberJoinDto;
+import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.members.domain.repository.MembersRepository;
@@ -21,9 +21,9 @@ import java.util.Optional;
 public class MembersService {
     private final MembersRepository membersRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    public Token loginMembers(MemberJoinDto memberJoinDto){
+    public Token loginMembers(MembersJoinRequestDto membersJoinRequestDto){
         // 존재하지 않는 회원인경우
-        Optional<Members> members = membersRepository.findMembersByEmailAndPassword(memberJoinDto.getEmail(), memberJoinDto.getPassword());
+        Optional<Members> members = membersRepository.findMembersByEmailAndPassword(membersJoinRequestDto.getEmail(), membersJoinRequestDto.getPassword());
         return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
     }
     
@@ -34,12 +34,12 @@ public class MembersService {
 
     // 회원가입,, 중복체크가 되었다고 가정
     @Transactional // insert query,, read-only false
-    public void joinMembers(MemberJoinDto memberJoinDto){
+    public void joinMembers(MembersJoinRequestDto membersJoinRequestDto){
         Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()
-                .email(memberJoinDto.getEmail())
-                .password(memberJoinDto.getPassword())
-                .nickname(memberJoinDto.getNickname())
+                .email(membersJoinRequestDto.getEmail())
+                .password(membersJoinRequestDto.getPassword())
+                .nickname(membersJoinRequestDto.getNickname())
                 .role(role)
                 .build();
         membersRepository.save(members);

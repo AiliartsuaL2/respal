@@ -10,9 +10,9 @@ import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.members.domain.Role;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
-import com.hckst.respal.authentication.oauth.dto.OAuthJoinDto;
-import com.hckst.respal.authentication.oauth.dto.info.GithubUserInfo;
-import com.hckst.respal.authentication.oauth.dto.properties.OAuthProperties;
+import com.hckst.respal.authentication.oauth.dto.request.OAuthJoinRequestDto;
+import com.hckst.respal.authentication.oauth.dto.request.info.GithubUserInfo;
+import com.hckst.respal.config.OAuthConfig;
 import com.hckst.respal.authentication.oauth.domain.repository.OAuthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.members.domain.repository.MembersRepository;
@@ -34,7 +34,7 @@ public class GithubOAuthService implements OAuthService{
     private final MembersRepository membersRepository;
     private final OAuthRepository oAuthRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final OAuthProperties oAuthProperties;
+    private final OAuthConfig oAuthConfig;
 
     @Override
     public Token login(String accessToken) {
@@ -64,10 +64,10 @@ public class GithubOAuthService implements OAuthService{
         HttpEntity request = new HttpEntity(headers);
 
         // Uri 빌더 사용
-        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthProperties.getGithub().getTokenUrl())
-                .queryParam("client_id", oAuthProperties.getGithub().getClientId())
-                .queryParam("redirect_uri", oAuthProperties.getGithub().getRedirectUri())
-                .queryParam("client_secret", oAuthProperties.getGithub().getClientSecret())
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getGithub().getTokenUrl())
+                .queryParam("client_id", oAuthConfig.getGithub().getClientId())
+                .queryParam("redirect_uri", oAuthConfig.getGithub().getRedirectUri())
+                .queryParam("client_secret", oAuthConfig.getGithub().getClientSecret())
                 .queryParam("code", code);
 
         ResponseEntity<String> response = restTemplate.exchange(
@@ -97,7 +97,7 @@ public class GithubOAuthService implements OAuthService{
         HttpEntity request = new HttpEntity(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                oAuthProperties.getGithub().getInfoUrl(),
+                oAuthConfig.getGithub().getInfoUrl(),
                 HttpMethod.GET,
                 request, // 요청시 보낼 데이터
                 String.class // 요청시 반환 데이터 타입
@@ -109,14 +109,14 @@ public class GithubOAuthService implements OAuthService{
     }
 
     @Override
-    public Token join(OAuthJoinDto oAuthJoinDto, String oauthAccessToken, Provider provider) {
+    public Token join(OAuthJoinRequestDto oAuthJoinRequestDto, String oauthAccessToken, Provider provider) {
         log.info("github login 진입");
         String email = getUserInfo(oauthAccessToken).getEmail();
         Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()
                 .email(email)
-                .password(oAuthJoinDto.getPassword())
-                .nickname(oAuthJoinDto.getNickname())
+                .password(oAuthJoinRequestDto.getPassword())
+                .nickname(oAuthJoinRequestDto.getNickname())
                 .role(role)
                 .build();
         Oauth oauth = Oauth.builder()

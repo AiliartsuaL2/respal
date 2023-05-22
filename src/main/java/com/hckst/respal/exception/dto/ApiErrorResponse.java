@@ -12,5 +12,5 @@ import lombok.Setter;
 public class ApiErrorResponse {
     private Boolean success;
     private Integer code;
-    private Object data;
+    private String message;
 }

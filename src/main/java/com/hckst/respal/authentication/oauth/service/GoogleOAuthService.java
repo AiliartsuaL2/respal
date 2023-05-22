@@ -5,14 +5,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
-import com.hckst.respal.authentication.oauth.dto.info.GoogleUserInfo;
-import com.hckst.respal.authentication.oauth.dto.properties.OAuthProperties;
+import com.hckst.respal.authentication.oauth.dto.request.info.GoogleUserInfo;
+import com.hckst.respal.config.OAuthConfig;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.RoleType;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.members.domain.Role;
-import com.hckst.respal.authentication.oauth.dto.OAuthJoinDto;
+import com.hckst.respal.authentication.oauth.dto.request.OAuthJoinRequestDto;
 import com.hckst.respal.authentication.oauth.domain.repository.OAuthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.members.domain.repository.MembersRepository;
@@ -33,7 +33,7 @@ import java.util.UUID;
 public class GoogleOAuthService implements OAuthService {
     private final MembersRepository membersRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final OAuthProperties oAuthProperties;
+    private final OAuthConfig oAuthConfig;
     private final OAuthRepository oAuthRepository;
 
     @Override
@@ -66,11 +66,11 @@ public class GoogleOAuthService implements OAuthService {
          로 Redirect URL을 생성하는 로직을 구성
          */
         // Uri 빌더 사용
-        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthProperties.getGoogle().getTokenUrl())
-                .queryParam("grant_type", oAuthProperties.getGoogle().getGrantType())
-                .queryParam("client_id",  oAuthProperties.getGoogle().getClientId())
-                .queryParam("client_secret",  oAuthProperties.getGoogle().getClientSecret())
-                .queryParam("redirect_uri",  oAuthProperties.getGoogle().getRedirectUri())
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getGoogle().getTokenUrl())
+                .queryParam("grant_type", oAuthConfig.getGoogle().getGrantType())
+                .queryParam("client_id",  oAuthConfig.getGoogle().getClientId())
+                .queryParam("client_secret",  oAuthConfig.getGoogle().getClientSecret())
+                .queryParam("redirect_uri",  oAuthConfig.getGoogle().getRedirectUri())
                 .queryParam("code", code);
 
         ResponseEntity<String> response = restTemplate.exchange(
@@ -100,7 +100,7 @@ public class GoogleOAuthService implements OAuthService {
         HttpEntity request = new HttpEntity(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                oAuthProperties.getGoogle().getInfoUrl(),
+                oAuthConfig.getGoogle().getInfoUrl(),
                 HttpMethod.GET,
                 request, // 요청시 보낼 데이터
                 String.class // 요청시 반환 데이터 타입
@@ -113,13 +113,13 @@ public class GoogleOAuthService implements OAuthService {
     }
 
     @Override
-    public Token join(OAuthJoinDto oAuthJoinDto, String oauthAccessToken, Provider provider) {
+    public Token join(OAuthJoinRequestDto oAuthJoinRequestDto, String oauthAccessToken, Provider provider) {
         String email = getUserInfo(oauthAccessToken).getEmail();
         Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()
                 .email(email)
-                .password(oAuthJoinDto.getPassword())
-                .nickname(oAuthJoinDto.getNickname())
+                .password(oAuthJoinRequestDto.getPassword())
+                .nickname(oAuthJoinRequestDto.getNickname())
                 .role(role)
                 .build();
         Oauth oauth = Oauth.builder()

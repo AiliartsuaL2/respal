@@ -1,4 +1,4 @@
-package com.hckst.respal.authentication.oauth.dto;
+package com.hckst.respal.authentication.oauth.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

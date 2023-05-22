@@ -2,7 +2,7 @@ package com.hckst.respal.service;
 
 import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.domain.Members;
-import com.hckst.respal.members.presentation.dto.MemberJoinDto;
+import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import org.junit.jupiter.api.Test;
@@ -32,12 +32,12 @@ class MembersServiceTest {
     @Test
     void loginMembersSuccessTest() {
         //given
-        MemberJoinDto memberJoinDto = MemberJoinDto.builder()
+        MembersJoinRequestDto membersJoinRequestDto = MembersJoinRequestDto.builder()
                 .email(EXIST_MEMBERS_EMAIL_1)
                 .password(SUCCESS_PASSWORD)
                 .build();
         //when
-        Token token = membersService.loginMembers(memberJoinDto);
+        Token token = membersService.loginMembers(membersJoinRequestDto);
         //then
         assertThat(token).isNotNull();
     }
@@ -45,12 +45,12 @@ class MembersServiceTest {
     @Test
     void loginMembersFailTest() {
         //given
-        MemberJoinDto memberJoinDto = MemberJoinDto.builder()
+        MembersJoinRequestDto membersJoinRequestDto = MembersJoinRequestDto.builder()
                 .email(EXIST_MEMBERS_EMAIL_1)
                 .password(FAIL_PASSWORD)
                 .build();
         //when
-        Token token = membersService.loginMembers(memberJoinDto);
+        Token token = membersService.loginMembers(membersJoinRequestDto);
         //then
         assertThat(token).isNull();
     }
@@ -80,12 +80,12 @@ class MembersServiceTest {
     @Test
     void joinMembers() {
         //given
-        MemberJoinDto memberJoinDto = MemberJoinDto.builder()
+        MembersJoinRequestDto membersJoinRequestDto = MembersJoinRequestDto.builder()
                 .email(NEW_EMAIL)
                 .password(SUCCESS_PASSWORD)
                 .build();
         //when
-        membersService.joinMembers(memberJoinDto);
+        membersService.joinMembers(membersJoinRequestDto);
         Optional<Members> membersByEmail = membersRepository.findMembersByEmail(NEW_EMAIL);
         //then
         assertThat(membersByEmail.isPresent()).isTrue();
