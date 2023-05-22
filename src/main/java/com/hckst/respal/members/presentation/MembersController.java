@@ -6,8 +6,10 @@ import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.exception.dto.ApiErrorResponse;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.members.application.MembersService;
+import com.hckst.respal.members.presentation.dto.response.MembersJoinResponseDto;
 import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,7 +41,7 @@ public class MembersController {
     @Operation(summary = "로그인 메서드", description = "일반 이메일 로그인 메서드입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = MembersLoginResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "로그인 실패(올바르지 않은 사용자 정보)", content = @Content(schema = @Schema(implementation = InvalidMembersException.class)))
+            @ApiResponse(responseCode = "400", description = "로그인 실패(올바르지 않은 사용자 정보)", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/member/login")
     @ResponseBody
@@ -56,17 +58,17 @@ public class MembersController {
 
     @Operation(summary = "회원가입 메서드", description = "일반 이메일 회원가입 메서드입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "회원가입 성공"),
+            @ApiResponse(responseCode = "201", description = "회원가입 성공", headers = @Header(name = "Location", description = "리다이렉트 Url"), content = @Content(schema = @Schema(implementation = MembersJoinResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "회원가입 실패 (중복된 이메일)", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/member/join")
     @ResponseBody
-    public ResponseEntity<Void> join(@RequestBody MembersJoinRequestDto membersJoinRequestDto){
+    public ResponseEntity<MembersJoinResponseDto> join(@RequestBody MembersJoinRequestDto membersJoinRequestDto){
         if(membersService.duplicationCheckEmail(membersJoinRequestDto.getEmail())){
             throw new RejectedExecutionException(ErrorMessage.DUPLICATE_MEMBER_EMAIL.getMsg());
         }
         membersService.joinMembers(membersJoinRequestDto);
-        URI redirectUrl = URI.create(String.format("/member", "login"));
-        return ResponseEntity.created(redirectUrl).build(); // PRG 방식
+        URI redirectUrl = URI.create(String.format("/member", "/login"));
+        return ResponseEntity.created(redirectUrl).body(new MembersJoinResponseDto()); // PRG 방식
     }
 }

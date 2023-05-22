@@ -2,7 +2,7 @@ package com.hckst.respal.authentication.oauth.presentation;
 
 import com.hckst.respal.authentication.oauth.dto.response.OAuthJoinResponseDto;
 import com.hckst.respal.authentication.oauth.dto.response.OAuthLoginResponseDto;
-import com.hckst.respal.authentication.oauth.dto.response.OAuthNewLoginDto;
+import com.hckst.respal.authentication.oauth.dto.response.OAuthNewLoginResponseDto;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.service.JwtService;
@@ -11,8 +11,18 @@ import com.hckst.respal.authentication.oauth.service.GithubOAuthService;
 import com.hckst.respal.authentication.oauth.service.GoogleOAuthService;
 import com.hckst.respal.authentication.oauth.service.KakaoOAuthService;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
+import com.hckst.respal.exception.dto.ApiErrorResponse;
+import com.hckst.respal.exception.oauth.NoSuchOAuthCodeException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +33,7 @@ import java.net.URI;
 @RequestMapping("/oauth")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "회원", description = "회원 관련 api")
 public class OAuthController {
     private final KakaoOAuthService kakaoOAuthService;
     private final GoogleOAuthService googleOAuthService;
@@ -31,6 +42,13 @@ public class OAuthController {
     private static final String JOIN_REDIRECT_URL = "/oauth/join/";
     private static final String LOGIN_REDIRECT_URL = "/oauth/login/";
 
+
+    @Operation(summary = "OAuth 로그인 메서드", description = "OAuth 로그인 메서드입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = OAuthLoginResponseDto.class))),
+            @ApiResponse(responseCode = "307", description = "비회원, 회원가입 url 리다이렉트", content = @Content(schema = @Schema(implementation = OAuthNewLoginResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "OAuth code값 없음", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
     @GetMapping("/login/{provider}")
     @ResponseBody
     public ResponseEntity<?> oAuthLogin(@PathVariable String provider, String code){
@@ -43,6 +61,10 @@ public class OAuthController {
          *   2. 클라이언트 - 회원가입 폼에서 닉네임, 비밀번호를 설정 후(email과 profileImage는 oauth에서 받아옴) redirectUrl로 Post 요청을 한다.
          *   3. 서버 - 해당 정보를 db에 저장 후 respal의 accessToken과 refreshToken을 응답해준다.
          */
+        if(code == null){
+            throw new NoSuchOAuthCodeException();
+        }
+
         Token token = null;
         OAuthToken oAuthToken = null;
 
@@ -64,10 +86,11 @@ public class OAuthController {
 
         // 신규 회원인경우 로그인 페이지로 리다이렉트
         if(token == null){
-            OAuthNewLoginDto response = OAuthNewLoginDto.builder()
+            OAuthNewLoginResponseDto response = OAuthNewLoginResponseDto.builder()
                     .oauthAccessToken(oAuthToken.getAccessToken())
+                    .redirectUrl(JOIN_REDIRECT_URL)
                     .build();
-            return ResponseEntity.created(URI.create(JOIN_REDIRECT_URL+provider)).body(response);
+            return new ResponseEntity(response, HttpStatus.TEMPORARY_REDIRECT);
         }
 
         jwtService.login(token);
@@ -81,7 +104,10 @@ public class OAuthController {
         return ResponseEntity.ok(response);
     }
 
-    // OAuth 회원가입
+    @Operation(summary = "OAuth 회원가입 메서드", description = "OAuth 회원가입 메서드입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "회원가입 성공", content = @Content(schema = @Schema(implementation = OAuthJoinResponseDto.class)))
+    })
     @PostMapping("/join/{provider}")
     @ResponseBody
     public ResponseEntity<OAuthJoinResponseDto> oAuthJoin(@PathVariable String provider,

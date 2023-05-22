@@ -1,5 +1,6 @@
 package com.hckst.respal.authentication.oauth.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,8 +8,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@Schema(description = "OAuth 회원가입시 요청")
 public class OAuthJoinRequestDto {
+    //Todo 비밀번호 저장시 암호화 설정하기
+    @Schema(description = "비밀번호")
     private String password;
+    @Schema(description = "닉네임")
     private String nickname;
+    @Schema(description = "OAuth 액세스 토큰")
     private String oauthAccessToken;
 }
