@@ -4,7 +4,6 @@ import com.hckst.respal.authentication.oauth.dto.response.OAuthJoinResponseDto;
 import com.hckst.respal.authentication.oauth.dto.response.OAuthLoginResponseDto;
 import com.hckst.respal.authentication.oauth.dto.response.OAuthNewLoginDto;
 import com.hckst.respal.converter.Provider;
-import com.hckst.respal.exception.dto.ApiErrorResponse;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.service.JwtService;
 import com.hckst.respal.authentication.oauth.dto.request.OAuthJoinRequestDto;
@@ -14,7 +13,6 @@ import com.hckst.respal.authentication.oauth.service.KakaoOAuthService;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +28,8 @@ public class OAuthController {
     private final GoogleOAuthService googleOAuthService;
     private final GithubOAuthService githubOAuthService;
     private final JwtService jwtService;
-    private static final String REDIRECT_URL = "/oauth/join/";
+    private static final String JOIN_REDIRECT_URL = "/oauth/join/";
+    private static final String LOGIN_REDIRECT_URL = "/oauth/login/";
 
     @GetMapping("/login/{provider}")
     @ResponseBody
@@ -68,7 +67,7 @@ public class OAuthController {
             OAuthNewLoginDto response = OAuthNewLoginDto.builder()
                     .oauthAccessToken(oAuthToken.getAccessToken())
                     .build();
-            return ResponseEntity.created(URI.create(REDIRECT_URL+provider)).body(response);
+            return ResponseEntity.created(URI.create(JOIN_REDIRECT_URL+provider)).body(response);
         }
 
         jwtService.login(token);
@@ -107,7 +106,7 @@ public class OAuthController {
                 .refreshToken(token.getRefreshToken())
                 .grantType(token.getGrantType())
                 .build();
-        return ResponseEntity.created(URI.create(REDIRECT_URL+provider)).body(response);
+        return ResponseEntity.created(URI.create(LOGIN_REDIRECT_URL+provider)).body(response);
     }
 
 }

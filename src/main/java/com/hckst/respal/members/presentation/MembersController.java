@@ -6,7 +6,6 @@ import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.exception.dto.ApiErrorResponse;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.members.application.MembersService;
-import com.hckst.respal.members.presentation.dto.response.MembersJoinResponseDto;
 import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,7 +15,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +45,6 @@ public class MembersController {
     @ResponseBody
     public ResponseEntity<MembersLoginResponseDto> login(@RequestBody MembersJoinRequestDto membersJoinRequestDto){
         Token token = membersService.loginMembers(membersJoinRequestDto);
-        if(token == null){
-            throw new InvalidMembersException();
-        }
         MembersLoginResponseDto response = MembersLoginResponseDto.builder()
                 .membersEmail(token.getMembersEmail())
                 .refreshToken(token.getRefreshToken())

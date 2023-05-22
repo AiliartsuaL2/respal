@@ -1,6 +1,7 @@
 package com.hckst.respal.members.application;
 
 import com.hckst.respal.converter.RoleType;
+import com.hckst.respal.exception.members.InvalidMembersException;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.Role;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
@@ -23,8 +24,10 @@ public class MembersService {
     private final JwtTokenProvider jwtTokenProvider;
     public Token loginMembers(MembersJoinRequestDto membersJoinRequestDto){
         // 존재하지 않는 회원인경우
-        Optional<Members> members = membersRepository.findMembersByEmailAndPassword(membersJoinRequestDto.getEmail(), membersJoinRequestDto.getPassword());
-        return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
+        Members members = membersRepository.findMembersByEmailAndPassword(membersJoinRequestDto.getEmail(), membersJoinRequestDto.getPassword()).orElseThrow(
+                () -> new InvalidMembersException()
+        );
+        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }
     
     // email 중복체크 ,, 이미 존재하는경우 false, 존재하지 않는경우 true
