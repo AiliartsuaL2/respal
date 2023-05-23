@@ -3,6 +3,10 @@ package com.hckst.respal.authentication.jwt.handler;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.authentication.jwt.domain.RefreshToken;
+import com.hckst.respal.exception.jwt.ExpiredTokenException;
+import com.hckst.respal.exception.jwt.IncorrectRefreshTokenException;
+import com.hckst.respal.exception.jwt.MalformedTokenException;
+import com.hckst.respal.exception.jwt.SignatureTokenException;
 import com.hckst.respal.members.domain.Role;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +43,7 @@ public class JwtTokenProvider {
     // accessToken 기한
     private long accessTokenValidTime = 60 * 60 * 1000L; // 1시간
     // refreshToken 기한
-    private long refreshTokenValidTime = 60 * 60 * 24 * 14 * 1000L; // 2주
+    private long refreshTokenValidTime = 60 * 1000L; // 2주
 
     private final UserDetailsService userDetailsService;
 
@@ -106,16 +110,16 @@ public class JwtTokenProvider {
             return !claims.getBody().getExpiration().before(new Date());
         }catch (SignatureException e) {
             log.info("SignatureException");
-            throw new JwtException(ErrorMessage.WRONG_TYPE_TOKEN.getMsg());
+            throw new SignatureTokenException();
         } catch (MalformedJwtException e) {
             log.info("MalformedJwtException");
-            throw new JwtException(ErrorMessage.UNSUPPORTED_TOKEN.getMsg());
+            throw new MalformedTokenException();
         } catch (ExpiredJwtException e) {
             log.info("ExpiredJwtException");
-            throw new JwtException(ErrorMessage.EXPIRED_TOKEN.getMsg());
+            throw new ExpiredTokenException();
         } catch (IllegalArgumentException e) {
             log.info("IllegalArgumentException");
-            throw new JwtException(ErrorMessage.UNKNOWN_ERROR.getMsg());
+            throw new IncorrectRefreshTokenException();
         }
     }
 
@@ -129,16 +133,16 @@ public class JwtTokenProvider {
             }
         }catch (SignatureException e) {
             log.info("SignatureException");
-            throw new JwtException(ErrorMessage.WRONG_TYPE_TOKEN.getMsg());
+            throw new SignatureTokenException();
         } catch (MalformedJwtException e) {
             log.info("MalformedJwtException");
-            throw new JwtException(ErrorMessage.UNSUPPORTED_TOKEN.getMsg());
+            throw new MalformedTokenException();
         } catch (ExpiredJwtException e) {
             log.info("ExpiredJwtException");
-            throw new JwtException(ErrorMessage.EXPIRED_TOKEN.getMsg());
+            throw new ExpiredTokenException();
         } catch (IllegalArgumentException e) {
             log.info("IllegalArgumentException");
-            throw new JwtException(ErrorMessage.UNKNOWN_ERROR.getMsg());
+            throw new IncorrectRefreshTokenException();
         }
         return null;
     }

@@ -2,18 +2,17 @@ package com.hckst.respal.authentication.jwt.service;
 
 
 import com.hckst.respal.authentication.jwt.dto.Token;
+import com.hckst.respal.authentication.jwt.dto.request.RefreshAccessTokenRequestDto;
+import com.hckst.respal.authentication.jwt.dto.response.RefreshAccessTokenResponseDto;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
-import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.authentication.jwt.domain.RefreshToken;
 import com.hckst.respal.authentication.jwt.repository.RefreshTokenRepository;
+import com.hckst.respal.exception.jwt.IncorrectRefreshTokenException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -42,26 +41,23 @@ public class JwtService {
         return refreshTokenRepository.findByRefreshToken(refreshToken);
     }
 
-    public Map<String,String> validateRefreshToken(String refreshToken){
-        RefreshToken refreshToken1 = getRefreshToken(refreshToken).orElseThrow(
-                () -> new NoSuchElementException(ErrorMessage.NOT_EXIST_REFRESHTOKEN.getMsg()));
-        String createdAccessToken = jwtTokenProvider.validateRefreshToken(refreshToken1);
-
+    public RefreshAccessTokenResponseDto validateRefreshToken(RefreshAccessTokenRequestDto requestDto){
+        RefreshToken refreshToken = getRefreshToken(requestDto.getRefreshToken()).orElseThrow(
+                () -> new IncorrectRefreshTokenException()
+        );
+        String createdAccessToken = jwtTokenProvider.validateRefreshToken(refreshToken);
         return createRefreshJson(createdAccessToken);
     }
-    public Map<String, String> createRefreshJson(String createdAccessToken){
 
-        Map<String, String> map = new HashMap<>();
-        if(createdAccessToken == null){
-            map.put("errortype", "Forbidden");
-            map.put("status", "403");
-            map.put("message", "Refresh 토큰이 만료되었습니다. 로그인이 필요합니다.");
-            return map;
+    public RefreshAccessTokenResponseDto createRefreshJson(String accessToken){
+        if(accessToken == null){
+            throw new IncorrectRefreshTokenException();
         }
-        //기존에 존재하는 accessToken 제거
-        map.put("status", "201");
-        map.put("message", "Refresh 토큰을 통한 Access Token 생성이 완료되었습니다.");
-        map.put("accessToken", createdAccessToken);
-        return map;
+        RefreshAccessTokenResponseDto response = RefreshAccessTokenResponseDto.builder()
+                .accessToken(accessToken)
+                .message("AccessToken이 정상적으로 발급되었습니다.")
+                .build();
+
+        return response;
     }
 }
