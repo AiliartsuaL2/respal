@@ -14,6 +14,7 @@ import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.exception.dto.ApiErrorResponse;
 import com.hckst.respal.exception.oauth.NoSuchOAuthCodeException;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -112,7 +113,7 @@ public class OAuthController {
     @ResponseBody
     public ResponseEntity<OAuthJoinResponseDto> oAuthJoin(@PathVariable String provider,
                                                       @RequestBody OAuthJoinRequestDto oAuthJoinRequestDto,
-                                                          @RequestHeader(value = "Authorization") String oauthAccessToken){
+                                                              @RequestHeader(value = "Authorization") String oauthAccessToken){
         Token token = null;
         oauthAccessToken = oauthAccessToken.replace("Bearer","");
         if(Provider.KAKAO.getValue().equals(provider)){

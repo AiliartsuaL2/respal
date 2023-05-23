@@ -1,8 +1,8 @@
 package com.hckst.respal.members.presentation;
 
-import com.hckst.respal.authentication.jwt.dto.request.RefreshAccessTokenRequestDto;
 import com.hckst.respal.authentication.jwt.dto.response.RefreshAccessTokenResponseDto;
 import com.hckst.respal.authentication.jwt.service.JwtService;
+import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.exception.dto.ApiErrorResponse;
 import com.hckst.respal.authentication.jwt.dto.Token;
@@ -45,8 +45,8 @@ public class MembersController {
     })
     @PostMapping("/member/login")
     @ResponseBody
-    public ResponseEntity<MembersLoginResponseDto> login(@RequestBody MembersJoinRequestDto membersJoinRequestDto){
-        Token token = membersService.loginMembers(membersJoinRequestDto);
+    public ResponseEntity<MembersLoginResponseDto> login(@RequestBody MembersLoginRequestDto membersLoginRequestDto){
+        Token token = membersService.loginMembers(membersLoginRequestDto);
         jwtService.login(token);
         MembersLoginResponseDto response = MembersLoginResponseDto.builder()
                 .membersEmail(token.getMembersEmail())

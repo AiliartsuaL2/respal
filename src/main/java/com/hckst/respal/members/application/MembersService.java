@@ -9,6 +9,7 @@ import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.members.domain.repository.MembersRepository;
+import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,12 +25,12 @@ public class MembersService {
     private final JwtTokenProvider jwtTokenProvider;
 
     // 로그인 체크
-    public Token loginMembers(MembersJoinRequestDto membersJoinRequestDto){
+    public Token loginMembers(MembersLoginRequestDto membersLoginRequestDto){
         // 이메일이 존재하지 않는경우
-        Members members = membersRepository.findMembersByEmail(membersJoinRequestDto.getEmail()).orElseThrow(
+        Members members = membersRepository.findMembersByEmail(membersLoginRequestDto.getEmail()).orElseThrow(
                 () -> new InvalidMembersException()
         );
-        if(!matchPassword(membersJoinRequestDto.getPassword(),members.getPassword())){ // 비밀번호가 일치하지 않을경우
+        if(!matchPassword(membersLoginRequestDto.getPassword(),members.getPassword())){ // 비밀번호가 일치하지 않을경우
             throw new InvalidMembersException();
         }
         return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());

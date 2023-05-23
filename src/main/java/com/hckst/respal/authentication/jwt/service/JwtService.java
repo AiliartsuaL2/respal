@@ -2,7 +2,6 @@ package com.hckst.respal.authentication.jwt.service;
 
 
 import com.hckst.respal.authentication.jwt.dto.Token;
-import com.hckst.respal.authentication.jwt.dto.request.RefreshAccessTokenRequestDto;
 import com.hckst.respal.authentication.jwt.dto.response.RefreshAccessTokenResponseDto;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.authentication.jwt.domain.RefreshToken;

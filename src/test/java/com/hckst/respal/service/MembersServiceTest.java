@@ -5,6 +5,7 @@ import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.members.domain.repository.MembersRepository;
+import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,12 +33,12 @@ class MembersServiceTest {
     @Test
     void loginMembersSuccessTest() {
         //given
-        MembersJoinRequestDto membersJoinRequestDto = MembersJoinRequestDto.builder()
+        MembersLoginRequestDto membersLoginRequestDto = MembersLoginRequestDto.builder()
                 .email(EXIST_MEMBERS_EMAIL_1)
                 .password(SUCCESS_PASSWORD)
                 .build();
         //when
-        Token token = membersService.loginMembers(membersJoinRequestDto);
+        Token token = membersService.loginMembers(membersLoginRequestDto);
         //then
         assertThat(token).isNotNull();
     }
@@ -45,12 +46,13 @@ class MembersServiceTest {
     @Test
     void loginMembersFailTest() {
         //given
-        MembersJoinRequestDto membersJoinRequestDto = MembersJoinRequestDto.builder()
+        //given
+        MembersLoginRequestDto membersLoginRequestDto = MembersLoginRequestDto.builder()
                 .email(EXIST_MEMBERS_EMAIL_1)
                 .password(FAIL_PASSWORD)
                 .build();
         //when
-        Token token = membersService.loginMembers(membersJoinRequestDto);
+        Token token = membersService.loginMembers(membersLoginRequestDto);
         //then
         assertThat(token).isNull();
     }
