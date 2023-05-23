@@ -1,9 +1,7 @@
 package com.hckst.respal.authentication.jwt.handler;
 
-import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.exception.dto.ApiErrorResponse;
 import com.hckst.respal.exception.jwt.JwtCustomException;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

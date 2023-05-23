@@ -110,21 +110,22 @@ public class OAuthController {
     })
     @PostMapping("/join/{provider}")
     @ResponseBody
-    //Todo 가입시 이메일 중복체크
     public ResponseEntity<OAuthJoinResponseDto> oAuthJoin(@PathVariable String provider,
-                                                      @RequestBody OAuthJoinRequestDto oAuthJoinRequestDto){
+                                                      @RequestBody OAuthJoinRequestDto oAuthJoinRequestDto,
+                                                          @RequestHeader(value = "Authorization") String oauthAccessToken){
         Token token = null;
+        oauthAccessToken = oauthAccessToken.replace("Bearer","");
         if(Provider.KAKAO.getValue().equals(provider)){
             log.info("kakao social join 진입");
-            token = kakaoOAuthService.join(oAuthJoinRequestDto, oAuthJoinRequestDto.getOauthAccessToken(),Provider.KAKAO);
+            token = kakaoOAuthService.join(oAuthJoinRequestDto, oauthAccessToken, Provider.KAKAO);
         }
         else if(Provider.GOOGLE.getValue().equals(provider)){
             log.info("google social join 진입");
-            token = googleOAuthService.join(oAuthJoinRequestDto, oAuthJoinRequestDto.getOauthAccessToken(), Provider.GOOGLE);
+            token = googleOAuthService.join(oAuthJoinRequestDto, oauthAccessToken, Provider.GOOGLE);
         }
         else if(Provider.GITHUB.getValue().equals(provider)){
             log.info("github social join 진입");
-            token = githubOAuthService.join(oAuthJoinRequestDto, oAuthJoinRequestDto.getOauthAccessToken(),Provider.GITHUB);
+            token = githubOAuthService.join(oAuthJoinRequestDto,oauthAccessToken, Provider.GITHUB);
         }
 
         OAuthJoinResponseDto response = OAuthJoinResponseDto.builder()

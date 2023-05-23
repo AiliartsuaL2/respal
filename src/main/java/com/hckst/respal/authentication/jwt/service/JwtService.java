@@ -23,6 +23,8 @@ public class JwtService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    private static final String TOKEN_PREFIX = "Bearer ";
+
     @Transactional
     public void login(Token tokenDto){
         RefreshToken refreshToken = RefreshToken.builder()
@@ -41,11 +43,12 @@ public class JwtService {
         return refreshTokenRepository.findByRefreshToken(refreshToken);
     }
 
-    public RefreshAccessTokenResponseDto validateRefreshToken(RefreshAccessTokenRequestDto requestDto){
-        RefreshToken refreshToken = getRefreshToken(requestDto.getRefreshToken()).orElseThrow(
+    public RefreshAccessTokenResponseDto validateRefreshToken(String requestRefreshToken){
+        requestRefreshToken = requestRefreshToken.replace(TOKEN_PREFIX,""); // Bearer 제거
+        RefreshToken refreshToken = getRefreshToken(requestRefreshToken).orElseThrow(
                 () -> new IncorrectRefreshTokenException()
         );
-        String createdAccessToken = jwtTokenProvider.validateRefreshToken(refreshToken);
+        String createdAccessToken = jwtTokenProvider.validateRefreshToken(refreshToken.getRefreshToken());
         return createRefreshJson(createdAccessToken);
     }
 

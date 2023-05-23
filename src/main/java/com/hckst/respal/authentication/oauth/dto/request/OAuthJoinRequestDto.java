@@ -14,6 +14,4 @@ public class OAuthJoinRequestDto {
     private String password;
     @Schema(description = "닉네임")
     private String nickname;
-    @Schema(description = "OAuth 액세스 토큰")
-    private String oauthAccessToken;
 }

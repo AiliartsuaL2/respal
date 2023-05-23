@@ -3,8 +3,6 @@ package com.hckst.respal.members.presentation;
 import com.hckst.respal.authentication.jwt.dto.request.RefreshAccessTokenRequestDto;
 import com.hckst.respal.authentication.jwt.dto.response.RefreshAccessTokenResponseDto;
 import com.hckst.respal.authentication.jwt.service.JwtService;
-import com.hckst.respal.exception.ErrorMessage;
-import com.hckst.respal.exception.members.InvalidMembersException;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.exception.dto.ApiErrorResponse;
 import com.hckst.respal.authentication.jwt.dto.Token;
@@ -25,7 +23,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.concurrent.RejectedExecutionException;
 
 @Controller
 @Slf4j
@@ -81,8 +78,8 @@ public class MembersController {
 
     @PostMapping("/jwt/refresh")
     @ResponseBody
-    public ResponseEntity<RefreshAccessTokenResponseDto> refreshAccessToken(@RequestBody RefreshAccessTokenRequestDto requestDto){
-        RefreshAccessTokenResponseDto response = jwtService.validateRefreshToken(requestDto);
+    public ResponseEntity<RefreshAccessTokenResponseDto> refreshAccessToken(@RequestHeader(value = "Authorization") String refreshToken){
+        RefreshAccessTokenResponseDto response = jwtService.validateRefreshToken(refreshToken);
         return ResponseEntity.ok(response);
     }
 

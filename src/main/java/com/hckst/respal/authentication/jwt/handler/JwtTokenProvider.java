@@ -1,7 +1,6 @@
 package com.hckst.respal.authentication.jwt.handler;
 
 import com.hckst.respal.authentication.jwt.dto.Token;
-import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.authentication.jwt.domain.RefreshToken;
 import com.hckst.respal.exception.jwt.ExpiredTokenException;
 import com.hckst.respal.exception.jwt.IncorrectRefreshTokenException;
@@ -43,7 +42,7 @@ public class JwtTokenProvider {
     // accessToken 기한
     private long accessTokenValidTime = 60 * 60 * 1000L; // 1시간
     // refreshToken 기한
-    private long refreshTokenValidTime = 60 * 1000L; // 2주
+    private long refreshTokenValidTime = 60 * 60 * 24 * 14 * 1000L; // 2주
 
     private final UserDetailsService userDetailsService;
 
@@ -124,8 +123,7 @@ public class JwtTokenProvider {
     }
 
     // refresh 토큰의 유효성 + 만료일자 확인
-    public String  validateRefreshToken(RefreshToken refreshTokenObj) {
-        String refreshToken = refreshTokenObj.getRefreshToken();
+    public String validateRefreshToken(String refreshToken) {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(refreshSecretKey).parseClaimsJws(refreshToken);
             if (!claims.getBody().getExpiration().before(new Date())) {
@@ -149,7 +147,6 @@ public class JwtTokenProvider {
 
     // refresh 토큰을 확인하여 access토큰을 재발급해줌
     public String recreationAccessToken(String userId, Object roles){
-
         Claims claims = Jwts.claims().setSubject(userId); // JWT payload 에 저장되는 정보단위
         claims.put("roles", roles); // 정보는 key / value 쌍으로 저장된다.
         Date now = new Date();

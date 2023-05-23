@@ -1,7 +1,6 @@
 package com.hckst.respal.members.application;
 
 import com.hckst.respal.converter.RoleType;
-import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.exception.members.DuplicateEmailException;
 import com.hckst.respal.exception.members.InvalidMembersException;
 import com.hckst.respal.members.domain.Members;
@@ -15,9 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
-import java.util.concurrent.RejectedExecutionException;
 
 @Service
 @RequiredArgsConstructor
