@@ -2,6 +2,7 @@ package com.hckst.respal.members.application;
 
 import com.hckst.respal.converter.RoleType;
 import com.hckst.respal.exception.ErrorMessage;
+import com.hckst.respal.exception.members.DuplicateEmailException;
 import com.hckst.respal.exception.members.InvalidMembersException;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.Role;
@@ -47,8 +48,9 @@ public class MembersService {
     @Transactional // insert query,, read-only false
     public void joinMembers(MembersJoinRequestDto membersJoinRequestDto){
         if(duplicationCheckEmail(membersJoinRequestDto.getEmail())){
-            throw new RejectedExecutionException(ErrorMessage.DUPLICATE_MEMBER_EMAIL.getMsg());
+            throw new DuplicateEmailException();
         }
+
         Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()
                 .email(membersJoinRequestDto.getEmail())

@@ -24,8 +24,8 @@ public class Members implements UserDetails {
     @Column(name = "MEMBERS_ID")
     private Long id;
 
-    // 이메일
-    @Column(length = 50)
+    // 이메일 , 일반 로그인 식별자
+    @Column(length = 50, unique = true)
     private String email;
 
     // 비밀번호 , 암호화 되어 진행, 결과값은 항상 60

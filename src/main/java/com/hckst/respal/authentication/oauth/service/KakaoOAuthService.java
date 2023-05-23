@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.RoleType;
+import com.hckst.respal.exception.members.DuplicateEmailException;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.members.domain.Role;
@@ -110,6 +111,11 @@ public class KakaoOAuthService implements OAuthService{
     public Token join(OAuthJoinRequestDto oAuthJoinRequestDto, String oauthAccessToken, Provider provider) {
         log.info("kakao login 진입");
         String email = getUserInfo(oauthAccessToken).getKakaoAccount().getEmail();
+        // 이미 이메일이 존재한다면
+        if(membersRepository.findMembersByEmail(email).isPresent()){
+            throw new DuplicateEmailException();
+        }
+
         Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()
                 .email(email)

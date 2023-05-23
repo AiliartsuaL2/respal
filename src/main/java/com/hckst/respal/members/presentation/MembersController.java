@@ -1,5 +1,6 @@
 package com.hckst.respal.members.presentation;
 
+import com.hckst.respal.authentication.jwt.service.JwtService;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.exception.members.InvalidMembersException;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
@@ -30,7 +31,7 @@ import java.util.concurrent.RejectedExecutionException;
 @Tag(name = "회원", description = "회원 관련 api")
 public class MembersController {
     private final MembersService membersService;
-
+    private final JwtService jwtService;
 
     @GetMapping("/member/login")
     public String loginPage(){
@@ -47,6 +48,7 @@ public class MembersController {
     @ResponseBody
     public ResponseEntity<MembersLoginResponseDto> login(@RequestBody MembersJoinRequestDto membersJoinRequestDto){
         Token token = membersService.loginMembers(membersJoinRequestDto);
+        jwtService.login(token);
         MembersLoginResponseDto response = MembersLoginResponseDto.builder()
                 .membersEmail(token.getMembersEmail())
                 .refreshToken(token.getRefreshToken())

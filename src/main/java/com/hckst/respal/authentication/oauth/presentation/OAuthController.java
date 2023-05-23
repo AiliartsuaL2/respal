@@ -110,6 +110,7 @@ public class OAuthController {
     })
     @PostMapping("/join/{provider}")
     @ResponseBody
+    //Todo 가입시 이메일 중복체크
     public ResponseEntity<OAuthJoinResponseDto> oAuthJoin(@PathVariable String provider,
                                                       @RequestBody OAuthJoinRequestDto oAuthJoinRequestDto){
         Token token = null;

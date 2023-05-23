@@ -9,6 +9,7 @@ import com.hckst.respal.authentication.oauth.dto.request.info.GoogleUserInfo;
 import com.hckst.respal.config.OAuthConfig;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.RoleType;
+import com.hckst.respal.exception.members.DuplicateEmailException;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.members.domain.Role;
@@ -115,6 +116,11 @@ public class GoogleOAuthService implements OAuthService {
     @Override
     public Token join(OAuthJoinRequestDto oAuthJoinRequestDto, String oauthAccessToken, Provider provider) {
         String email = getUserInfo(oauthAccessToken).getEmail();
+        // 이미 이메일이 존재한다면
+        if(membersRepository.findMembersByEmail(email).isPresent()){
+            throw new DuplicateEmailException();
+        }
+
         Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()
                 .email(email)

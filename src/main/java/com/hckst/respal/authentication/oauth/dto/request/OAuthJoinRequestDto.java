@@ -10,7 +10,6 @@ import lombok.Setter;
 @Builder
 @Schema(description = "OAuth 회원가입시 요청")
 public class OAuthJoinRequestDto {
-    //Todo 비밀번호 저장시 암호화 설정하기
     @Schema(description = "비밀번호")
     private String password;
     @Schema(description = "닉네임")
