@@ -88,7 +88,7 @@ public class OAuthController {
         if(token == null){
             OAuthNewLoginResponseDto response = OAuthNewLoginResponseDto.builder()
                     .oauthAccessToken(oAuthToken.getAccessToken())
-                    .redirectUrl(JOIN_REDIRECT_URL)
+                    .redirectUrl(JOIN_REDIRECT_URL+provider)
                     .build();
             return new ResponseEntity(response, HttpStatus.TEMPORARY_REDIRECT);
         }

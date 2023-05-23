@@ -64,9 +64,6 @@ public class MembersController {
     @PostMapping("/member/join")
     @ResponseBody
     public ResponseEntity<MembersJoinResponseDto> join(@RequestBody MembersJoinRequestDto membersJoinRequestDto){
-        if(membersService.duplicationCheckEmail(membersJoinRequestDto.getEmail())){
-            throw new RejectedExecutionException(ErrorMessage.DUPLICATE_MEMBER_EMAIL.getMsg());
-        }
         membersService.joinMembers(membersJoinRequestDto);
         URI redirectUrl = URI.create(String.format("/member", "/login"));
         return ResponseEntity.created(redirectUrl).body(new MembersJoinResponseDto()); // PRG 방식

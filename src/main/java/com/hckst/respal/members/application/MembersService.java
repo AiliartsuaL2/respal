@@ -1,6 +1,7 @@
 package com.hckst.respal.members.application;
 
 import com.hckst.respal.converter.RoleType;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.exception.members.InvalidMembersException;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.Role;
@@ -10,10 +11,12 @@ import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.concurrent.RejectedExecutionException;
 
 @Service
 @RequiredArgsConstructor
@@ -22,22 +25,30 @@ import java.util.Optional;
 public class MembersService {
     private final MembersRepository membersRepository;
     private final JwtTokenProvider jwtTokenProvider;
+
+    // 로그인 체크
     public Token loginMembers(MembersJoinRequestDto membersJoinRequestDto){
-        // 존재하지 않는 회원인경우
-        Members members = membersRepository.findMembersByEmailAndPassword(membersJoinRequestDto.getEmail(), membersJoinRequestDto.getPassword()).orElseThrow(
+        // 이메일이 존재하지 않는경우
+        Members members = membersRepository.findMembersByEmail(membersJoinRequestDto.getEmail()).orElseThrow(
                 () -> new InvalidMembersException()
         );
+        if(!matchPassword(membersJoinRequestDto.getPassword(),members.getPassword())){ // 비밀번호가 일치하지 않을경우
+            throw new InvalidMembersException();
+        }
         return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }
     
-    // email 중복체크 ,, 이미 존재하는경우 false, 존재하지 않는경우 true
+    // email 중복체크 ,, 중복이면 true 없으면 false
     public boolean duplicationCheckEmail(String email){
         return membersRepository.existsMembersByEmail(email);
     }
 
-    // 회원가입,, 중복체크가 되었다고 가정
+    // 회원가입 서비스
     @Transactional // insert query,, read-only false
     public void joinMembers(MembersJoinRequestDto membersJoinRequestDto){
+        if(duplicationCheckEmail(membersJoinRequestDto.getEmail())){
+            throw new RejectedExecutionException(ErrorMessage.DUPLICATE_MEMBER_EMAIL.getMsg());
+        }
         Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()
                 .email(membersJoinRequestDto.getEmail())
@@ -48,5 +59,9 @@ public class MembersService {
         membersRepository.save(members);
     }
 
-
+    // 암호화된 비밀번호가 일치하는지 확인하는 메서드
+    public boolean matchPassword(String rawPassword, String encodedPassword) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return encoder.matches(rawPassword, encodedPassword);
+    }
 }

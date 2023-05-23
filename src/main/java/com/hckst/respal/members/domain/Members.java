@@ -4,6 +4,7 @@ import com.hckst.respal.authentication.oauth.domain.Oauth;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -27,8 +28,8 @@ public class Members implements UserDetails {
     @Column(length = 50)
     private String email;
 
-    // 비밀번호
-    @Column(length = 50)
+    // 비밀번호 , 암호화 되어 진행, 결과값은 항상 60
+    @Column(length = 60)
     private String password;
 
     // 닉네임
@@ -52,7 +53,7 @@ public class Members implements UserDetails {
 
     @Builder
     public Members(String password, String nickname, String email, Role role){
-        this.password = password;
+        this.password = encryptPassword(password);
         this.nickname = nickname;
         this.roles = new ArrayList<>();
         this.regTime = LocalDateTime.now();
@@ -63,8 +64,15 @@ public class Members implements UserDetails {
 
     //업데이트 처리 메서드
     public void updateMemberInfo(String password, String nickname){
-        this.password = password;
+        this.password = encryptPassword(password);
         this.nickname = nickname;
+    }
+
+    // 비밀번호를 암호화하는 메서드
+    public String encryptPassword(String password) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String encryptedPassword = encoder.encode(password);
+        return encryptedPassword;
     }
 
 
