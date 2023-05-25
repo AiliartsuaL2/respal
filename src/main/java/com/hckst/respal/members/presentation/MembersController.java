@@ -37,7 +37,6 @@ public class MembersController {
         return "member/login.html";
     }
 
-
     @Operation(summary = "로그인 메서드", description = "일반 이메일 로그인 메서드입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = MembersLoginResponseDto.class))),
@@ -75,12 +74,18 @@ public class MembersController {
             @ApiResponse(responseCode = "200", description = "access 토큰 재발급", content = @Content(schema = @Schema(implementation = MembersLoginResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "access 토큰 재발급 실패(올바르지 않은 refresh token)", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-
     @PostMapping("/jwt/refresh")
     @ResponseBody
     public ResponseEntity<RefreshAccessTokenResponseDto> refreshAccessToken(@RequestHeader(value = "Authorization") String refreshToken){
         RefreshAccessTokenResponseDto response = jwtService.validateRefreshToken(refreshToken);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/find/password")
+    @ResponseBody
+    public ResponseEntity<?> findPassword(String email){
+        // 이메일 인증,, 비밀번호 재설정 다이렉션 전송
+        return ResponseEntity.ok(null);
     }
 
 }

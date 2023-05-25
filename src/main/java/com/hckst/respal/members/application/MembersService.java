@@ -5,6 +5,7 @@ import com.hckst.respal.exception.members.DuplicateEmailException;
 import com.hckst.respal.exception.members.InvalidMembersException;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.Role;
+import com.hckst.respal.members.presentation.dto.request.MailDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
@@ -12,6 +13,8 @@ import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class MembersService {
     private final MembersRepository membersRepository;
     private final JwtTokenProvider jwtTokenProvider;
+
+    private final JavaMailSender mailSender;
 
     // 로그인 체크
     public Token loginMembers(MembersLoginRequestDto membersLoginRequestDto){
@@ -62,5 +67,16 @@ public class MembersService {
     public boolean matchPassword(String rawPassword, String encodedPassword) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         return encoder.matches(rawPassword, encodedPassword);
+    }
+
+    public String sendResetEmailDirection(MailDto mailDto) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(mailDto.getToAddress());
+        message.setSubject(mailDto.getTitle());
+        message.setText(mailDto.getMessage());
+        message.setFrom(mailDto.getFromAddress());
+        message.setReplyTo(mailDto.getFromAddress());
+        mailSender.send(message);
+        return null;
     }
 }
