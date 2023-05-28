@@ -7,14 +7,13 @@ import com.hckst.respal.converter.Provider;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.service.JwtService;
 import com.hckst.respal.authentication.oauth.dto.request.OAuthJoinRequestDto;
-import com.hckst.respal.authentication.oauth.service.GithubOAuthService;
-import com.hckst.respal.authentication.oauth.service.GoogleOAuthService;
-import com.hckst.respal.authentication.oauth.service.KakaoOAuthService;
+import com.hckst.respal.authentication.oauth.application.GithubOAuthService;
+import com.hckst.respal.authentication.oauth.application.GoogleOAuthService;
+import com.hckst.respal.authentication.oauth.application.KakaoOAuthService;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.exception.dto.ApiErrorResponse;
 import com.hckst.respal.exception.oauth.NoSuchOAuthCodeException;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -47,7 +46,6 @@ public class OAuthController {
     @Operation(summary = "OAuth 로그인 메서드", description = "OAuth 로그인 메서드입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = OAuthLoginResponseDto.class))),
-            @ApiResponse(responseCode = "307", description = "비회원, 회원가입 url 리다이렉트", content = @Content(schema = @Schema(implementation = OAuthNewLoginResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "OAuth code값 없음", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/login/{provider}")
@@ -104,38 +102,4 @@ public class OAuthController {
 
         return ResponseEntity.ok(response);
     }
-
-    @Operation(summary = "OAuth 회원가입 메서드", description = "OAuth 회원가입 메서드입니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "회원가입 성공", content = @Content(schema = @Schema(implementation = OAuthJoinResponseDto.class)))
-    })
-    @PostMapping("/join/{provider}")
-    @ResponseBody
-    public ResponseEntity<OAuthJoinResponseDto> oAuthJoin(@PathVariable String provider,
-                                                      @RequestBody OAuthJoinRequestDto oAuthJoinRequestDto,
-                                                              @RequestHeader(value = "Authorization") String oauthAccessToken){
-        Token token = null;
-        oauthAccessToken = oauthAccessToken.replace("Bearer","");
-        if(Provider.KAKAO.getValue().equals(provider)){
-            log.info("kakao social join 진입");
-            token = kakaoOAuthService.join(oAuthJoinRequestDto, oauthAccessToken, Provider.KAKAO);
-        }
-        else if(Provider.GOOGLE.getValue().equals(provider)){
-            log.info("google social join 진입");
-            token = googleOAuthService.join(oAuthJoinRequestDto, oauthAccessToken, Provider.GOOGLE);
-        }
-        else if(Provider.GITHUB.getValue().equals(provider)){
-            log.info("github social join 진입");
-            token = githubOAuthService.join(oAuthJoinRequestDto,oauthAccessToken, Provider.GITHUB);
-        }
-
-        OAuthJoinResponseDto response = OAuthJoinResponseDto.builder()
-                .membersEmail(token.getMembersEmail())
-                .accessToken(token.getAccessToken())
-                .refreshToken(token.getRefreshToken())
-                .grantType(token.getGrantType())
-                .build();
-        return ResponseEntity.created(URI.create(LOGIN_REDIRECT_URL+provider)).body(response);
-    }
-
 }

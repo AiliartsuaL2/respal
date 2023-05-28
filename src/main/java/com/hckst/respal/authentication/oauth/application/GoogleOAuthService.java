@@ -1,4 +1,4 @@
-package com.hckst.respal.authentication.oauth.service;
+package com.hckst.respal.authentication.oauth.application;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -41,15 +41,15 @@ public class GoogleOAuthService implements OAuthService {
     public Token login(String accessToken) {
         log.info("google login 진입");
         GoogleUserInfo googleUserInfo = getUserInfo(accessToken);
-        String email = Optional.ofNullable(googleUserInfo.getEmail()).orElse(UUID.randomUUID().toString());
-        // email 필수값이지만, 카카오 developer 관계로 uuid 처리
-        Optional<Members> members = membersRepository.findMembersOauth(email, Provider.GOOGLE);
-        // 기존 회원인경우 oauthAccessToken 업데이트
-        if(members.isPresent()){
-            Oauth oauth = oAuthRepository.findOauthByMembersId(members.get());
-            oauth.updateAccessToken(accessToken);
-        }
-        return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
+        String email = googleUserInfo.getEmail();
+        Members members = membersRepository.findMembersOauth(email, Provider.GOOGLE).orElse(
+                Members.builder()
+                        .email(email)
+                        .password(UUID.randomUUID().toString().replace("-", ""))
+                        .role(new Role(RoleType.ROLE_USER))
+                        .build());
+        // 기존 회원인경우 oauthAccessToken 업데이트?
+        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }
 
     @Override
@@ -111,30 +111,5 @@ public class GoogleOAuthService implements OAuthService {
         GoogleUserInfo googleUserInfo = gson.fromJson(response.getBody(), GoogleUserInfo.class);
 
         return googleUserInfo;
-    }
-
-    @Override
-    public Token join(OAuthJoinRequestDto oAuthJoinRequestDto, String oauthAccessToken, Provider provider) {
-        String email = getUserInfo(oauthAccessToken).getEmail();
-        // 이미 이메일이 존재한다면
-        if(membersRepository.findMembersByEmail(email).isPresent()){
-            throw new DuplicateEmailException();
-        }
-
-        Role role = new Role(RoleType.ROLE_USER);
-        Members members = Members.builder()
-                .email(email)
-                .password(oAuthJoinRequestDto.getPassword())
-                .nickname(oAuthJoinRequestDto.getNickname())
-                .role(role)
-                .build();
-        Oauth oauth = Oauth.builder()
-                .membersId(members)
-                .accessToken(oauthAccessToken)
-                .provider(provider)
-                .build();
-        membersRepository.save(members);
-        oAuthRepository.save(oauth);
-        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }
 }

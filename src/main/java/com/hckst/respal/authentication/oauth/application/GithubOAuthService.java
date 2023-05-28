@@ -1,4 +1,4 @@
-package com.hckst.respal.authentication.oauth.service;
+package com.hckst.respal.authentication.oauth.application;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -12,7 +12,7 @@ import com.hckst.respal.members.domain.Role;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.authentication.oauth.dto.request.OAuthJoinRequestDto;
-import com.hckst.respal.authentication.oauth.dto.request.info.KakaoUserInfo;
+import com.hckst.respal.authentication.oauth.dto.request.info.GithubUserInfo;
 import com.hckst.respal.config.OAuthConfig;
 import com.hckst.respal.authentication.oauth.domain.repository.OAuthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
@@ -24,30 +24,31 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Optional;
+import java.util.Arrays;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class KakaoOAuthService implements OAuthService{
-
+public class GithubOAuthService implements OAuthService{
     private final MembersRepository membersRepository;
     private final OAuthRepository oAuthRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuthConfig oAuthConfig;
 
     @Override
-    public Token login(String accessToken){
-        KakaoUserInfo kakaoUserInfo = getUserInfo(accessToken);
-        String email = Optional.ofNullable(kakaoUserInfo.getKakaoAccount().getEmail()).orElse(UUID.randomUUID().toString().replace("-", ""));
-        Optional<Members> members = membersRepository.findMembersOauth(email, Provider.KAKAO);
-        // 기존 회원인경우 oauthAccessToken 업데이트
-        if(members.isPresent()){
-            Oauth oauth = oAuthRepository.findOauthByMembersId(members.get());
-            oauth.updateAccessToken(accessToken);
-        }
-        return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
+    public Token login(String accessToken) {
+        log.info("github login 진입");
+        GithubUserInfo githubUserInfo = getUserInfo(accessToken);
+        String email = githubUserInfo.getEmail();
+        Members members = membersRepository.findMembersOauth(email, Provider.GITHUB).orElse(
+                Members.builder()
+                        .email(email)
+                        .password(UUID.randomUUID().toString().replace("-", ""))
+                        .role(new Role(RoleType.ROLE_USER))
+                        .build());
+        // 기존 회원인경우 oauthAccessToken 업데이트?
+        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }
 
     @Override
@@ -59,14 +60,16 @@ public class KakaoOAuthService implements OAuthService{
         // 헤더 설정
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        //Github 데이터의 경우 json 방식이 invalid json
+        // post 헤더에 json 옵션 넣어주기
+        headers.setAccept(Arrays.asList(new MediaType[] { MediaType.APPLICATION_JSON }));
         HttpEntity request = new HttpEntity(headers);
 
         // Uri 빌더 사용
-        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getKakao().getTokenUrl())
-                .queryParam("grant_type", oAuthConfig.getKakao().getGrantType())
-                .queryParam("client_id", oAuthConfig.getKakao().getClientId())
-                .queryParam("redirect_uri", oAuthConfig.getKakao().getRedirectUri())
-                .queryParam("client_secret", oAuthConfig.getKakao().getClientSecret())
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getGithub().getTokenUrl())
+                .queryParam("client_id", oAuthConfig.getGithub().getClientId())
+                .queryParam("redirect_uri", oAuthConfig.getGithub().getRedirectUri())
+                .queryParam("client_secret", oAuthConfig.getGithub().getClientSecret())
                 .queryParam("code", code);
 
         ResponseEntity<String> response = restTemplate.exchange(
@@ -75,17 +78,17 @@ public class KakaoOAuthService implements OAuthService{
                 request,
                 String.class
         );
-        // UnderScoreCase To Camel GsonBuilder,, KakaoOAuth2Token 객체에 매핑
+
+        // UnderScoreCase To Camel GsonBuilder,, OAuthToken 객체에 매핑
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
         OAuthToken oAuthToken = gson.fromJson(response.getBody(), OAuthToken.class);
-        log.info("카카오 액세스 토큰 : " + oAuthToken.getAccessToken());
+        log.info("깃허브 액세스 토큰 : " + oAuthToken.getAccessToken());
 
         return oAuthToken;
     }
 
     @Override
-    public KakaoUserInfo getUserInfo(String accessToken){
-        // 이 때 필요한 라이브러리가 RestTemplate, 얘를 쓰면 http 요청을 편하게 할 수 있다.
+    public GithubUserInfo getUserInfo(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
 
         // 헤더 설정
@@ -96,40 +99,14 @@ public class KakaoOAuthService implements OAuthService{
         HttpEntity request = new HttpEntity(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                oAuthConfig.getKakao().getInfoUrl(),
-                HttpMethod.POST,
+                oAuthConfig.getGithub().getInfoUrl(),
+                HttpMethod.GET,
                 request, // 요청시 보낼 데이터
                 String.class // 요청시 반환 데이터 타입
         );
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-        KakaoUserInfo kakaoUserInfo = gson.fromJson(response.getBody(), KakaoUserInfo.class);
+        GithubUserInfo githubUserInfo = gson.fromJson(response.getBody(), GithubUserInfo.class);
 
-        return kakaoUserInfo;
-    }
-
-    @Override
-    public Token join(OAuthJoinRequestDto oAuthJoinRequestDto, String oauthAccessToken, Provider provider) {
-        log.info("kakao login 진입");
-        String email = getUserInfo(oauthAccessToken).getKakaoAccount().getEmail();
-        // 이미 이메일이 존재한다면
-        if(membersRepository.findMembersByEmail(email).isPresent()){
-            throw new DuplicateEmailException();
-        }
-
-        Role role = new Role(RoleType.ROLE_USER);
-        Members members = Members.builder()
-                .email(email)
-                .password(oAuthJoinRequestDto.getPassword())
-                .nickname(oAuthJoinRequestDto.getNickname())
-                .role(role)
-                .build();
-        Oauth oauth = Oauth.builder()
-                .membersId(members)
-                .accessToken(oauthAccessToken)
-                .provider(provider)
-                .build();
-        membersRepository.save(members);
-        oAuthRepository.save(oauth);
-        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
+        return githubUserInfo;
     }
 }
