@@ -19,4 +19,9 @@ public class MembersJoinRequestDto {
     @Schema(description = "닉네임", nullable = false)
     @Email
     private String nickname;
+    @Schema(description = "사진", nullable = false)
+    private String picture;
+    @Schema(description = "provider", nullable = false, allowableValues = {"common","kakao","google","github"})
+    private String provider;
+
 }

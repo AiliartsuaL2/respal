@@ -25,7 +25,7 @@ public class Members implements UserDetails {
     private Long id;
 
     // 이메일 , 일반 로그인 식별자
-    @Column(length = 50, unique = true)
+    @Column(length = 50)
     private String email;
 
     // 비밀번호 , 암호화 되어 진행, 결과값은 항상 60
@@ -35,6 +35,9 @@ public class Members implements UserDetails {
     // 닉네임
     @Column(length = 20)
     private String nickname;
+
+    @Column(length = 100)
+    private String picture;
 
     // 가입일시
     private LocalDateTime regTime;
@@ -52,8 +55,9 @@ public class Members implements UserDetails {
     private List<Oauth> oauthList;
 
     @Builder
-    public Members(String password, String nickname, String email, Role role){
+    public Members(String password, String nickname, String email, String picture, Role role){
         this.password = encryptPassword(password);
+        this.picture = picture;
         this.nickname = nickname;
         this.roles = new ArrayList<>();
         this.regTime = LocalDateTime.now();

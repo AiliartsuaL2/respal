@@ -47,7 +47,7 @@ public class MembersService {
 
     // 회원가입 서비스
     @Transactional // insert query,, read-only false
-    public void joinMembers(MembersJoinRequestDto membersJoinRequestDto){
+    public Token joinMembers(MembersJoinRequestDto membersJoinRequestDto){
         if(duplicationCheckEmail(membersJoinRequestDto.getEmail())){
             throw new DuplicateEmailException();
         }
@@ -60,6 +60,8 @@ public class MembersService {
                 .role(role)
                 .build();
         membersRepository.save(members);
+
+        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }
 
     // 암호화된 비밀번호가 일치하는지 확인하는 메서드

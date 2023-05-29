@@ -14,7 +14,6 @@ import javax.persistence.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Table(name="OAUTH")
 public class Oauth {
     //ouath id
@@ -37,6 +36,12 @@ public class Oauth {
 
     public void updateAccessToken(String accessToken){
         this.accessToken = accessToken;
+    }
+    @Builder
+    public Oauth(Members membersId, Provider provider){
+        this.membersId = membersId;
+        this.membersId.getOauthList().add(this);
+        this.provider = provider;
     }
 
 }

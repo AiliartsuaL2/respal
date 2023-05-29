@@ -30,6 +30,8 @@ public class QMembers extends EntityPathBase<Members> {
 
     public final StringPath password = createString("password");
 
+    public final StringPath picture = createString("picture");
+
     public final DateTimePath<java.time.LocalDateTime> regTime = createDateTime("regTime", java.time.LocalDateTime.class);
 
     public final ListPath<Role, QRole> roles = this.<Role, QRole>createList("roles", Role.class, QRole.class, PathInits.DIRECT2);

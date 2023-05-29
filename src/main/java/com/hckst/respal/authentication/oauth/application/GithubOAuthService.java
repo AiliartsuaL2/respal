@@ -3,6 +3,7 @@ package com.hckst.respal.authentication.oauth.application;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.RoleType;
 import com.hckst.respal.exception.members.DuplicateEmailException;
@@ -12,11 +13,12 @@ import com.hckst.respal.members.domain.Role;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.authentication.oauth.dto.request.OAuthJoinRequestDto;
-import com.hckst.respal.authentication.oauth.dto.request.info.GithubUserInfo;
+import com.hckst.respal.authentication.oauth.dto.request.info.github.GithubUserInfo;
 import com.hckst.respal.config.OAuthConfig;
 import com.hckst.respal.authentication.oauth.domain.repository.OAuthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.members.domain.repository.MembersRepository;
+import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -25,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -37,18 +40,16 @@ public class GithubOAuthService implements OAuthService{
     private final OAuthConfig oAuthConfig;
 
     @Override
-    public Token login(String accessToken) {
+    public Token login(UserInfo userInfo, String accessToken) {
         log.info("github login 진입");
-        GithubUserInfo githubUserInfo = getUserInfo(accessToken);
-        String email = githubUserInfo.getEmail();
-        Members members = membersRepository.findMembersOauth(email, Provider.GITHUB).orElse(
-                Members.builder()
-                        .email(email)
-                        .password(UUID.randomUUID().toString().replace("-", ""))
-                        .role(new Role(RoleType.ROLE_USER))
-                        .build());
-        // 기존 회원인경우 oauthAccessToken 업데이트?
-        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
+        String email = userInfo.getEmail();
+        Optional<Members> members = membersRepository.findMembersOauth(email, Provider.GITHUB);
+        // 기존 회원인경우 oauthAccessToken 업데이트
+        if(members.isPresent()){
+            Oauth oauth = oAuthRepository.findOauthByMembersId(members.get());
+            oauth.updateAccessToken(accessToken);
+        }
+        return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
     }
 
     @Override
@@ -88,7 +89,7 @@ public class GithubOAuthService implements OAuthService{
     }
 
     @Override
-    public GithubUserInfo getUserInfo(String accessToken) {
+    public UserInfo getUserInfo(String accessToken) {
         RestTemplate restTemplate = new RestTemplate();
 
         // 헤더 설정
@@ -107,6 +108,38 @@ public class GithubOAuthService implements OAuthService{
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
         GithubUserInfo githubUserInfo = gson.fromJson(response.getBody(), GithubUserInfo.class);
 
-        return githubUserInfo;
+        System.out.println("response = " + response.getBody());
+        UserInfo userInfo = UserInfo.builder()
+                .id(githubUserInfo.getId())
+                .email(githubUserInfo.getEmail())
+                .nickname(githubUserInfo.getLogin())
+                .image(githubUserInfo.getAvatar_url())
+                .build();
+
+        return userInfo;
+    }
+
+    @Override
+    public Token join(MembersJoinRequestDto membersJoinRequestDto) {
+        // 이미 이메일과 provider로 존재하는경우 exception
+        if(membersRepository.findMembersOauth(membersJoinRequestDto.getEmail(),Provider.GITHUB).isPresent()){
+            throw new DuplicateEmailException();
+        }
+        Members members = Members.builder()
+                .email(membersJoinRequestDto.getEmail())
+                .nickname(membersJoinRequestDto.getNickname())
+                .role(new Role(RoleType.ROLE_USER))
+                .picture(membersJoinRequestDto.getPicture())
+                .password(UUID.randomUUID().toString().replace("-", ""))
+                .build();
+        Oauth oauth = Oauth.builder()
+                .membersId(members)
+                .provider(Provider.GITHUB)
+                .build();
+
+        membersRepository.save(members);
+        oAuthRepository.save(oauth);
+
+        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }
 }

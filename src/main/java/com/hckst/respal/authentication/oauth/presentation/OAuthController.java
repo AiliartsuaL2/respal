@@ -1,9 +1,8 @@
 package com.hckst.respal.authentication.oauth.presentation;
 
-import com.hckst.respal.authentication.oauth.dto.response.OAuthJoinResponseDto;
+import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.oauth.dto.response.OAuthLoginResponseDto;
 import com.hckst.respal.authentication.oauth.dto.response.OAuthNewLoginResponseDto;
-import com.hckst.respal.converter.Provider;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.service.JwtService;
 import com.hckst.respal.authentication.oauth.dto.request.OAuthJoinRequestDto;
@@ -27,8 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-
 @Controller
 @RequestMapping("/oauth")
 @RequiredArgsConstructor
@@ -39,19 +36,18 @@ public class OAuthController {
     private final GoogleOAuthService googleOAuthService;
     private final GithubOAuthService githubOAuthService;
     private final JwtService jwtService;
-    private static final String JOIN_REDIRECT_URL = "/oauth/join/";
-    private static final String LOGIN_REDIRECT_URL = "/oauth/login/";
-
 
     @Operation(summary = "OAuth 로그인 메서드", description = "OAuth 로그인 메서드입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = OAuthLoginResponseDto.class))),
+            @ApiResponse(responseCode = "307", description = "신규 회원, 회원가입 폼으로 이동", content = @Content(schema = @Schema(implementation = OAuthNewLoginResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "OAuth code값 없음", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/login/{provider}")
     @ResponseBody
     public ResponseEntity<?> oAuthLogin(@PathVariable String provider, String code){
         /**
+         * Todo 서비스단과 리팩터링 하기
          *- 기존 회원인 경우
          *  - respal의 accessToken과 refreshToken을 응답해준다.
          *
@@ -63,36 +59,40 @@ public class OAuthController {
         if(code == null){
             throw new NoSuchOAuthCodeException();
         }
-
         Token token = null;
-        OAuthToken oAuthToken = null;
+        UserInfo userInfo = null;
 
         if("kakao".equals(provider)){
             log.info("kakao social login 진입");
-            oAuthToken = kakaoOAuthService.getAccessToken(code);
-            token = kakaoOAuthService.login(oAuthToken.getAccessToken());
+            OAuthToken oAuthToken = kakaoOAuthService.getAccessToken(code);
+            userInfo = kakaoOAuthService.getUserInfo(oAuthToken.getAccessToken());
+            token = kakaoOAuthService.login(userInfo, oAuthToken.getAccessToken());
         }
         else if("google".equals(provider)){
             log.info("google social login 진입");
-            oAuthToken = googleOAuthService.getAccessToken(code);
-            token = googleOAuthService.login(oAuthToken.getAccessToken());
+            OAuthToken oAuthToken = googleOAuthService.getAccessToken(code);
+            userInfo = googleOAuthService.getUserInfo(oAuthToken.getAccessToken());
+            token = googleOAuthService.login(userInfo, oAuthToken.getAccessToken());
         }
         else if("github".equals(provider)){
             log.info("github social login 진입");
-            oAuthToken = githubOAuthService.getAccessToken(code);
-            token = githubOAuthService.login(oAuthToken.getAccessToken());
+            OAuthToken oAuthToken = githubOAuthService.getAccessToken(code);
+            userInfo = githubOAuthService.getUserInfo(oAuthToken.getAccessToken());
+            token = githubOAuthService.login(userInfo, oAuthToken.getAccessToken());
         }
 
-        // 신규 회원인경우 로그인 페이지로 리다이렉트
+        // 신규 회원인경우, data 주고 회원가입 url로 요청 받음
         if(token == null){
             OAuthNewLoginResponseDto response = OAuthNewLoginResponseDto.builder()
-                    .oauthAccessToken(oAuthToken.getAccessToken())
-                    .redirectUrl(JOIN_REDIRECT_URL+provider)
+                    .userInfo(userInfo)
+                    .provider(provider)
                     .build();
             return new ResponseEntity(response, HttpStatus.TEMPORARY_REDIRECT);
         }
 
-        jwtService.login(token);
+        jwtService.login(token); // refresh 토큰 초기화
+
+        // 로그인 성공시 응답
         OAuthLoginResponseDto response = OAuthLoginResponseDto.builder()
                 .membersEmail(token.getMembersEmail())
                 .accessToken(token.getAccessToken())

@@ -3,6 +3,8 @@ package com.hckst.respal.authentication.oauth.application;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.hckst.respal.authentication.oauth.dto.request.OAuthJoinRequestDto;
+import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.RoleType;
 import com.hckst.respal.exception.members.DuplicateEmailException;
@@ -11,12 +13,12 @@ import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.members.domain.Role;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
-import com.hckst.respal.authentication.oauth.dto.request.OAuthJoinRequestDto;
-import com.hckst.respal.authentication.oauth.dto.request.info.KakaoUserInfo;
+import com.hckst.respal.authentication.oauth.dto.request.info.kakao.KakaoUserInfo;
 import com.hckst.respal.config.OAuthConfig;
 import com.hckst.respal.authentication.oauth.domain.repository.OAuthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.members.domain.repository.MembersRepository;
+import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -38,18 +40,16 @@ public class KakaoOAuthService implements OAuthService{
     private final OAuthConfig oAuthConfig;
 
     @Override
-    public Token login(String accessToken){
+    public Token login(UserInfo userInfo, String accessToken){
         log.info("kakao login 진입");
-        KakaoUserInfo kakaoUserInfo = getUserInfo(accessToken);
-        String email = kakaoUserInfo.getEmail();
-        Members members = membersRepository.findMembersOauth(email, Provider.KAKAO).orElse(
-                Members.builder()
-                        .email(email)
-                        .password(UUID.randomUUID().toString().replace("-", ""))
-                        .role(new Role(RoleType.ROLE_USER))
-                        .build());
-        // 기존 회원인경우 oauthAccessToken 업데이트?
-        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
+        String email = userInfo.getEmail();
+        Optional<Members> members = membersRepository.findMembersOauth(email, Provider.KAKAO);
+        // 기존 회원인경우 oauthAccessToken 업데이트
+        if(members.isPresent()){
+            Oauth oauth = oAuthRepository.findOauthByMembersId(members.get());
+            oauth.updateAccessToken(accessToken);
+        }
+        return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
     }
 
     @Override
@@ -86,7 +86,7 @@ public class KakaoOAuthService implements OAuthService{
     }
 
     @Override
-    public KakaoUserInfo getUserInfo(String accessToken){
+    public UserInfo getUserInfo(String accessToken){
         // 이 때 필요한 라이브러리가 RestTemplate, 얘를 쓰면 http 요청을 편하게 할 수 있다.
         RestTemplate restTemplate = new RestTemplate();
 
@@ -106,6 +106,37 @@ public class KakaoOAuthService implements OAuthService{
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
         KakaoUserInfo kakaoUserInfo = gson.fromJson(response.getBody(), KakaoUserInfo.class);
 
-        return kakaoUserInfo;
+        UserInfo oAuthUserInfoResponseDto = UserInfo.builder()
+                .id(kakaoUserInfo.getId())
+                .email(kakaoUserInfo.getKakaoAccount().getEmail())
+                .image(kakaoUserInfo.getProperties().getProfileImage())
+                .nickname(kakaoUserInfo.getProperties().getNickname())
+                .build();
+
+        return oAuthUserInfoResponseDto;
+    }
+
+    @Override
+    public Token join(MembersJoinRequestDto membersJoinRequestDto) {
+        // 이미 이메일과 provider로 존재하는경우 exception
+        if(membersRepository.findMembersOauth(membersJoinRequestDto.getEmail(),Provider.KAKAO).isPresent()){
+            throw new DuplicateEmailException();
+        }
+        Members members = Members.builder()
+                .email(membersJoinRequestDto.getEmail())
+                .nickname(membersJoinRequestDto.getNickname())
+                .role(new Role(RoleType.ROLE_USER))
+                .picture(membersJoinRequestDto.getPicture())
+                .password(UUID.randomUUID().toString().replace("-", ""))
+                .build();
+        Oauth oauth = Oauth.builder()
+                .membersId(members)
+                .provider(Provider.KAKAO)
+                .build();
+
+        membersRepository.save(members);
+        oAuthRepository.save(oauth);
+
+        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }
 }

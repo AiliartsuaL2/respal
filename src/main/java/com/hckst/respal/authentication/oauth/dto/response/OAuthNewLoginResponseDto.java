@@ -1,5 +1,6 @@
 package com.hckst.respal.authentication.oauth.dto.response;
 
+import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,10 +9,9 @@ import lombok.Getter;
 @Builder
 @Schema(description = "OAuth 비회원 로그인시 응답")
 public class OAuthNewLoginResponseDto {
-    @Schema(description = "리다이렉트 Url", example = "/oauth/login/kakao")
-    private String redirectUrl;
+    @Schema(description = "provider", example = "kakao")
+    private String provider;
 
-    //Todo 해당 accesstoken은 header에 넣기
-    @Schema(description = "oauthAccessToken")
-    private String oauthAccessToken;
+    @Schema(description = "회원 정보")
+    private UserInfo userInfo;
 }
