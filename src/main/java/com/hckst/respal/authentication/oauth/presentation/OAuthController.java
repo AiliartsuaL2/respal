@@ -59,6 +59,7 @@ public class OAuthController {
          *   2. 클라이언트 - 회원가입 폼에서 닉네임, 비밀번호를 설정 후(email과 profileImage는 oauth에서 받아옴) redirectUrl로 Post 요청을 한다.
          *   3. 서버 - 해당 정보를 db에 저장 후 respal의 accessToken과 refreshToken을 응답해준다.
          */
+        URI redirectUrl = URI.create("http://localhost:3000/signup");
         if(code == null){
             throw new NoSuchOAuthCodeException();
         }
@@ -90,7 +91,7 @@ public class OAuthController {
                     .userInfo(userInfo)
                     .provider(provider)
                     .build();
-            return new ResponseEntity(response, HttpStatus.TEMPORARY_REDIRECT);
+            return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).body(response);
         }
 
         jwtService.login(token); // refresh 토큰 초기화
@@ -103,8 +104,6 @@ public class OAuthController {
                 .grantType(token.getGrantType())
                 .build();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("http://localhost:3000/signup"));
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).body(response);
     }
 }
