@@ -1,10 +1,10 @@
 package com.hckst.respal.authentication.oauth.presentation;
 
 import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
+import com.hckst.respal.authentication.oauth.application.OAuthTmpService;
 import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
-import com.hckst.respal.authentication.oauth.dto.response.OAuthLoginResponseDto;
-import com.hckst.respal.authentication.oauth.dto.response.OAuthNewLoginResponseDto;
 import com.hckst.respal.authentication.jwt.dto.Token;
+import com.hckst.respal.authentication.oauth.dto.response.RedirectResponse;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
@@ -32,11 +32,11 @@ import java.net.URI;
 @Tag(name = "회원", description = "회원 관련 api")
 public class OAuthController {
     private final OAuthServiceImpl oAuthService;
+    private final OAuthTmpService oAuthTmpService;
 
     @Operation(summary = "OAuth 로그인 메서드", description = "OAuth 로그인 메서드입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = OAuthLoginResponseDto.class))),
-            @ApiResponse(responseCode = "307", description = "신규 회원, 회원가입 폼으로 이동", content = @Content(schema = @Schema(implementation = OAuthNewLoginResponseDto.class))),
+            @ApiResponse(responseCode = "307", description = "로그인 및 회원가입 성공, redirect url로 응답"),
             @ApiResponse(responseCode = "400", description = "OAuth code값 없음", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/login/{provider}")
@@ -62,16 +62,15 @@ public class OAuthController {
         return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
     }
 
-    @Operation(summary = "OAuth 로그인 메서드", description = "OAuth 로그인 메서드입니다.")
+    @Operation(summary = "OAuth 정보 요청 메서드", description = "리다이렉트 되며 저장된 OAuth 로그인 및 회원가입 정보를 반환해주는 url 입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = OAuthLoginResponseDto.class))),
-            @ApiResponse(responseCode = "307", description = "신규 회원, 회원가입 폼으로 이동", content = @Content(schema = @Schema(implementation = OAuthNewLoginResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "OAuth code값 없음", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+            @ApiResponse(responseCode = "200", description = "반환 성공", content = @Content(schema = @Schema(implementation = RedirectResponse.class))),
+            @ApiResponse(responseCode = "400", description = "endPoint 불일치 및 type 불일치", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    // 하나로 분기 처리,,
-    @GetMapping("/user/{id}")
+    @GetMapping("/user/{endPoint}")
     @ResponseBody
-    public ResponseEntity<?> signup(@PathVariable String id){
-        return ResponseEntity.ok(id);
+    public ResponseEntity<?> signup(@PathVariable String endPoint, @RequestParam String type){
+        RedirectResponse response = oAuthTmpService.getOauthTmp(endPoint,type);
+        return ResponseEntity.ok(response);
     }
 }
