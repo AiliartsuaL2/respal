@@ -12,10 +12,9 @@ import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.members.domain.Role;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
-import com.hckst.respal.authentication.oauth.dto.request.OAuthJoinRequestDto;
 import com.hckst.respal.authentication.oauth.dto.request.info.github.GithubUserInfo;
 import com.hckst.respal.config.OAuthConfig;
-import com.hckst.respal.authentication.oauth.domain.repository.OAuthRepository;
+import com.hckst.respal.authentication.oauth.domain.repository.OauthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
@@ -35,7 +34,7 @@ import java.util.UUID;
 @Slf4j
 public class GithubOAuthService implements OAuthService{
     private final MembersRepository membersRepository;
-    private final OAuthRepository oAuthRepository;
+    private final OauthRepository oauthRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuthConfig oAuthConfig;
 
@@ -46,7 +45,7 @@ public class GithubOAuthService implements OAuthService{
         Optional<Members> members = membersRepository.findMembersOauth(email, Provider.GITHUB);
         // 기존 회원인경우 oauthAccessToken 업데이트
         if(members.isPresent()){
-            Oauth oauth = oAuthRepository.findOauthByMembersId(members.get());
+            Oauth oauth = oauthRepository.findOauthByMembersId(members.get());
             oauth.updateAccessToken(accessToken);
         }
         return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
@@ -108,15 +107,14 @@ public class GithubOAuthService implements OAuthService{
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
         GithubUserInfo githubUserInfo = gson.fromJson(response.getBody(), GithubUserInfo.class);
 
-        System.out.println("response = " + response.getBody());
-        UserInfo userInfo = UserInfo.builder()
+        UserInfo oAuthUserInfoResponseDto = UserInfo.builder()
                 .id(githubUserInfo.getId())
                 .email(githubUserInfo.getEmail())
                 .nickname(githubUserInfo.getLogin())
                 .image(githubUserInfo.getAvatar_url())
                 .build();
 
-        return userInfo;
+        return oAuthUserInfoResponseDto;
     }
 
     @Override
@@ -138,7 +136,7 @@ public class GithubOAuthService implements OAuthService{
                 .build();
 
         membersRepository.save(members);
-        oAuthRepository.save(oauth);
+        oauthRepository.save(oauth);
 
         return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }

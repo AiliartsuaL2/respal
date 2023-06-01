@@ -3,7 +3,6 @@ package com.hckst.respal.authentication.oauth.application;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.hckst.respal.authentication.oauth.dto.request.OAuthJoinRequestDto;
 import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.RoleType;
@@ -15,7 +14,7 @@ import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.authentication.oauth.dto.request.info.kakao.KakaoUserInfo;
 import com.hckst.respal.config.OAuthConfig;
-import com.hckst.respal.authentication.oauth.domain.repository.OAuthRepository;
+import com.hckst.respal.authentication.oauth.domain.repository.OauthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
@@ -35,7 +34,7 @@ import java.util.UUID;
 public class KakaoOAuthService implements OAuthService{
 
     private final MembersRepository membersRepository;
-    private final OAuthRepository oAuthRepository;
+    private final OauthRepository oauthRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuthConfig oAuthConfig;
 
@@ -46,7 +45,7 @@ public class KakaoOAuthService implements OAuthService{
         Optional<Members> members = membersRepository.findMembersOauth(email, Provider.KAKAO);
         // 기존 회원인경우 oauthAccessToken 업데이트
         if(members.isPresent()){
-            Oauth oauth = oAuthRepository.findOauthByMembersId(members.get());
+            Oauth oauth = oauthRepository.findOauthByMembersId(members.get());
             oauth.updateAccessToken(accessToken);
         }
         return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
@@ -135,7 +134,7 @@ public class KakaoOAuthService implements OAuthService{
                 .build();
 
         membersRepository.save(members);
-        oAuthRepository.save(oauth);
+        oauthRepository.save(oauth);
 
         return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }

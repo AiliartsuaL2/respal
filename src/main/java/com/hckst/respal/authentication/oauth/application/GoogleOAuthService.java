@@ -14,8 +14,7 @@ import com.hckst.respal.exception.members.DuplicateEmailException;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.members.domain.Role;
-import com.hckst.respal.authentication.oauth.dto.request.OAuthJoinRequestDto;
-import com.hckst.respal.authentication.oauth.domain.repository.OAuthRepository;
+import com.hckst.respal.authentication.oauth.domain.repository.OauthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
@@ -37,7 +36,7 @@ public class GoogleOAuthService implements OAuthService {
     private final MembersRepository membersRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuthConfig oAuthConfig;
-    private final OAuthRepository oAuthRepository;
+    private final OauthRepository oauthRepository;
 
     @Override
     public Token login(UserInfo userInfo, String accessToken) {
@@ -46,7 +45,7 @@ public class GoogleOAuthService implements OAuthService {
         Optional<Members> members = membersRepository.findMembersOauth(email, Provider.GOOGLE);
         // 기존 회원인경우 oauthAccessToken 업데이트
         if(members.isPresent()){
-            Oauth oauth = oAuthRepository.findOauthByMembersId(members.get());
+            Oauth oauth = oauthRepository.findOauthByMembersId(members.get());
             oauth.updateAccessToken(accessToken);
         }
         return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
@@ -110,14 +109,14 @@ public class GoogleOAuthService implements OAuthService {
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
         GoogleUserInfo googleUserInfo = gson.fromJson(response.getBody(), GoogleUserInfo.class);
 
-        UserInfo userInfo = UserInfo.builder()
+        UserInfo oAuthUserInfoResponseDto = UserInfo.builder()
                 .id(googleUserInfo.getId())
                 .email(googleUserInfo.getEmail())
                 .image(googleUserInfo.getPicture())
                 .nickname(googleUserInfo.getName())
                 .build();
 
-        return userInfo;
+        return oAuthUserInfoResponseDto;
     }
 
     @Override
@@ -139,7 +138,7 @@ public class GoogleOAuthService implements OAuthService {
                 .build();
 
         membersRepository.save(members);
-        oAuthRepository.save(oauth);
+        oauthRepository.save(oauth);
 
         return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }

@@ -16,7 +16,13 @@ public class OAuthLoginResponseDto {
     private String accessToken;
     @Schema(description = "리프레쉬 토큰")
     private String refreshToken;
+
+
     @Email
     @Schema(description = "이메일", example = "abc@jiniworld.me")
     private String membersEmail;
+    @Schema(description = "닉네임", example = "ailiartsua")
+    private String nickname;
+    @Schema(description = "이미지", example = "ailiartsua")
+    private String image;
 }
