@@ -7,6 +7,7 @@ import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.authentication.jwt.domain.RefreshToken;
 import com.hckst.respal.authentication.jwt.repository.RefreshTokenRepository;
 import com.hckst.respal.exception.jwt.IncorrectRefreshTokenException;
+import com.hckst.respal.exception.jwt.NotExistTokenException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,9 @@ public class JwtService {
 
     @Transactional
     public void login(Token tokenDto){
+        if(tokenDto == null){
+            throw new NotExistTokenException();
+        }
         RefreshToken refreshToken = RefreshToken.builder()
                 .keyId(tokenDto.getMembersEmail())
                 .refreshToken(tokenDto.getRefreshToken())

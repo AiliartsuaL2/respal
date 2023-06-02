@@ -5,6 +5,9 @@ import com.hckst.respal.authentication.jwt.service.JwtService;
 import com.hckst.respal.authentication.oauth.application.GithubOAuthService;
 import com.hckst.respal.authentication.oauth.application.GoogleOAuthService;
 import com.hckst.respal.authentication.oauth.application.KakaoOAuthService;
+import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
+import com.hckst.respal.converter.Provider;
+import com.hckst.respal.converter.ProviderConverter;
 import com.hckst.respal.exception.members.NotExistProviderType;
 import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
@@ -36,6 +39,7 @@ public class MembersController {
     private final GoogleOAuthService googleOAuthService;
     private final GithubOAuthService githubOAuthService;
     private final MembersService membersService;
+    private final OAuthServiceImpl oAuthService;
     private final JwtService jwtService;
 
     @GetMapping("/member/login")
@@ -74,17 +78,9 @@ public class MembersController {
         if(membersJoinRequestDto.getProvider() == null){
             throw new NotExistProviderType();
         }
-
-        Token token = null;
-        if("common".equals(membersJoinRequestDto.getProvider())){
-            token = membersService.joinMembers(membersJoinRequestDto);
-        }else if("kakao".equals(membersJoinRequestDto.getProvider())){
-            token = kakaoOAuthService.join(membersJoinRequestDto);
-        }else if("google".equals(membersJoinRequestDto.getProvider())){
-            token = googleOAuthService.join(membersJoinRequestDto);
-        }else if("github".equals(membersJoinRequestDto.getProvider())){
-            token = githubOAuthService.join(membersJoinRequestDto);
-        }
+        ProviderConverter pc = new ProviderConverter();
+        Provider provider = pc.convertToEntityAttribute(membersJoinRequestDto.getProvider());
+        Token token = oAuthService.join(provider, membersJoinRequestDto);
         jwtService.login(token); // refresh 토큰 초기화
 
         MembersLoginResponseDto response = MembersLoginResponseDto.builder()

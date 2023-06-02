@@ -8,6 +8,7 @@ import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.exception.oauth.NoSuchOAuthCodeException;
+import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class OAuthServiceImpl {
     private final KakaoOAuthService kakaoOAuthService;
     private final GoogleOAuthService googleOAuthService;
     private final GithubOAuthService githubOAuthService;
+    private final MembersService membersService;
     private final OauthTmpRepository oauthTmpRepository;
     private final JwtService jwtService;
 
@@ -69,7 +71,9 @@ public class OAuthServiceImpl {
     }
 
     public Token join(Provider provider, MembersJoinRequestDto membersJoinRequestDto) {
-        if(Provider.KAKAO.equals(provider)){
+        if(Provider.COMMON.equals(provider)){ // 일반 로그인
+            return membersService.joinMembers(membersJoinRequestDto);
+        }else if(Provider.KAKAO.equals(provider)){
             return kakaoOAuthService.join(membersJoinRequestDto);
         }else if(Provider.GOOGLE.equals(provider)){
             return googleOAuthService.join(membersJoinRequestDto);

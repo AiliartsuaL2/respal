@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum Provider implements BaseEnumCode<String>  {
     KAKAO("kakao"),
     GOOGLE("google"),
-    GITHUB("github");
+    GITHUB("github"),
+    COMMON("coomon");
     private final String value;
 
 }
