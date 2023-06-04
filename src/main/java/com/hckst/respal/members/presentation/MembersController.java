@@ -95,7 +95,7 @@ public class MembersController {
 
     @Operation(summary = "access token 재발급 메서드", description = "access token 재발급 메서드입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "access 토큰 재발급", content = @Content(schema = @Schema(implementation = MembersLoginResponseDto.class))),
+            @ApiResponse(responseCode = "200", description = "access 토큰 재발급", content = @Content(schema = @Schema(implementation = RefreshAccessTokenResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "access 토큰 재발급 실패(올바르지 않은 refresh token)", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/jwt/refresh")

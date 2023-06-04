@@ -3,7 +3,6 @@ package com.hckst.respal.authentication.oauth.domain;
 import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
-import com.hckst.respal.members.domain.Members;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,7 +24,7 @@ public class OauthTmp {
 
     // 쿼리파라미터로 식별하는 endpoint
     @Column(length = 36)
-    private String endPoint;
+    private String endpoint;
 
     //소셜 타입
     @Convert(converter = ProviderConverter.class)
@@ -48,8 +47,8 @@ public class OauthTmp {
     private LocalDateTime regTime;
 
     @Builder
-    public OauthTmp(String endPoint, Provider provider, UserInfo userInfo, String accessToken, String refreshToken){
-        this.endPoint = endPoint;
+    public OauthTmp(String endpoint, Provider provider, UserInfo userInfo, String accessToken, String refreshToken){
+        this.endpoint = endpoint;
         this.provider = provider;
         this.userInfo = userInfo;
         this.accessToken = accessToken;

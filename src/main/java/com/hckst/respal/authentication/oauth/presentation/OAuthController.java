@@ -4,6 +4,7 @@ import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
 import com.hckst.respal.authentication.oauth.application.OAuthTmpService;
 import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.jwt.dto.Token;
+import com.hckst.respal.authentication.oauth.dto.response.RedirectCallBackResponse;
 import com.hckst.respal.authentication.oauth.dto.response.RedirectResponse;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.converter.Provider;
@@ -64,13 +65,23 @@ public class OAuthController {
 
     @Operation(summary = "OAuth 정보 요청 메서드", description = "리다이렉트 되며 저장된 OAuth 로그인 및 회원가입 정보를 반환해주는 url 입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "반환 성공", content = @Content(schema = @Schema(implementation = RedirectResponse.class))),
+            @ApiResponse(responseCode = "200", description = "신규 회원", content = @Content(schema = @Schema(implementation = RedirectResponse.class))),
+            @ApiResponse(responseCode = "200", description = "기존 회원", content = @Content(schema = @Schema(implementation = RedirectCallBackResponse.class))),
             @ApiResponse(responseCode = "400", description = "endPoint 불일치 및 type 불일치", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    @GetMapping("/user/{endPoint}")
+    @GetMapping("/user/{endpoint}")
     @ResponseBody
-    public ResponseEntity<?> signup(@PathVariable String endPoint, @RequestParam String type){
-        RedirectResponse response = oAuthTmpService.getOauthTmp(endPoint,type);
+    public ResponseEntity<?> requestUserInfo(@PathVariable String endpoint, @RequestParam String type){
+        RedirectResponse response = oAuthTmpService.getOauthTmp(endpoint,type);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout/{provider}")
+    @ResponseBody
+    public ResponseEntity<?> logout(@PathVariable String provider, @RequestHeader String accessToken){
+        ProviderConverter providerConverter = new ProviderConverter();
+        Provider providerType = providerConverter.convertToEntityAttribute(provider);
+        URI redirectUrl = oAuthService.logout(providerType, accessToken);
+        return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
     }
 }

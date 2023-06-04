@@ -24,5 +24,6 @@ public class OAuthConfig {
         private final String redirectUri ;
         private final String tokenUrl ;
         private final String infoUrl ;
+        private final String logoutUrl ;
     }
 }

@@ -17,11 +17,11 @@ import org.springframework.stereotype.Service;
 public class OAuthTmpService {
     private final OauthTmpRepository oauthTmpRepository;
 
-    public RedirectResponse getOauthTmp(String endPoint, String type) {
+    public RedirectResponse getOauthTmp(String endpoint, String type) {
         if(!(type.equals("callback") || type.equals("signup"))){
             throw new WrongTypeSettionException();
         }
-        OauthTmp oauthTmp = oauthTmpRepository.findOauthTmpByEndPoint(endPoint).orElseThrow(
+        OauthTmp oauthTmp = oauthTmpRepository.findOauthTmpByEndpoint(endpoint).orElseThrow(
                 () -> new NoSuchOAuthTmpEndpointException());
         ProviderConverter pc = new ProviderConverter();
         String provider = pc.convertToDatabaseColumn(oauthTmp.getProvider());

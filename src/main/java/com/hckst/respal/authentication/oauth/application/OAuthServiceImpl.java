@@ -33,6 +33,8 @@ public class OAuthServiceImpl {
     private static final String SIGNUP_REDIRECT_URL = "http://localhost:3000/signup?id=";
     // 기존회원
     private static final String CALLBACK_REDIRECT_URL = "http://localhost:3000/callback?id=";
+    // 로그아웃
+    private static final String LOGOUT_REDIRECT_URL = "http://localhost:3000/logout";
 
     public Token login(Provider provider, UserInfo userInfo, String accessToken) {
         if(Provider.KAKAO.equals(provider)){
@@ -85,23 +87,23 @@ public class OAuthServiceImpl {
 
     public URI getRedirectUrl(Provider providerType, UserInfo userInfo, Token token) {
         // 신규 회원인경우, email, nickname, image oauth_tmp에 저장 후 redirect
-        String endPoint = UUID.randomUUID().toString().replace("-", "");
+        String endpoint = UUID.randomUUID().toString().replace("-", "");
         if(token == null){
             OauthTmp oauthTmpData = OauthTmp.builder()
-                    .endPoint(endPoint)
+                    .endpoint(endpoint)
                     .provider(providerType)
                     .userInfo(userInfo)
                     .build();
             oauthTmpRepository.save(oauthTmpData);
 
-            return URI.create(SIGNUP_REDIRECT_URL+endPoint);
+            return URI.create(SIGNUP_REDIRECT_URL+endpoint);
         }
 
         // 기존 회원인 경우
         jwtService.login(token); // refresh 토큰 초기화
         // 로그인 성공시 응답
         OauthTmp oauthTmpData = OauthTmp.builder()
-                .endPoint(endPoint)
+                .endpoint(endpoint)
                 .provider(providerType)
                 .userInfo(userInfo)
                 .accessToken(token.getAccessToken())
@@ -109,6 +111,19 @@ public class OAuthServiceImpl {
                 .build();
         oauthTmpRepository.save(oauthTmpData);
 
-        return URI.create(CALLBACK_REDIRECT_URL+endPoint);
+        return URI.create(CALLBACK_REDIRECT_URL+endpoint);
+    }
+
+    public URI logout(Provider provider, String accessToken) {
+        if(Provider.COMMON.equals(provider)){ // 일반 로그인
+            membersService.logout(accessToken);
+        }else if(Provider.KAKAO.equals(provider)){
+            kakaoOAuthService.logout(accessToken);
+        }else if(Provider.GOOGLE.equals(provider)){
+            googleOAuthService.logout(accessToken);
+        }else if(Provider.GITHUB.equals(provider)){
+            githubOAuthService.logout(accessToken);
+        }
+        return URI.create(LOGOUT_REDIRECT_URL);
     }
 }

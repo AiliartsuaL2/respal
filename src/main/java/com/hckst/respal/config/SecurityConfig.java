@@ -29,7 +29,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // 세션을 사용하지 않는다고 설정.
         http.httpBasic().disable()
                 .authorizeRequests() // 요청에 대한 사용 권한 체크
-//                .antMatchers("/test").authenticated() // authenticated : andMatchers의 URL로 요청이 오면 인증이 필요하다고 설정
+                .antMatchers("/test").authenticated() // authenticated : andMatchers의 URL로 요청이 오면 인증이 필요하다고 설정
                 .antMatchers("/admin/**").hasRole("ADMIN") // antMatchers : 해당 URL 요청시 설정해줌
                 .antMatchers("/user/**").hasRole("USER")// hasRole : antPatterns URL로 요청이 들어오면 권한을 확인한다.
 //                .antMatchers(HttpMethod.POST,"/api/v1/board").authenticated() //  antPatterns 에 대한 HTTP POST 요청이 인증되어야 함을 말해 준다.

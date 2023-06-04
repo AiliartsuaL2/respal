@@ -24,7 +24,7 @@ public class QOauthTmp extends EntityPathBase<OauthTmp> {
 
     public final StringPath accessToken = createString("accessToken");
 
-    public final StringPath endPoint = createString("endPoint");
+    public final StringPath endpoint = createString("endpoint");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 

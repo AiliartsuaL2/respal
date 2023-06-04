@@ -10,4 +10,5 @@ public interface OAuthService {
     OAuthToken getAccessToken(String code);
     UserInfo getUserInfo(String accessToken);
     Token join(MembersJoinRequestDto membersJoinRequestDto);
+    void logout(String accessToken);
 }

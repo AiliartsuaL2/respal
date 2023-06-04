@@ -140,4 +140,39 @@ public class GithubOAuthService implements OAuthService{
 
         return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }
+
+    @Override
+    public void logout(String accessToken) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        // 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        //Github 데이터의 경우 json 방식이 invalid json
+        // post 헤더에 json 옵션 넣어주기
+        headers.setAccept(Arrays.asList(new MediaType[] { MediaType.APPLICATION_JSON }));
+
+
+        // client id와 client secret을 각각 유저네임과 패스워드로 Authorization 헤더 설정한 후 요청을 보내면 발급받은 액세스 토큰을 지울 수 있다.
+        // data: {access_token: accessToken,},
+        // auth: { username: CLIENT_ID, password: CLIENT_SECRET, }
+
+//        headers.set(HttpHeaders.AUTHORIZATION,Arrays.asList()); >>
+        HttpEntity request = new HttpEntity(headers);
+
+        // Uri 빌더 사용
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getGithub().getLogoutUrl());
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                uriComponentsBuilder.toUriString(),
+                HttpMethod.POST,
+                request,
+                String.class
+        );
+
+        // UnderScoreCase To Camel GsonBuilder,, OAuthToken 객체에 매핑
+        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+        OAuthToken oAuthToken = gson.fromJson(response.getBody(), OAuthToken.class);
+        log.info("깃허브 액세스 토큰 : " + oAuthToken.getAccessToken());
+    }
 }

@@ -138,4 +138,9 @@ public class KakaoOAuthService implements OAuthService{
 
         return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
     }
+
+    @Override
+    public void logout(String accessToken) {
+
+    }
 }
