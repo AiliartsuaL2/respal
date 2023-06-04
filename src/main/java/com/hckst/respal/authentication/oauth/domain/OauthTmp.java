@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name="OAUTH_TMP")
@@ -23,16 +22,38 @@ public class OauthTmp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "OAUTH_TMP_ID")
     private Long id;
+
+    // 쿼리파라미터로 식별하는 endpoint
     @Column(length = 36)
     private String endPoint;
+
     //소셜 타입
     @Convert(converter = ProviderConverter.class)
     @Column(columnDefinition = "varchar(10)")
     private Provider provider;
+
+    // 유저정보
     @Embedded
     private UserInfo userInfo;
+
+    // 액세스 토큰
     @Column(length = 255)
     private String accessToken;
+
+    // 리프레쉬 토큰
     @Column(length = 255)
     private String refreshToken;
+
+    // 등록일자
+    private LocalDateTime regTime;
+
+    @Builder
+    public OauthTmp(String endPoint, Provider provider, UserInfo userInfo, String accessToken, String refreshToken){
+        this.endPoint = endPoint;
+        this.provider = provider;
+        this.userInfo = userInfo;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        this.regTime = LocalDateTime.now();
+    }
 }

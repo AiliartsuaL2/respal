@@ -32,6 +32,8 @@ public class QOauthTmp extends EntityPathBase<OauthTmp> {
 
     public final StringPath refreshToken = createString("refreshToken");
 
+    public final DateTimePath<java.time.LocalDateTime> regTime = createDateTime("regTime", java.time.LocalDateTime.class);
+
     public final com.hckst.respal.authentication.oauth.dto.request.info.QUserInfo userInfo;
 
     public QOauthTmp(String variable) {
