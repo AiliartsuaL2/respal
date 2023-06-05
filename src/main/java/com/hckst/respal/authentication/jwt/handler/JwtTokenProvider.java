@@ -53,8 +53,8 @@ public class JwtTokenProvider {
     }
 
     // 토큰에 저장할 유저 pk와 권한 리스트를 매개변수로 받아 access, refresh토큰을 생성하여 tokenDto 만들어 반환
-    public Token createTokenWithRefresh(String membersEmail, List<Role> roles){
-        Claims claims = Jwts.claims().setSubject(membersEmail); // JWT payload 에 저장되는 정보단위, 보통 여기서 user를 식별하는 값을 넣는다.
+    public Token createTokenWithRefresh(Long membersId, List<Role> roles){
+        Claims claims = Jwts.claims().setSubject(String.valueOf(membersId)); // JWT payload 에 저장되는 정보단위, 보통 여기서 user를 식별하는 값을 넣는다.
 
         // claims String 처리를 위해 생성
         List<String> roleStrList = roles.stream()
@@ -81,7 +81,7 @@ public class JwtTokenProvider {
         return Token.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .membersEmail(membersEmail)
+                .membersId(membersId)
                 .build();
     }
 

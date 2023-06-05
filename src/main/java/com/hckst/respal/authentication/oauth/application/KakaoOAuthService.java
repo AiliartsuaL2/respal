@@ -50,7 +50,7 @@ public class KakaoOAuthService implements OAuthService{
             Members members = membersRepository.findById(membersOauth.get().getId()).get();
             Oauth oauth = oauthRepository.findOauthByMembersId(members);
             oauth.updateAccessToken(accessToken);
-            return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
+            return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
         }
         return null;
     }
@@ -143,7 +143,7 @@ public class KakaoOAuthService implements OAuthService{
         membersRepository.save(members);
         oauthRepository.save(oauth);
 
-        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
+        return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
     }
 
     @Override

@@ -22,5 +22,5 @@ public class RefreshToken {
     private String refreshToken;
 
     @Column(name = "KEY_ID", nullable = false)
-    private String keyId;
+    private Long keyId;
 }

@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final MembersRepository membersRepository;
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return membersRepository.findMembersByEmail(email)
+    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
+        return membersRepository.findById(Long.parseLong(id))
                 .orElseThrow(
                         () -> new UsernameNotFoundException(ErrorMessage.NOT_EXIST_MEMBER.getMsg())
                 );

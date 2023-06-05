@@ -37,7 +37,7 @@ public class MembersService {
         if(!matchPassword(membersLoginRequestDto.getPassword(),members.getPassword())){ // 비밀번호가 일치하지 않을경우
             throw new InvalidMembersException();
         }
-        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
+        return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
     }
     
     // email 중복체크 ,, 중복이면 true 없으면 false
@@ -61,7 +61,7 @@ public class MembersService {
                 .build();
         membersRepository.save(members);
 
-        return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
+        return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
     }
 
     // 암호화된 비밀번호가 일치하는지 확인하는 메서드

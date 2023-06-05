@@ -8,6 +8,9 @@ import com.hckst.respal.authentication.jwt.domain.RefreshToken;
 import com.hckst.respal.authentication.jwt.repository.RefreshTokenRepository;
 import com.hckst.respal.exception.jwt.IncorrectRefreshTokenException;
 import com.hckst.respal.exception.jwt.NotExistTokenException;
+import com.hckst.respal.exception.members.InvalidMembersException;
+import com.hckst.respal.members.domain.Members;
+import com.hckst.respal.members.domain.repository.MembersRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ import java.util.Optional;
 public class JwtService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final MembersRepository membersRepository;
 
     private static final String TOKEN_PREFIX = "Bearer ";
 
@@ -31,13 +35,16 @@ public class JwtService {
             throw new NotExistTokenException();
         }
         RefreshToken refreshToken = RefreshToken.builder()
-                .keyId(tokenDto.getMembersEmail())
+                .keyId(tokenDto.getMembersId())
                 .refreshToken(tokenDto.getRefreshToken())
                 .build();
-        String email = refreshToken.getKeyId();
-        if(refreshTokenRepository.existsByKeyId(email)){
+        Members members = membersRepository.findById(refreshToken.getKeyId()).orElseThrow(
+                () -> new InvalidMembersException());
+        String email = members.getEmail();
+        tokenDto.setMembersEmail(email);
+        if(refreshTokenRepository.existsByKeyId(tokenDto.getMembersId())){
             log.info("기존의 존재하는 refresh 토큰 삭제");
-            refreshTokenRepository.deleteByKeyId(email);
+            refreshTokenRepository.deleteByKeyId(tokenDto.getMembersId());
         }
         refreshTokenRepository.save(refreshToken);
     }
