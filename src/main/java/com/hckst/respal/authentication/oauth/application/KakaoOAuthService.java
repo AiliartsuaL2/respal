@@ -17,6 +17,7 @@ import com.hckst.respal.config.OAuthConfig;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.members.domain.repository.MembersRepository;
+import com.hckst.respal.members.domain.repository.dto.MembersOAuthDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,13 +43,16 @@ public class KakaoOAuthService implements OAuthService{
     public Token login(UserInfo userInfo, String accessToken){
         log.info("kakao login 진입");
         String email = userInfo.getEmail();
-        Optional<Members> members = membersRepository.findMembersOauth(email, Provider.KAKAO);
+        Optional<MembersOAuthDto> membersOauth = membersRepository.findMembersOauthForLogin(email, Provider.KAKAO);
+
         // 기존 회원인경우 oauthAccessToken 업데이트
-        if(members.isPresent()){
-            Oauth oauth = oauthRepository.findOauthByMembersId(members.get());
+        if(membersOauth.isPresent()){
+            Members members = membersRepository.findById(membersOauth.get().getId()).get();
+            Oauth oauth = oauthRepository.findOauthByMembersId(members);
             oauth.updateAccessToken(accessToken);
+            return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
         }
-        return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
+        return null;
     }
 
     @Override
@@ -117,8 +121,11 @@ public class KakaoOAuthService implements OAuthService{
 
     @Override
     public Token join(MembersJoinRequestDto membersJoinRequestDto) {
+        // 일반 이메일이 있는 경우도 exception 처리
+
+
         // 이미 이메일과 provider로 존재하는경우 exception
-        if(membersRepository.findMembersOauth(membersJoinRequestDto.getEmail(),Provider.KAKAO).isPresent()){
+        if(membersRepository.existsMembersOauthForJoin(membersJoinRequestDto.getEmail(),Provider.KAKAO)){
             throw new DuplicateEmailException();
         }
         Members members = Members.builder()

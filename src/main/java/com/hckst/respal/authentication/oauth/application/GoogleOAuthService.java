@@ -17,6 +17,7 @@ import com.hckst.respal.members.domain.Role;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.members.domain.repository.MembersRepository;
+import com.hckst.respal.members.domain.repository.dto.MembersOAuthDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,13 +43,16 @@ public class GoogleOAuthService implements OAuthService {
     public Token login(UserInfo userInfo, String accessToken) {
         log.info("google login 진입");
         String email = userInfo.getEmail();
-        Optional<Members> members = membersRepository.findMembersOauth(email, Provider.GOOGLE);
+        Optional<MembersOAuthDto> membersOauth = membersRepository.findMembersOauthForLogin(email, Provider.GOOGLE);
+
         // 기존 회원인경우 oauthAccessToken 업데이트
-        if(members.isPresent()){
-            Oauth oauth = oauthRepository.findOauthByMembersId(members.get());
+        if(membersOauth.isPresent()){
+            Members members = membersRepository.findById(membersOauth.get().getId()).get();
+            Oauth oauth = oauthRepository.findOauthByMembersId(members);
             oauth.updateAccessToken(accessToken);
+            return jwtTokenProvider.createTokenWithRefresh(members.getEmail(), members.getRoles());
         }
-        return members.isEmpty() ? null : jwtTokenProvider.createTokenWithRefresh(members.get().getEmail(), members.get().getRoles());
+        return null;
     }
 
     @Override
@@ -122,7 +126,7 @@ public class GoogleOAuthService implements OAuthService {
     @Override
     public Token join(MembersJoinRequestDto membersJoinRequestDto) {
         // 이미 이메일과 provider로 존재하는경우 exception
-        if(membersRepository.findMembersOauth(membersJoinRequestDto.getEmail(),Provider.GOOGLE).isPresent()){
+        if(membersRepository.existsMembersOauthForJoin(membersJoinRequestDto.getEmail(),Provider.GOOGLE)){
             throw new DuplicateEmailException();
         }
         Members members = Members.builder()

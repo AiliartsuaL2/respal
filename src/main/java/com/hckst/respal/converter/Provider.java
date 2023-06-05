@@ -9,7 +9,8 @@ public enum Provider implements BaseEnumCode<String>  {
     KAKAO("kakao"),
     GOOGLE("google"),
     GITHUB("github"),
-    COMMON("coomon");
+    COMMON("common"),
+    NULL("");
     private final String value;
 
 }

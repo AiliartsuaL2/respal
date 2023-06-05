@@ -23,7 +23,7 @@ class OAuthTmpServiceTest {
     void successGetCallbackOauthTmp() {
         //given
         OauthTmp oauthTmp = oauthTmpRepository.findById(SUCCESS_CALLBACK_OAUTH_TMP_ID).get();
-        String endpoint = oauthTmp.getEndPoint();
+        String endpoint = oauthTmp.getEndpoint();
         String type = "callback";
         //when
         RedirectCallBackResponse response = (RedirectCallBackResponse) oAuthTmpService.getOauthTmp(endpoint, type);
@@ -34,7 +34,7 @@ class OAuthTmpServiceTest {
     void failGetCallbackOauthTmp(){
         //given
         OauthTmp oauthTmp = oauthTmpRepository.findById(SUCCESS_SIGNUP_OAUTH_TMP_ID).get();
-        String endpoint = oauthTmp.getEndPoint();
+        String endpoint = oauthTmp.getEndpoint();
         String type = "callback";
         //when
         RedirectCallBackResponse response = (RedirectCallBackResponse) oAuthTmpService.getOauthTmp(endpoint, type);
@@ -45,7 +45,7 @@ class OAuthTmpServiceTest {
     void successGetSignUpOauthTmp() {
         //given
         OauthTmp oauthTmp = oauthTmpRepository.findById(SUCCESS_SIGNUP_OAUTH_TMP_ID).get();
-        String endpoint = oauthTmp.getEndPoint();
+        String endpoint = oauthTmp.getEndpoint();
         String type = "signup";
         //when
         RedirectResponse response = oAuthTmpService.getOauthTmp(endpoint, type);

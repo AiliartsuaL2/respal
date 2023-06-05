@@ -87,7 +87,7 @@ public class OAuthServiceImpl {
 
     public URI getRedirectUrl(Provider providerType, UserInfo userInfo, Token token) {
         // 신규 회원인경우, email, nickname, image oauth_tmp에 저장 후 redirect
-        String endpoint = UUID.randomUUID().toString().replace("-", "");
+        String endpoint = UUID.randomUUID().toString();
         if(token == null){
             OauthTmp oauthTmpData = OauthTmp.builder()
                     .endpoint(endpoint)

@@ -2,9 +2,6 @@ package com.hckst.respal.members.presentation;
 
 import com.hckst.respal.authentication.jwt.dto.response.RefreshAccessTokenResponseDto;
 import com.hckst.respal.authentication.jwt.service.JwtService;
-import com.hckst.respal.authentication.oauth.application.GithubOAuthService;
-import com.hckst.respal.authentication.oauth.application.GoogleOAuthService;
-import com.hckst.respal.authentication.oauth.application.KakaoOAuthService;
 import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
@@ -35,9 +32,6 @@ import java.net.URI;
 @RequiredArgsConstructor
 @Tag(name = "회원", description = "회원 관련 api")
 public class MembersController {
-    private final KakaoOAuthService kakaoOAuthService;
-    private final GoogleOAuthService googleOAuthService;
-    private final GithubOAuthService githubOAuthService;
     private final MembersService membersService;
     private final OAuthServiceImpl oAuthService;
     private final JwtService jwtService;
