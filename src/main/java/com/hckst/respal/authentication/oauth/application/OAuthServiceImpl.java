@@ -30,9 +30,9 @@ public class OAuthServiceImpl {
     private final JwtService jwtService;
 
     // 신규회원
-    private static final String SIGNUP_REDIRECT_URL = "http://localhost:3000/signup?id=";
+    private static final String SIGNUP_REDIRECT_URL = "http://localhost:3000/signup?endpoint=";
     // 기존회원
-    private static final String CALLBACK_REDIRECT_URL = "http://localhost:3000/callback?id=";
+    private static final String CALLBACK_REDIRECT_URL = "http://localhost:3000/callback?endpoint=";
     // 로그아웃
     private static final String LOGOUT_REDIRECT_URL = "http://localhost:3000/logout";
 
