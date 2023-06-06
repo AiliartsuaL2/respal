@@ -29,46 +29,10 @@ public class GlobalExceptionHandler {
                 .body(new ApiErrorResponse(errorCode,ex.getMessage()));
     }
 
-    @ExceptionHandler(RejectedExecutionException.class)
-    public ResponseEntity<ApiErrorResponse> RejectedExecutionException(RejectedExecutionException ex) {
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiErrorResponse> RuntimeException(RuntimeException ex) {
         StackTraceElement[] stackTraceElements = ex.getStackTrace();
         String message = ex.getMessage();
-        log.error(message,stackTraceElements[0]);
-        ApiErrorResponse response = ApiErrorResponse.builder()
-                .errorCode(400)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiErrorResponse> methodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        StackTraceElement[] stackTraceElements = ex.getStackTrace();
-        String message = ex.getMessage();
-        log.error(message,stackTraceElements[0]);
-        ApiErrorResponse response = ApiErrorResponse.builder()
-                .errorCode(400)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<ApiErrorResponse> NoSuchElementException(NoSuchElementException ex) {
-        StackTraceElement[] stackTraceElements = ex.getStackTrace();
-        String message = ex.getMessage();
-        log.error(message,stackTraceElements[0]);
-        ApiErrorResponse response = ApiErrorResponse.builder()
-                .errorCode(400)
-                .message(message)
-                .build();
-        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiErrorResponse> IllegalArgumentException(IllegalArgumentException ex) {
-        StackTraceElement[] stackTraceElements = ex.getStackTrace();
-        String message =  ex.getMessage();
         log.error(message,stackTraceElements[0]);
         ApiErrorResponse response = ApiErrorResponse.builder()
                 .errorCode(400)
