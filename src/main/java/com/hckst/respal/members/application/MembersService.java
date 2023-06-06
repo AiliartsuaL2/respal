@@ -56,6 +56,7 @@ public class MembersService {
         Members members = Members.builder()
                 .email(membersJoinRequestDto.getEmail())
                 .password(membersJoinRequestDto.getPassword())
+                .picture(membersJoinRequestDto.getPicture())
                 .nickname(membersJoinRequestDto.getNickname())
                 .role(role)
                 .build();

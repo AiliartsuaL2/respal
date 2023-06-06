@@ -68,7 +68,6 @@ public class MembersController {
     @PostMapping("/member/join")
     @ResponseBody
     public ResponseEntity<MembersLoginResponseDto> join(@RequestBody MembersJoinRequestDto membersJoinRequestDto){
-        System.out.println(" picture = " +membersJoinRequestDto.getPicture());
         // provider type 없는경우 exception
         if(membersJoinRequestDto.getProvider() == null){
             throw new NotExistProviderType();
