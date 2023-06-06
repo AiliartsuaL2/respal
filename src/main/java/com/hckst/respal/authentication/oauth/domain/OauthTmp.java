@@ -22,9 +22,9 @@ public class OauthTmp {
     @Column(name = "OAUTH_TMP_ID")
     private Long id;
 
-    // 쿼리파라미터로 식별하는 endpoint
+    // 쿼리파라미터로 식별하는 uid
     @Column(length = 36)
-    private String endpoint;
+    private String uid;
 
     //소셜 타입
     @Convert(converter = ProviderConverter.class)
@@ -47,8 +47,8 @@ public class OauthTmp {
     private LocalDateTime regTime;
 
     @Builder
-    public OauthTmp(String endpoint, Provider provider, UserInfo userInfo, String accessToken, String refreshToken){
-        this.endpoint = endpoint;
+    public OauthTmp(String uid, Provider provider, UserInfo userInfo, String accessToken, String refreshToken){
+        this.uid = uid;
         this.provider = provider;
         this.userInfo = userInfo;
         this.accessToken = accessToken;

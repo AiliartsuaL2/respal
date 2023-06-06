@@ -30,9 +30,9 @@ public class OAuthServiceImpl {
     private final JwtService jwtService;
 
     // 신규회원
-    private static final String SIGNUP_REDIRECT_URL = "http://localhost:3000/signup?endpoint=";
+    private static final String SIGNUP_REDIRECT_URL = "http://localhost:3000/signup/social?uid=";
     // 기존회원
-    private static final String CALLBACK_REDIRECT_URL = "http://localhost:3000/callback?endpoint=";
+    private static final String CALLBACK_REDIRECT_URL = "http://localhost:3000/callback?uid=";
     // 로그아웃
     private static final String LOGOUT_REDIRECT_URL = "http://localhost:3000/logout";
 
@@ -87,23 +87,23 @@ public class OAuthServiceImpl {
 
     public URI getRedirectUrl(Provider providerType, UserInfo userInfo, Token token) {
         // 신규 회원인경우, email, nickname, image oauth_tmp에 저장 후 redirect
-        String endpoint = UUID.randomUUID().toString();
+        String uid = UUID.randomUUID().toString().replace("-", "");
         if(token == null){
             OauthTmp oauthTmpData = OauthTmp.builder()
-                    .endpoint(endpoint)
+                    .uid(uid)
                     .provider(providerType)
                     .userInfo(userInfo)
                     .build();
             oauthTmpRepository.save(oauthTmpData);
 
-            return URI.create(SIGNUP_REDIRECT_URL+endpoint);
+            return URI.create(SIGNUP_REDIRECT_URL+uid);
         }
 
         // 기존 회원인 경우
         jwtService.login(token); // refresh 토큰 초기화
         // 로그인 성공시 응답
         OauthTmp oauthTmpData = OauthTmp.builder()
-                .endpoint(endpoint)
+                .uid(uid)
                 .provider(providerType)
                 .userInfo(userInfo)
                 .accessToken(token.getAccessToken())
@@ -111,7 +111,7 @@ public class OAuthServiceImpl {
                 .build();
         oauthTmpRepository.save(oauthTmpData);
 
-        return URI.create(CALLBACK_REDIRECT_URL+endpoint);
+        return URI.create(CALLBACK_REDIRECT_URL+uid);
     }
 
     public URI logout(Provider provider, String accessToken) {

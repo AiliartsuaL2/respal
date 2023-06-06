@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface OauthTmpRepository extends JpaRepository<OauthTmp, Long> {
 
-    public Optional<OauthTmp> findOauthTmpByEndpoint(String endpoint);
+    public Optional<OauthTmp> findOauthTmpByUid(String uid);
 }

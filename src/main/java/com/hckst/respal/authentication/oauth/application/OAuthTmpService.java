@@ -5,7 +5,7 @@ import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepositor
 import com.hckst.respal.authentication.oauth.dto.response.RedirectCallBackResponse;
 import com.hckst.respal.authentication.oauth.dto.response.RedirectResponse;
 import com.hckst.respal.converter.ProviderConverter;
-import com.hckst.respal.exception.oauth.NoSuchOAuthTmpEndpointException;
+import com.hckst.respal.exception.oauth.NoSuchOAuthTmpUidException;
 import com.hckst.respal.exception.oauth.WrongTypeSettionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +17,12 @@ import org.springframework.stereotype.Service;
 public class OAuthTmpService {
     private final OauthTmpRepository oauthTmpRepository;
 
-    public RedirectResponse getOauthTmp(String endpoint, String type) {
+    public RedirectResponse getOauthTmp(String uid, String type) {
         if(!(type.equals("callback") || type.equals("signup"))){
             throw new WrongTypeSettionException();
         }
-        OauthTmp oauthTmp = oauthTmpRepository.findOauthTmpByEndpoint(endpoint).orElseThrow(
-                () -> new NoSuchOAuthTmpEndpointException());
+        OauthTmp oauthTmp = oauthTmpRepository.findOauthTmpByUid(uid).orElseThrow(
+                () -> new NoSuchOAuthTmpUidException());
         ProviderConverter pc = new ProviderConverter();
         String provider = pc.convertToDatabaseColumn(oauthTmp.getProvider());
         if("callback".equals(type)){

@@ -3,7 +3,7 @@ import com.hckst.respal.authentication.oauth.domain.OauthTmp;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepository;
 import com.hckst.respal.authentication.oauth.dto.response.RedirectCallBackResponse;
 import com.hckst.respal.authentication.oauth.dto.response.RedirectResponse;
-import com.hckst.respal.exception.oauth.NoSuchOAuthTmpEndpointException;
+import com.hckst.respal.exception.oauth.NoSuchOAuthTmpUidException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +23,10 @@ class OAuthTmpServiceTest {
     void successGetCallbackOauthTmp() {
         //given
         OauthTmp oauthTmp = oauthTmpRepository.findById(SUCCESS_CALLBACK_OAUTH_TMP_ID).get();
-        String endpoint = oauthTmp.getEndpoint();
+        String uid = oauthTmp.getUid();
         String type = "callback";
         //when
-        RedirectCallBackResponse response = (RedirectCallBackResponse) oAuthTmpService.getOauthTmp(endpoint, type);
+        RedirectCallBackResponse response = (RedirectCallBackResponse) oAuthTmpService.getOauthTmp(uid, type);
         //then
         Assertions.assertThat(response.getRefreshToken()).isNotNull();
     }
@@ -34,10 +34,10 @@ class OAuthTmpServiceTest {
     void failGetCallbackOauthTmp(){
         //given
         OauthTmp oauthTmp = oauthTmpRepository.findById(SUCCESS_SIGNUP_OAUTH_TMP_ID).get();
-        String endpoint = oauthTmp.getEndpoint();
+        String uid = oauthTmp.getUid();
         String type = "callback";
         //when
-        RedirectCallBackResponse response = (RedirectCallBackResponse) oAuthTmpService.getOauthTmp(endpoint, type);
+        RedirectCallBackResponse response = (RedirectCallBackResponse) oAuthTmpService.getOauthTmp(uid, type);
         //then
         Assertions.assertThatExceptionOfType(ClassCastException.class);
     }
@@ -45,23 +45,23 @@ class OAuthTmpServiceTest {
     void successGetSignUpOauthTmp() {
         //given
         OauthTmp oauthTmp = oauthTmpRepository.findById(SUCCESS_SIGNUP_OAUTH_TMP_ID).get();
-        String endpoint = oauthTmp.getEndpoint();
+        String uid = oauthTmp.getUid();
         String type = "signup";
         //when
-        RedirectResponse response = oAuthTmpService.getOauthTmp(endpoint, type);
+        RedirectResponse response = oAuthTmpService.getOauthTmp(uid, type);
         //then
         Assertions.assertThat(response.getUserInfo().getEmail()).isNotNull();
     }
 
-    // endpoint가 존재하지 않는경우
+    // uid가 존재하지 않는경우
     @Test
     void failGetSignUpOauthTmp(){
         //given
-        String endpoint = "failEndpoint";
+        String uid = "failUid";
         String type = "signup";
         //when
         //then
-        Assertions.assertThatThrownBy(() -> oAuthTmpService.getOauthTmp(endpoint, type))
-                .isInstanceOf(NoSuchOAuthTmpEndpointException.class);
+        Assertions.assertThatThrownBy(() -> oAuthTmpService.getOauthTmp(uid, type))
+                .isInstanceOf(NoSuchOAuthTmpUidException.class);
     }
 }

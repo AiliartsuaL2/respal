@@ -24,8 +24,6 @@ public class QOauthTmp extends EntityPathBase<OauthTmp> {
 
     public final StringPath accessToken = createString("accessToken");
 
-    public final StringPath endpoint = createString("endpoint");
-
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final EnumPath<com.hckst.respal.converter.Provider> provider = createEnum("provider", com.hckst.respal.converter.Provider.class);
@@ -33,6 +31,8 @@ public class QOauthTmp extends EntityPathBase<OauthTmp> {
     public final StringPath refreshToken = createString("refreshToken");
 
     public final DateTimePath<java.time.LocalDateTime> regTime = createDateTime("regTime", java.time.LocalDateTime.class);
+
+    public final StringPath uid = createString("uid");
 
     public final com.hckst.respal.authentication.oauth.dto.request.info.QUserInfo userInfo;
 

@@ -67,16 +67,17 @@ public class OAuthController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "신규 회원", content = @Content(schema = @Schema(implementation = RedirectResponse.class))),
             @ApiResponse(responseCode = "200", description = "기존 회원", content = @Content(schema = @Schema(implementation = RedirectCallBackResponse.class))),
-            @ApiResponse(responseCode = "400", description = "endPoint 불일치 및 type 불일치", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+            @ApiResponse(responseCode = "400", description = "Uid 불일치 및 type 불일치", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    @GetMapping("/user/{endpoint}")
+    @GetMapping("/user/{uid}")
     @ResponseBody
-    public ResponseEntity<?> requestUserInfo(@PathVariable String endpoint, @RequestParam String type){
-        RedirectResponse response = oAuthTmpService.getOauthTmp(endpoint,type);
+    public ResponseEntity<?> requestUserInfo(@PathVariable String uid, @RequestParam String type){
+        RedirectResponse response = oAuthTmpService.getOauthTmp(uid,type);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/logout/{provider}")
+    // 액세스토큰으로 provider 분기
+    @PostMapping("/logout")
     @ResponseBody
     public ResponseEntity<?> logout(@PathVariable String provider, @RequestHeader String accessToken){
         ProviderConverter providerConverter = new ProviderConverter();
