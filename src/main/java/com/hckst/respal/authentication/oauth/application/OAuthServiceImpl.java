@@ -30,11 +30,14 @@ public class OAuthServiceImpl {
     private final JwtService jwtService;
 
     // 신규회원
-    private static final String SIGNUP_REDIRECT_URL = "http://localhost:3000/signup/social?uid=";
+    private static final String SIGNUP_WEB_REDIRECT_URL = "http://localhost:3000/signup/social?uid=";
+    private static final String SIGNUP_APP_REDIRECT_URL = "/oauth/user/";
     // 기존회원
-    private static final String CALLBACK_REDIRECT_URL = "http://localhost:3000/callback?uid=";
+    private static final String CALLBACK_WEB_REDIRECT_URL = "http://localhost:3000/callback?uid=";
+    private static final String CALLBACK_APP_REDIRECT_URL = "/oauth/user/";
     // 로그아웃
-    private static final String LOGOUT_REDIRECT_URL = "http://localhost:3000/logout";
+    private static final String LOGOUT_WEB_REDIRECT_URL = "http://localhost:3000/logout";
+    private static final String LOGOUT_APP_REDIRECT_URL = "http://localhost:3000/logout";
 
     public Token login(Provider provider, UserInfo userInfo, String accessToken) {
         if(Provider.KAKAO.equals(provider)){
@@ -85,7 +88,7 @@ public class OAuthServiceImpl {
         return null;
     }
 
-    public URI getRedirectUrl(Provider providerType, UserInfo userInfo, Token token) {
+    public URI getRedirectUrl(Provider providerType, UserInfo userInfo, Token token, String appRequest) {
         // 신규 회원인경우, email, nickname, image oauth_tmp에 저장 후 redirect
         String uid = UUID.randomUUID().toString().replace("-", "");
         if(token == null){
@@ -96,7 +99,8 @@ public class OAuthServiceImpl {
                     .build();
             oauthTmpRepository.save(oauthTmpData);
 
-            return URI.create(SIGNUP_REDIRECT_URL+uid);
+            //true면 app요청, false or null이면 web요청 ,, "true".equals >> NPE 방지
+            return "true".equals(appRequest) ? URI.create(SIGNUP_APP_REDIRECT_URL+uid+"?type=signup") : URI.create(SIGNUP_WEB_REDIRECT_URL+uid);
         }
 
         // 기존 회원인 경우
@@ -111,10 +115,11 @@ public class OAuthServiceImpl {
                 .build();
         oauthTmpRepository.save(oauthTmpData);
 
-        return URI.create(CALLBACK_REDIRECT_URL+uid);
+        //true면 app요청, false or null이면 web요청 ,, "true".equals >> NPE 방지
+        return "true".equals(appRequest) ? URI.create(CALLBACK_APP_REDIRECT_URL+uid+"?type=callback") : URI.create(CALLBACK_WEB_REDIRECT_URL+uid);
     }
 
-    public URI logout(Provider provider, String accessToken) {
+    public URI logout(Provider provider, String accessToken, String appRequest) {
         if(Provider.COMMON.equals(provider)){ // 일반 로그인
             membersService.logout(accessToken);
         }else if(Provider.KAKAO.equals(provider)){
@@ -124,6 +129,8 @@ public class OAuthServiceImpl {
         }else if(Provider.GITHUB.equals(provider)){
             githubOAuthService.logout(accessToken);
         }
-        return URI.create(LOGOUT_REDIRECT_URL);
+
+        //true면 app요청, false or null이면 web요청 ,, "true".equals >> NPE 방지
+        return "true".equals(appRequest) ? URI.create(LOGOUT_APP_REDIRECT_URL) : URI.create(LOGOUT_WEB_REDIRECT_URL);
     }
 }

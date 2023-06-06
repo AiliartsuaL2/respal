@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 
 @Controller
@@ -42,7 +43,7 @@ public class OAuthController {
     })
     @GetMapping("/login/{provider}")
     @ResponseBody
-    public ResponseEntity<?> oAuthLogin(@PathVariable String provider, String code){
+    public ResponseEntity<?> oAuthLogin(@PathVariable String provider, String code, HttpServletRequest request){
         /**
          *- 기존 회원인 경우
          *  - respal의 accessToken과 refreshToken을 응답해준다.
@@ -54,11 +55,12 @@ public class OAuthController {
          */
         ProviderConverter providerConverter = new ProviderConverter();
         Provider providerType = providerConverter.convertToEntityAttribute(provider);
+        String appRequest = request.getHeader("AppRequest");
 
         OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code);
         UserInfo userInfo = oAuthService.getUserInfo(providerType, oAuthToken.getAccessToken());
         Token token = oAuthService.login(providerType, userInfo, oAuthToken.getAccessToken());
-        URI redirectUrl = oAuthService.getRedirectUrl(providerType,userInfo,token);
+        URI redirectUrl = oAuthService.getRedirectUrl(providerType,userInfo,token,appRequest);
 
         return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
     }
@@ -79,10 +81,12 @@ public class OAuthController {
     // 액세스토큰으로 provider 분기
     @PostMapping("/logout")
     @ResponseBody
-    public ResponseEntity<?> logout(@PathVariable String provider, @RequestHeader String accessToken){
+    public ResponseEntity<?> logout(@PathVariable String provider, @RequestHeader String accessToken, HttpServletRequest request){
         ProviderConverter providerConverter = new ProviderConverter();
         Provider providerType = providerConverter.convertToEntityAttribute(provider);
-        URI redirectUrl = oAuthService.logout(providerType, accessToken);
+        String appRequest = request.getHeader("AppRequest");
+
+        URI redirectUrl = oAuthService.logout(providerType, accessToken, appRequest);
         return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
     }
 }
