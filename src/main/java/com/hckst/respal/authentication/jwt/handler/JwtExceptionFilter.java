@@ -1,10 +1,11 @@
 package com.hckst.respal.authentication.jwt.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hckst.respal.exception.dto.ApiErrorResponse;
 import com.hckst.respal.exception.jwt.JwtCustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,13 +25,20 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         try {
             chain.doFilter(request, response);
         } catch (JwtCustomException ex) {
-            setResponse(ex);
+            setResponse(ex, response);
         }
     }
 
-    private ResponseEntity<ApiErrorResponse> setResponse(JwtCustomException ex) throws RuntimeException, IOException {
-        return ResponseEntity
-                .status(ex.getHttpStatus())
-                .body(new ApiErrorResponse(ex.getErrorCode(),ex.getMessage()));
+    private void setResponse(JwtCustomException ex, HttpServletResponse response) throws RuntimeException, IOException {
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse(ex.getErrorCode(), ex.getMessage());
+        response.setStatus(ex.getErrorCode());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+        ObjectMapper objectMapper = new ObjectMapper();
+        try{
+            response.getWriter().write(objectMapper.writeValueAsString(apiErrorResponse));
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
