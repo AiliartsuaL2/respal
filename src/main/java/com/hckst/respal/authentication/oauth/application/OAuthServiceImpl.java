@@ -32,10 +32,10 @@ public class OAuthServiceImpl {
 
     // 신규회원
     private static final String SIGNUP_WEB_REDIRECT_URL = "http://localhost:3000/signup/social?uid=";
-    private static final String SIGNUP_APP_REDIRECT_URL = "/oauth/user/";
+    private static final String SIGNUP_APP_REDIRECT_URL = "app://signup?uid=";
     // 기존회원
     private static final String CALLBACK_WEB_REDIRECT_URL = "http://localhost:3000/callback?uid=";
-    private static final String CALLBACK_APP_REDIRECT_URL = "/oauth/user/";
+    private static final String CALLBACK_APP_REDIRECT_URL = "app://callback?uid=";
     // 로그아웃
     private static final String LOGOUT_WEB_REDIRECT_URL = "http://localhost:3000/logout";
     private static final String LOGOUT_APP_REDIRECT_URL = "http://localhost:3000/logout";
@@ -100,7 +100,7 @@ public class OAuthServiceImpl {
                     .build();
             oauthTmpRepository.save(oauthTmpData);
 
-            return Client.APP.equals(client) ? URI.create(SIGNUP_APP_REDIRECT_URL+uid+"?type=signup") : URI.create(SIGNUP_WEB_REDIRECT_URL+uid);
+            return Client.APP.equals(client) ? URI.create(SIGNUP_APP_REDIRECT_URL+uid) : URI.create(SIGNUP_WEB_REDIRECT_URL+uid);
         }
 
         // 기존 회원인 경우
@@ -116,7 +116,7 @@ public class OAuthServiceImpl {
         oauthTmpRepository.save(oauthTmpData);
 
         //true면 app요청, false or null이면 web요청 ,, "true".equals >> NPE 방지
-        return Client.APP.equals(client) ? URI.create(CALLBACK_APP_REDIRECT_URL+uid+"?type=callback") : URI.create(CALLBACK_WEB_REDIRECT_URL+uid);
+        return Client.APP.equals(client) ? URI.create(CALLBACK_APP_REDIRECT_URL+uid) : URI.create(CALLBACK_WEB_REDIRECT_URL+uid);
     }
 
     public URI logout(Provider provider, String accessToken, Client client) {
