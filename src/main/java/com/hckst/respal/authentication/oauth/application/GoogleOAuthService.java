@@ -8,6 +8,7 @@ import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.oauth.dto.request.info.google.GoogleUserInfo;
 import com.hckst.respal.config.OAuthConfig;
+import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.RoleType;
 import com.hckst.respal.exception.members.DuplicateEmailException;
@@ -56,7 +57,7 @@ public class GoogleOAuthService implements OAuthService {
     }
 
     @Override
-    public OAuthToken getAccessToken(String code) {
+    public OAuthToken getAccessToken(String code, Client client) {
         RestTemplate restTemplate = new RestTemplate();
 
         // 헤더 설정
@@ -70,11 +71,14 @@ public class GoogleOAuthService implements OAuthService {
          로 Redirect URL을 생성하는 로직을 구성
          */
         // Uri 빌더 사용
+
+        String redirectUri = Client.WEB.equals(client) ? oAuthConfig.getGoogle().getWebRedirectUri() : oAuthConfig.getGoogle().getAppRedirectUri();
+
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getGoogle().getTokenUrl())
                 .queryParam("grant_type", oAuthConfig.getGoogle().getGrantType())
                 .queryParam("client_id",  oAuthConfig.getGoogle().getClientId())
                 .queryParam("client_secret",  oAuthConfig.getGoogle().getClientSecret())
-                .queryParam("redirect_uri",  oAuthConfig.getGoogle().getRedirectUri())
+                .queryParam("redirect_uri",  redirectUri)
                 .queryParam("code", code);
 
         ResponseEntity<String> response = restTemplate.exchange(

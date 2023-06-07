@@ -6,6 +6,7 @@ import com.hckst.respal.authentication.oauth.domain.OauthTmp;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepository;
 import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
+import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.exception.oauth.NoSuchOAuthCodeException;
 import com.hckst.respal.members.application.MembersService;
@@ -50,16 +51,16 @@ public class OAuthServiceImpl {
         return null;
     }
 
-    public OAuthToken getAccessToken(Provider provider, String code) {
+    public OAuthToken getAccessToken(Provider provider, String code, Client client) {
         if(code == null){
             throw new NoSuchOAuthCodeException();
         }
         if(Provider.KAKAO.equals(provider)){
-            return kakaoOAuthService.getAccessToken(code);
+            return kakaoOAuthService.getAccessToken(code, client);
         }else if(Provider.GOOGLE.equals(provider)){
-            return googleOAuthService.getAccessToken(code);
+            return googleOAuthService.getAccessToken(code, client);
         }else if(Provider.GITHUB.equals(provider)){
-            return githubOAuthService.getAccessToken(code);
+            return githubOAuthService.getAccessToken(code, client);
         }
         return null;
     }
@@ -88,7 +89,7 @@ public class OAuthServiceImpl {
         return null;
     }
 
-    public URI getRedirectUrl(Provider providerType, UserInfo userInfo, Token token, String appRequest) {
+    public URI getRedirectUrl(Provider providerType, UserInfo userInfo, Token token, Client client) {
         // 신규 회원인경우, email, nickname, image oauth_tmp에 저장 후 redirect
         String uid = UUID.randomUUID().toString().replace("-", "");
         if(token == null){
@@ -99,8 +100,7 @@ public class OAuthServiceImpl {
                     .build();
             oauthTmpRepository.save(oauthTmpData);
 
-            //true면 app요청, false or null이면 web요청 ,, "true".equals >> NPE 방지
-            return "true".equals(appRequest) ? URI.create(SIGNUP_APP_REDIRECT_URL+uid+"?type=signup") : URI.create(SIGNUP_WEB_REDIRECT_URL+uid);
+            return Client.APP.equals(client) ? URI.create(SIGNUP_APP_REDIRECT_URL+uid+"?type=signup") : URI.create(SIGNUP_WEB_REDIRECT_URL+uid);
         }
 
         // 기존 회원인 경우
@@ -116,10 +116,10 @@ public class OAuthServiceImpl {
         oauthTmpRepository.save(oauthTmpData);
 
         //true면 app요청, false or null이면 web요청 ,, "true".equals >> NPE 방지
-        return "true".equals(appRequest) ? URI.create(CALLBACK_APP_REDIRECT_URL+uid+"?type=callback") : URI.create(CALLBACK_WEB_REDIRECT_URL+uid);
+        return Client.APP.equals(client) ? URI.create(CALLBACK_APP_REDIRECT_URL+uid+"?type=callback") : URI.create(CALLBACK_WEB_REDIRECT_URL+uid);
     }
 
-    public URI logout(Provider provider, String accessToken, String appRequest) {
+    public URI logout(Provider provider, String accessToken, Client client) {
         if(Provider.COMMON.equals(provider)){ // 일반 로그인
             membersService.logout(accessToken);
         }else if(Provider.KAKAO.equals(provider)){
@@ -131,6 +131,6 @@ public class OAuthServiceImpl {
         }
 
         //true면 app요청, false or null이면 web요청 ,, "true".equals >> NPE 방지
-        return "true".equals(appRequest) ? URI.create(LOGOUT_APP_REDIRECT_URL) : URI.create(LOGOUT_WEB_REDIRECT_URL);
+        return Client.APP.equals(client) ? URI.create(LOGOUT_APP_REDIRECT_URL) : URI.create(LOGOUT_WEB_REDIRECT_URL);
     }
 }

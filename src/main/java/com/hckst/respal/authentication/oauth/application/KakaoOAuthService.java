@@ -4,6 +4,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
+import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.RoleType;
 import com.hckst.respal.exception.members.DuplicateEmailException;
@@ -56,7 +57,7 @@ public class KakaoOAuthService implements OAuthService{
     }
 
     @Override
-    public OAuthToken getAccessToken(String code) {
+    public OAuthToken getAccessToken(String code, Client client) {
         // POST 방식으로 key=value 데이터를 요청 (카카오쪽으로)
         // 이 때 필요한 라이브러리가 RestTemplate, 얘를 쓰면 http 요청을 편하게 할 수 있다.
         RestTemplate restTemplate = new RestTemplate();
@@ -66,11 +67,12 @@ public class KakaoOAuthService implements OAuthService{
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity request = new HttpEntity(headers);
 
+        String redirectUri = Client.WEB.equals(client) ? oAuthConfig.getKakao().getWebRedirectUri() : oAuthConfig.getKakao().getAppRedirectUri();
         // Uri 빌더 사용
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getKakao().getTokenUrl())
                 .queryParam("grant_type", oAuthConfig.getKakao().getGrantType())
                 .queryParam("client_id", oAuthConfig.getKakao().getClientId())
-                .queryParam("redirect_uri", oAuthConfig.getKakao().getRedirectUri())
+                .queryParam("redirect_uri", redirectUri)
                 .queryParam("client_secret", oAuthConfig.getKakao().getClientSecret())
                 .queryParam("code", code);
 
