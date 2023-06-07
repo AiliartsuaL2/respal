@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         if (token != null && token.startsWith(TOKEN_PREFIX)){
             token = token.replace(TOKEN_PREFIX,"");
             // access token validation
-            if(jwtTokenProvider.validateAccessToken(token)){
+            if(jwtTokenProvider.validateAccessToken(token) || jwtTokenProvider.validateRefreshToken(token)!= null){
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

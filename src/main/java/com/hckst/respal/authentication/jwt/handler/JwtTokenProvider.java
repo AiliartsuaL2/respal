@@ -30,14 +30,8 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     // 암호화키는 매우 중요하므로 따로 빼서 관리, application.yml의 @Value 사용 및 git 분리
-
-    @Value("${jwt.secret-key.access-token}")
-    private String accessSecretKey ;
-
-    // 암호화키는 매우 중요하므로 따로 빼서 관리, application.yml의 @Value 사용 및 git 분리
-    @Value("${jwt.secret-key.refresh-token}")
-    private String refreshSecretKey ;
-
+    @Value("${jwt.secret-key}")
+    private String secretKey ;
 
     // accessToken 기한
 //    private long accessTokenValidTime = 60 * 60 * 1000L; // 1시간
@@ -51,7 +45,7 @@ public class JwtTokenProvider {
     // 객체 초기화, secretKey를 Base64로 인코딩한다.
     @PostConstruct
     protected void init() {
-        accessSecretKey = Base64.getEncoder().encodeToString(accessSecretKey.getBytes());
+        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
     // 토큰에 저장할 유저 pk와 권한 리스트를 매개변수로 받아 access, refresh토큰을 생성하여 tokenDto 만들어 반환
@@ -70,14 +64,14 @@ public class JwtTokenProvider {
                 .setClaims(claims) // 정보 저장
                 .setIssuedAt(now) // 토큰 발행 시간 정보
                 .setExpiration(new Date(now.getTime() + accessTokenValidTime)) // set Expire Time
-                .signWith(SignatureAlgorithm.HS256, accessSecretKey)  // 사용할 암호화 알고리즘과 signature 에 들어갈 secret값 세팅
+                .signWith(SignatureAlgorithm.HS256, secretKey)  // 사용할 암호화 알고리즘과 signature 에 들어갈 secret값 세팅
                 .compact();
 
         String refreshToken = Jwts.builder()
                 .setClaims(claims) // 정보 저장
                 .setIssuedAt(now) // 토큰 발행 시간 정보
                 .setExpiration(new Date(now.getTime() + refreshTokenValidTime)) // set Expire Time
-                .signWith(SignatureAlgorithm.HS256, refreshSecretKey)  // 사용할 암호화 알고리즘과 signature 에 들어갈 secret값 세팅
+                .signWith(SignatureAlgorithm.HS256, secretKey)  // 사용할 암호화 알고리즘과 signature 에 들어갈 secret값 세팅
                 .compact();
 
         return Token.builder()
@@ -96,7 +90,7 @@ public class JwtTokenProvider {
 
     // 토큰에서 회원 정보 추출
     public String getUserPk(String token) {
-        return Jwts.parser().setSigningKey(accessSecretKey).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
     // Request의 Header에서 token 값을 가져옴. "Authorization" : "TOKEN값'
@@ -107,7 +101,7 @@ public class JwtTokenProvider {
     // access 토큰의 유효성 + 만료일자 확인
     public boolean validateAccessToken(String jwtToken) {
         try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(accessSecretKey).parseClaimsJws(jwtToken);
+            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
             return !claims.getBody().getExpiration().before(new Date());
         }catch (SignatureException e) {
             log.info("SignatureException");
@@ -127,7 +121,7 @@ public class JwtTokenProvider {
     // refresh 토큰의 유효성 + 만료일자 확인
     public String validateRefreshToken(String refreshToken) {
         try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(refreshSecretKey).parseClaimsJws(refreshToken);
+            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(refreshToken);
             if (!claims.getBody().getExpiration().before(new Date())) {
                 return recreationAccessToken(claims.getBody().get("sub").toString(), claims.getBody().get("roles"));
             }
@@ -158,7 +152,7 @@ public class JwtTokenProvider {
                 .setClaims(claims) // 정보 저장
                 .setIssuedAt(now) // 토큰 발행 시간 정보
                 .setExpiration(new Date(now.getTime() + accessTokenValidTime)) // set Expire Time
-                .signWith(SignatureAlgorithm.HS256, accessSecretKey)  // 사용할 암호화 알고리즘과
+                .signWith(SignatureAlgorithm.HS256, secretKey)  // 사용할 암호화 알고리즘과
                 // signature 에 들어갈 secret값 세팅
                 .compact();
 
