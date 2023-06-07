@@ -57,7 +57,7 @@ public class KakaoOAuthService implements OAuthService{
     }
 
     @Override
-    public OAuthToken getAccessToken(String code, Client client) {
+    public OAuthToken getAccessToken(String code, String client) {
         // POST 방식으로 key=value 데이터를 요청 (카카오쪽으로)
         // 이 때 필요한 라이브러리가 RestTemplate, 얘를 쓰면 http 요청을 편하게 할 수 있다.
         RestTemplate restTemplate = new RestTemplate();
@@ -67,7 +67,7 @@ public class KakaoOAuthService implements OAuthService{
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity request = new HttpEntity(headers);
 
-        String redirectUri = Client.WEB.equals(client) ? oAuthConfig.getKakao().getWebRedirectUri() : oAuthConfig.getKakao().getAppRedirectUri();
+        String redirectUri = Client.WEB.getValue().equals(client) ? oAuthConfig.getKakao().getWebRedirectUri() : oAuthConfig.getKakao().getAppRedirectUri();
         // Uri 빌더 사용
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getKakao().getTokenUrl())
                 .queryParam("grant_type", oAuthConfig.getKakao().getGrantType())

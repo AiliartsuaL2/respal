@@ -38,7 +38,7 @@ public class OAuthServiceImpl {
     private static final String CALLBACK_APP_REDIRECT_URL = "app://callback?uid=";
     // 로그아웃
     private static final String LOGOUT_WEB_REDIRECT_URL = "http://localhost:3000/logout";
-    private static final String LOGOUT_APP_REDIRECT_URL = "http://localhost:3000/logout";
+    private static final String LOGOUT_APP_REDIRECT_URL = "app://logout";
 
     public Token login(Provider provider, UserInfo userInfo, String accessToken) {
         if(Provider.KAKAO.equals(provider)){
@@ -51,7 +51,7 @@ public class OAuthServiceImpl {
         return null;
     }
 
-    public OAuthToken getAccessToken(Provider provider, String code, Client client) {
+    public OAuthToken getAccessToken(Provider provider, String code, String client) {
         if(code == null){
             throw new NoSuchOAuthCodeException();
         }
@@ -89,7 +89,7 @@ public class OAuthServiceImpl {
         return null;
     }
 
-    public URI getRedirectUrl(Provider providerType, UserInfo userInfo, Token token, Client client) {
+    public URI getRedirectUrl(Provider providerType, UserInfo userInfo, Token token, String client) {
         // 신규 회원인경우, email, nickname, image oauth_tmp에 저장 후 redirect
         String uid = UUID.randomUUID().toString().replace("-", "");
         if(token == null){
@@ -100,7 +100,7 @@ public class OAuthServiceImpl {
                     .build();
             oauthTmpRepository.save(oauthTmpData);
 
-            return Client.APP.equals(client) ? URI.create(SIGNUP_APP_REDIRECT_URL+uid) : URI.create(SIGNUP_WEB_REDIRECT_URL+uid);
+            return Client.WEB.getValue().equals(client) ? URI.create(SIGNUP_WEB_REDIRECT_URL+uid) : URI.create(SIGNUP_APP_REDIRECT_URL+uid);
         }
 
         // 기존 회원인 경우
@@ -116,10 +116,10 @@ public class OAuthServiceImpl {
         oauthTmpRepository.save(oauthTmpData);
 
         //true면 app요청, false or null이면 web요청 ,, "true".equals >> NPE 방지
-        return Client.APP.equals(client) ? URI.create(CALLBACK_APP_REDIRECT_URL+uid) : URI.create(CALLBACK_WEB_REDIRECT_URL+uid);
+        return Client.WEB.getValue().equals(client) ? URI.create(CALLBACK_WEB_REDIRECT_URL+uid) : URI.create(CALLBACK_APP_REDIRECT_URL+uid);
     }
 
-    public URI logout(Provider provider, String accessToken, Client client) {
+    public URI logout(Provider provider, String accessToken, String client) {
         if(Provider.COMMON.equals(provider)){ // 일반 로그인
             membersService.logout(accessToken);
         }else if(Provider.KAKAO.equals(provider)){
@@ -131,6 +131,6 @@ public class OAuthServiceImpl {
         }
 
         //true면 app요청, false or null이면 web요청 ,, "true".equals >> NPE 방지
-        return Client.APP.equals(client) ? URI.create(LOGOUT_APP_REDIRECT_URL) : URI.create(LOGOUT_WEB_REDIRECT_URL);
+        return Client.APP.getValue().equals(client) ? URI.create(LOGOUT_APP_REDIRECT_URL) : URI.create(LOGOUT_WEB_REDIRECT_URL);
     }
 }

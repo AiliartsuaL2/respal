@@ -57,7 +57,7 @@ public class GoogleOAuthService implements OAuthService {
     }
 
     @Override
-    public OAuthToken getAccessToken(String code, Client client) {
+    public OAuthToken getAccessToken(String code, String client) {
         RestTemplate restTemplate = new RestTemplate();
 
         // 헤더 설정
@@ -72,7 +72,7 @@ public class GoogleOAuthService implements OAuthService {
          */
         // Uri 빌더 사용
 
-        String redirectUri = Client.WEB.equals(client) ? oAuthConfig.getGoogle().getWebRedirectUri() : oAuthConfig.getGoogle().getAppRedirectUri();
+        String redirectUri = Client.WEB.getValue().equals(client) ? oAuthConfig.getGoogle().getWebRedirectUri() : oAuthConfig.getGoogle().getAppRedirectUri();
 
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getGoogle().getTokenUrl())
                 .queryParam("grant_type", oAuthConfig.getGoogle().getGrantType())
