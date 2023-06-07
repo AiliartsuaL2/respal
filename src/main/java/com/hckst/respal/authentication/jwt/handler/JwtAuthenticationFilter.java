@@ -27,10 +27,14 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         // 헤더에서 JWT 를 받아옴
         String token = jwtTokenProvider.resolveToken((HttpServletRequest) request);
 
-        //Bearer 토큰인경우 exception을 피하기 위해
+        //Bearer 토큰인지 확인
         if (token != null && token.startsWith(TOKEN_PREFIX)){
-            Authentication authentication = jwtTokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            token = token.replace(TOKEN_PREFIX,"");
+            // access token validation
+            if(jwtTokenProvider.validateAccessToken(token)){
+                Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }// else 타는경우 doFIlter 내부에서 exception 후 CustomAuthenticationEntryPoint로 감
         // 로그인 정상 > if문 안타고 chain.doFilter 타서 createToken?
         // 토큰 정상인경우 >> 다음 필터로 넘어감

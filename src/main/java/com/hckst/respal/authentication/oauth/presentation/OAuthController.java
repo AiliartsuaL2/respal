@@ -89,20 +89,4 @@ public class OAuthController {
         URI redirectUrl = oAuthService.logout(providerType, accessToken, client);
         return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
     }
-
-    private Client getClientType(HttpServletRequest request){
-        String userAgent = request.getHeader("User-Agent");
-
-        // 모바일 기종 체크
-        boolean isMobile = userAgent.matches(".*(iPhone|iPod|iPad|BlackBerry|Android|Windows CE|LG|MOT|SAMSUNG|SonyEricsson).*");
-
-        // IOS_APP, ANDROID_APP 앱 특정 변수(변동)
-        if(userAgent.indexOf("IOS_APP") > -1 || userAgent.indexOf("ANDROID_APP") >-1){ // 앱
-            return Client.APP;
-        }else if(isMobile){ // 모바일 웹
-            return Client.WEB;
-        }else { // 웹
-            return Client.WEB;
-        }
-    }
 }
