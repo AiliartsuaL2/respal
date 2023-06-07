@@ -44,7 +44,7 @@ public class OAuthController {
     })
     @GetMapping("/login/{provider}")
     @ResponseBody
-    public ResponseEntity<?> oAuthLogin(@PathVariable String provider, String code){
+    public ResponseEntity<?> oAuthLogin(@PathVariable String provider, String code, HttpServletRequest request){
         /**
          *- 기존 회원인 경우
          *  - respal의 accessToken과 refreshToken을 응답해준다.
@@ -56,11 +56,12 @@ public class OAuthController {
          */
         ProviderConverter providerConverter = new ProviderConverter();
         Provider providerType = providerConverter.convertToEntityAttribute(provider);
+        Client client = getClientType(request);
 
-        OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, Client.WEB);
+        OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, client);
         UserInfo userInfo = oAuthService.getUserInfo(providerType, oAuthToken.getAccessToken());
         Token token = oAuthService.login(providerType, userInfo, oAuthToken.getAccessToken());
-        URI redirectUrl = oAuthService.getRedirectUrl(providerType,userInfo,token, Client.WEB);
+        URI redirectUrl = oAuthService.getRedirectUrl(providerType,userInfo,token, client);
 
         return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
     }
@@ -68,7 +69,7 @@ public class OAuthController {
 
     @Operation(summary = "앱용 OAuth 로그인 메서드", description = "앱용 OAuth 로그인 메서드입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "로그인 및 회원가입 처리" , content = @Content(schema = @Schema(implementation = Token.class))),
+            @ApiResponse(responseCode = "307", description = "로그인 및 회원가입 성공, redirect url로 응답"),
             @ApiResponse(responseCode = "400", description = "OAuth code값 없음", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/app/login/{provider}")
@@ -116,5 +117,21 @@ public class OAuthController {
 
         URI redirectUrl = oAuthService.logout(providerType, accessToken, Client.WEB);
         return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
+    }
+
+    private Client getClientType(HttpServletRequest request){
+        String userAgent = request.getHeader("User-Agent");
+
+        // 모바일 기종 체크
+        boolean isMobile = userAgent.matches(".*(iPhone|iPod|iPad|BlackBerry|Android|Windows CE|LG|MOT|SAMSUNG|SonyEricsson).*");
+
+        // IOS_APP, ANDROID_APP 앱 특정 변수(변동)
+        if(userAgent.indexOf("IOS_APP") > -1 || userAgent.indexOf("ANDROID_APP") >-1){ // 앱
+            return Client.APP;
+        }else if(isMobile){ // 모바일 웹
+            return Client.WEB;
+        }else { // 웹
+            return Client.WEB;
+        }
     }
 }
