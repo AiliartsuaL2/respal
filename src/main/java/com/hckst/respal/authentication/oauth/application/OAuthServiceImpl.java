@@ -8,6 +8,7 @@ import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
+import com.hckst.respal.exception.jwt.NotExistRefreshTokenException;
 import com.hckst.respal.exception.oauth.NoSuchOAuthCodeException;
 import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
@@ -36,9 +37,6 @@ public class OAuthServiceImpl {
     // 기존회원
     private static final String CALLBACK_WEB_REDIRECT_URL = "http://localhost:3000/callback?uid=";
     private static final String CALLBACK_APP_REDIRECT_URL = "app://callback?uid=";
-    // 로그아웃
-    private static final String LOGOUT_WEB_REDIRECT_URL = "http://localhost:3000/logout";
-    private static final String LOGOUT_APP_REDIRECT_URL = "app://logout";
 
     public Token login(Provider provider, UserInfo userInfo, String accessToken) {
         if(Provider.KAKAO.equals(provider)){
@@ -119,18 +117,10 @@ public class OAuthServiceImpl {
         return Client.WEB.getValue().equals(client) ? URI.create(CALLBACK_WEB_REDIRECT_URL+uid) : URI.create(CALLBACK_APP_REDIRECT_URL+uid);
     }
 
-    public URI logout(Provider provider, String accessToken, String client) {
-        if(Provider.COMMON.equals(provider)){ // 일반 로그인
-            membersService.logout(accessToken);
-        }else if(Provider.KAKAO.equals(provider)){
-            kakaoOAuthService.logout(accessToken);
-        }else if(Provider.GOOGLE.equals(provider)){
-            googleOAuthService.logout(accessToken);
-        }else if(Provider.GITHUB.equals(provider)){
-            githubOAuthService.logout(accessToken);
+    public void logout(String refreshToken) {
+        if(refreshToken == null){
+            throw new NotExistRefreshTokenException();
         }
-
-        //true면 app요청, false or null이면 web요청 ,, "true".equals >> NPE 방지
-        return Client.APP.getValue().equals(client) ? URI.create(LOGOUT_APP_REDIRECT_URL) : URI.create(LOGOUT_WEB_REDIRECT_URL);
+        jwtService.deleteRefreshToken(refreshToken);
     }
 }

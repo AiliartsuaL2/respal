@@ -4,7 +4,7 @@ import com.hckst.respal.exception.ApplicationException;
 import org.springframework.http.HttpStatus;
 
 public class OAuthException extends ApplicationException {
-    protected OAuthException(int errorCode, HttpStatus httpStatus, String message) {
-        super(errorCode, httpStatus, message);
+    protected OAuthException(int statusCode, HttpStatus httpStatus,String errorCode, String message) {
+        super(statusCode, httpStatus, errorCode, message);
     }
 }

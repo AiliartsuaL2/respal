@@ -82,7 +82,4 @@ public class MembersService {
         mailSender.send(message);
         return null;
     }
-
-    public void logout(String accessToken) {
-    }
 }

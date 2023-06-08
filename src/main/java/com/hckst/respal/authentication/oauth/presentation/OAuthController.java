@@ -7,11 +7,10 @@ import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.oauth.dto.response.RedirectCallBackResponse;
 import com.hckst.respal.authentication.oauth.dto.response.RedirectResponse;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
-import com.hckst.respal.converter.Client;
-import com.hckst.respal.converter.ClientConverter;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
-import com.hckst.respal.exception.dto.ApiErrorResponse;
+import com.hckst.respal.global.dto.ApiCommonResponse;
+import com.hckst.respal.global.dto.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,7 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 
 @Controller
@@ -77,16 +75,5 @@ public class OAuthController {
     public ResponseEntity<?> requestUserInfo(@PathVariable String uid, @RequestParam String type){
         RedirectResponse response = oAuthTmpService.getOauthTmp(uid,type);
         return ResponseEntity.ok(response);
-    }
-
-    // 액세스토큰으로 provider 분기
-    @PostMapping("/{client}/logout/{provider}")
-    @ResponseBody
-    public ResponseEntity<?> logout(@PathVariable String client, @PathVariable String provider ,@RequestHeader String accessToken){
-        ProviderConverter providerConverter = new ProviderConverter();
-        Provider providerType = providerConverter.convertToEntityAttribute(provider);
-
-        URI redirectUrl = oAuthService.logout(providerType, accessToken, client);
-        return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
     }
 }

@@ -4,7 +4,7 @@ import com.hckst.respal.exception.ApplicationException;
 import org.springframework.http.HttpStatus;
 
 public class JwtCustomException extends ApplicationException {
-    protected JwtCustomException(int errorCode, HttpStatus httpStatus, String message) {
-        super(errorCode, httpStatus, message);
+    protected JwtCustomException(int statusCode, HttpStatus httpStatus,String errorCode, String message) {
+        super(statusCode, httpStatus, errorCode, message);
     }
 }

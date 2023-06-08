@@ -2,13 +2,12 @@ package com.hckst.respal.exception.members;
 
 import org.springframework.http.HttpStatus;
 
-public class
-InvalidMembersException extends MembersException{
+public class InvalidMembersException extends MembersException{
+    private static final int STATUS_CODE = 400;
+    private static final String MESSAGE = "유효하지 않은 유저입니다.";
+    private static final String ERROR_CODE = "R202";
 
-        private static final int CODE = 400;
-        private static final String MESSAGE = "유효하지 않은 유저입니다.";
-
-        public InvalidMembersException() {
-            super(CODE, HttpStatus.BAD_REQUEST, MESSAGE);
-        }
+    public InvalidMembersException() {
+        super(STATUS_CODE, HttpStatus.BAD_REQUEST, ERROR_CODE, MESSAGE);
+    }
 }

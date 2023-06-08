@@ -7,6 +7,7 @@ import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.authentication.jwt.domain.RefreshToken;
 import com.hckst.respal.authentication.jwt.repository.RefreshTokenRepository;
 import com.hckst.respal.exception.jwt.IncorrectRefreshTokenException;
+import com.hckst.respal.exception.jwt.NotExistRefreshTokenException;
 import com.hckst.respal.exception.jwt.NotExistTokenException;
 import com.hckst.respal.exception.members.InvalidMembersException;
 import com.hckst.respal.members.domain.Members;
@@ -72,5 +73,13 @@ public class JwtService {
                 .build();
 
         return response;
+    }
+    @Transactional
+    public void deleteRefreshToken(String refreshToken){
+        refreshToken = refreshToken.replace(TOKEN_PREFIX,""); // Bearer 제거
+        RefreshToken storedRefreshToken = refreshTokenRepository.findByRefreshToken(refreshToken).orElseThrow(
+                () -> new NotExistRefreshTokenException()
+        );
+        refreshTokenRepository.deleteByKeyId(storedRefreshToken.getKeyId());
     }
 }

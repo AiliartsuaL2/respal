@@ -6,9 +6,10 @@ import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
 import com.hckst.respal.exception.members.NotExistProviderType;
+import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
-import com.hckst.respal.exception.dto.ApiErrorResponse;
+import com.hckst.respal.global.dto.ApiErrorResponse;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
@@ -24,8 +25,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
 
 @Controller
 @Slf4j
@@ -106,4 +105,15 @@ public class MembersController {
         return ResponseEntity.ok(null);
     }
 
+    // refresh token만 db에서 삭제
+    @PostMapping("/member/logout")
+    @ResponseBody
+    public ResponseEntity<?> logout(@RequestHeader(value = "Authorization") String refreshToken){
+        oAuthService.logout(refreshToken);
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(200)
+                .data("정상적으로 로그아웃이 되었습니다.")
+                .build();
+        return ResponseEntity.ok(response);
+    }
 }
