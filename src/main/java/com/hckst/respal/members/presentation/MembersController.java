@@ -47,14 +47,18 @@ public class MembersController {
     })
     @PostMapping("/member/login")
     @ResponseBody
-    public ResponseEntity<MembersLoginResponseDto> login(@RequestBody MembersLoginRequestDto membersLoginRequestDto){
+    public ResponseEntity<ApiCommonResponse> login(@RequestBody MembersLoginRequestDto membersLoginRequestDto){
         Token token = membersService.loginMembers(membersLoginRequestDto);
         jwtService.login(token);
-        MembersLoginResponseDto response = MembersLoginResponseDto.builder()
+        MembersLoginResponseDto responseDto = MembersLoginResponseDto.builder()
                 .membersEmail(token.getMembersEmail())
                 .refreshToken(token.getRefreshToken())
                 .accessToken(token.getAccessToken())
                 .grantType(token.getGrantType())
+                .build();
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(200)
+                .data(responseDto)
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -66,7 +70,7 @@ public class MembersController {
     })
     @PostMapping("/member/join")
     @ResponseBody
-    public ResponseEntity<MembersLoginResponseDto> join(@RequestBody MembersJoinRequestDto membersJoinRequestDto){
+    public ResponseEntity<ApiCommonResponse> join(@RequestBody MembersJoinRequestDto membersJoinRequestDto){
         // provider type 없는경우 exception
         if(membersJoinRequestDto.getProvider() == null){
             throw new NotExistProviderType();
@@ -76,13 +80,17 @@ public class MembersController {
         Token token = oAuthService.join(provider, membersJoinRequestDto);
         jwtService.login(token); // refresh 토큰 초기화
 
-        MembersLoginResponseDto response = MembersLoginResponseDto.builder()
+        MembersLoginResponseDto responseDto = MembersLoginResponseDto.builder()
                 .membersEmail(token.getMembersEmail())
                 .accessToken(token.getAccessToken())
                 .refreshToken(token.getRefreshToken())
                 .grantType(token.getGrantType())
                 .build();
 
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(201)
+                .data(responseDto)
+                .build();
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -93,8 +101,13 @@ public class MembersController {
     })
     @PostMapping("/jwt/refresh")
     @ResponseBody
-    public ResponseEntity<RefreshAccessTokenResponseDto> refreshAccessToken(@RequestHeader(value = "Authorization") String refreshToken){
-        RefreshAccessTokenResponseDto response = jwtService.validateRefreshToken(refreshToken);
+    public ResponseEntity<ApiCommonResponse> refreshAccessToken(@RequestHeader(value = "Authorization") String refreshToken){
+        RefreshAccessTokenResponseDto responseDto = jwtService.validateRefreshToken(refreshToken);
+
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(200)
+                .data(responseDto)
+                .build();
         return ResponseEntity.ok(response);
     }
 
@@ -108,7 +121,7 @@ public class MembersController {
     // refresh token만 db에서 삭제
     @PostMapping("/member/logout")
     @ResponseBody
-    public ResponseEntity<?> logout(@RequestHeader(value = "Authorization") String refreshToken){
+    public ResponseEntity<ApiCommonResponse> logout(@RequestHeader(value = "Authorization") String refreshToken){
         oAuthService.logout(refreshToken);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)

@@ -2,6 +2,7 @@ package com.hckst.respal.authentication;
 
 
 import com.hckst.respal.authentication.oauth.dto.response.TestResponseDto;
+import com.hckst.respal.global.dto.ApiCommonResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,11 +14,15 @@ public class testController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/test")
-    public ResponseEntity<TestResponseDto> test(){
+    public ResponseEntity<ApiCommonResponse> test(){
         String message = "ok";
-        TestResponseDto response = TestResponseDto.builder()
+        TestResponseDto responseDto = TestResponseDto.builder()
                 .message(message)
                 .code(HttpStatus.OK.value())
+                .build();
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(200)
+                .data(responseDto)
                 .build();
         return ResponseEntity.ok(response);
     }

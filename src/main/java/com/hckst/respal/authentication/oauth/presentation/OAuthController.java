@@ -72,8 +72,12 @@ public class OAuthController {
     })
     @GetMapping("/user/{uid}")
     @ResponseBody
-    public ResponseEntity<?> requestUserInfo(@PathVariable String uid, @RequestParam String type){
-        RedirectResponse response = oAuthTmpService.getOauthTmp(uid,type);
+    public ResponseEntity<ApiCommonResponse> requestUserInfo(@PathVariable String uid, @RequestParam String type){
+        RedirectResponse responseDto = oAuthTmpService.getOauthTmp(uid,type);
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(200)
+                .data(responseDto)
+                .build();
         return ResponseEntity.ok(response);
     }
 }
