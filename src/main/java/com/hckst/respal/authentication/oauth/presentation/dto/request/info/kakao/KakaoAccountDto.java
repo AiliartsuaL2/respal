@@ -1,4 +1,4 @@
-package com.hckst.respal.authentication.oauth.dto.request.info.kakao;
+package com.hckst.respal.authentication.oauth.presentation.dto.request.info.kakao;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

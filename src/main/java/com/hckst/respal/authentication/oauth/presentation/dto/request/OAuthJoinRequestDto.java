@@ -1,4 +1,4 @@
-package com.hckst.respal.authentication.oauth.dto.request;
+package com.hckst.respal.authentication.oauth.presentation.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;

@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @Schema(description = "에러 응답")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApiCommonResponse {
+public class ApiCommonResponse<T> {
     @Schema(description = "Http 응답 코드")
     private Integer statusCode;
 
-    @Schema(description = "에러 메세지")
-    private Object data;
+    @Schema(description = "응답 데이터")
+    private T data;
 }

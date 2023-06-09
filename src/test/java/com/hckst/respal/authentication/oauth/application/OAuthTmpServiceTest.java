@@ -1,8 +1,8 @@
 package com.hckst.respal.authentication.oauth.application;
 import com.hckst.respal.authentication.oauth.domain.OauthTmp;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepository;
-import com.hckst.respal.authentication.oauth.dto.response.RedirectCallBackResponse;
-import com.hckst.respal.authentication.oauth.dto.response.RedirectResponse;
+import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectCallBackResponse;
+import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectResponse;
 import com.hckst.respal.exception.oauth.NoSuchOAuthTmpUidException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

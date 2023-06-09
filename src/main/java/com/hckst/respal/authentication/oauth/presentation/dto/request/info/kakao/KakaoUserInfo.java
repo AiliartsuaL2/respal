@@ -1,7 +1,5 @@
-package com.hckst.respal.authentication.oauth.dto.request.info.kakao;
+package com.hckst.respal.authentication.oauth.presentation.dto.request.info.kakao;
 
-import com.hckst.respal.authentication.oauth.dto.request.info.kakao.KakaoAccountDto;
-import com.hckst.respal.authentication.oauth.dto.request.info.kakao.KakaoPropertiesDto;
 import lombok.*;
 
 @Getter

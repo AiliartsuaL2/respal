@@ -1,6 +1,5 @@
-package com.hckst.respal.authentication.oauth.dto.request.info.google;
+package com.hckst.respal.authentication.oauth.presentation.dto.request.info.google;
 
-import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
 import lombok.*;
 
 @Getter

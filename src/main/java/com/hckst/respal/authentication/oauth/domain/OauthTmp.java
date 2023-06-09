@@ -1,6 +1,6 @@
 package com.hckst.respal.authentication.oauth.domain;
 
-import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
+import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
 import lombok.AllArgsConstructor;

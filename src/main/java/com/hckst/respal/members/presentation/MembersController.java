@@ -47,7 +47,7 @@ public class MembersController {
     })
     @PostMapping("/member/login")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse> login(@RequestBody MembersLoginRequestDto membersLoginRequestDto){
+    public ResponseEntity<ApiCommonResponse<MembersLoginResponseDto>> login(@RequestBody MembersLoginRequestDto membersLoginRequestDto){
         Token token = membersService.loginMembers(membersLoginRequestDto);
         jwtService.login(token);
         MembersLoginResponseDto responseDto = MembersLoginResponseDto.builder()
@@ -70,7 +70,7 @@ public class MembersController {
     })
     @PostMapping("/member/join")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse> join(@RequestBody MembersJoinRequestDto membersJoinRequestDto){
+    public ResponseEntity<ApiCommonResponse<MembersLoginResponseDto>> join(@RequestBody MembersJoinRequestDto membersJoinRequestDto){
         // provider type 없는경우 exception
         if(membersJoinRequestDto.getProvider() == null){
             throw new NotExistProviderType();
@@ -101,7 +101,7 @@ public class MembersController {
     })
     @PostMapping("/jwt/refresh")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse> refreshAccessToken(@RequestHeader(value = "Authorization") String refreshToken){
+    public ResponseEntity<ApiCommonResponse<RefreshAccessTokenResponseDto>> refreshAccessToken(@RequestHeader(value = "Authorization") String refreshToken){
         RefreshAccessTokenResponseDto responseDto = jwtService.validateRefreshToken(refreshToken);
 
         ApiCommonResponse response = ApiCommonResponse.builder()
@@ -121,7 +121,7 @@ public class MembersController {
     // refresh token만 db에서 삭제
     @PostMapping("/member/logout")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse> logout(@RequestHeader(value = "Authorization") String refreshToken){
+    public ResponseEntity<ApiCommonResponse<String>> logout(@RequestHeader(value = "Authorization") String refreshToken){
         oAuthService.logout(refreshToken);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)

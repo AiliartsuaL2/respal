@@ -2,10 +2,10 @@ package com.hckst.respal.authentication.oauth.presentation;
 
 import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
 import com.hckst.respal.authentication.oauth.application.OAuthTmpService;
-import com.hckst.respal.authentication.oauth.dto.request.info.UserInfo;
+import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.jwt.dto.Token;
-import com.hckst.respal.authentication.oauth.dto.response.RedirectCallBackResponse;
-import com.hckst.respal.authentication.oauth.dto.response.RedirectResponse;
+import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectCallBackResponse;
+import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectResponse;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
@@ -72,7 +72,7 @@ public class OAuthController {
     })
     @GetMapping("/user/{uid}")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse> requestUserInfo(@PathVariable String uid, @RequestParam String type){
+    public ResponseEntity<ApiCommonResponse<RedirectResponse>> requestUserInfo(@PathVariable String uid, @RequestParam String type){
         RedirectResponse responseDto = oAuthTmpService.getOauthTmp(uid,type);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
