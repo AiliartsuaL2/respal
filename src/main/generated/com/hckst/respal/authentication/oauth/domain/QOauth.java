@@ -22,8 +22,6 @@ public class QOauth extends EntityPathBase<Oauth> {
 
     public static final QOauth oauth = new QOauth("oauth");
 
-    public final StringPath accessToken = createString("accessToken");
-
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final com.hckst.respal.members.domain.QMembers membersId;

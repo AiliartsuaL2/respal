@@ -45,12 +45,8 @@ public class GithubOAuthService implements OAuthService{
         log.info("github login 진입");
         String email = userInfo.getEmail();
         Optional<MembersOAuthDto> membersOauth = membersRepository.findMembersOauthForLogin(email, Provider.GITHUB);
-
-        // 기존 회원인경우 oauthAccessToken 업데이트
         if(membersOauth.isPresent()){
             Members members = membersRepository.findById(membersOauth.get().getId()).get();
-            Oauth oauth = oauthRepository.findOauthByMembersId(members);
-            oauth.updateAccessToken(accessToken);
             return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
         }
         return null;

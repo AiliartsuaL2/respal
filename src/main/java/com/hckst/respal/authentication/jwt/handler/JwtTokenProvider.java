@@ -39,6 +39,7 @@ public class JwtTokenProvider {
 //    private long refreshTokenValidTime = 60 * 60 * 24 * 14 * 1000L; // 2주
     private long accessTokenValidTime = 60 * 1000L; // 1분
     private long refreshTokenValidTime = 60 * 5 * 1000L; // 5분
+    private static final String TOKEN_TYPE = "Bearer";
 
     private final UserDetailsService userDetailsService;
 
@@ -75,6 +76,7 @@ public class JwtTokenProvider {
                 .compact();
 
         return Token.builder()
+                .grantType(TOKEN_TYPE)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .membersId(membersId)

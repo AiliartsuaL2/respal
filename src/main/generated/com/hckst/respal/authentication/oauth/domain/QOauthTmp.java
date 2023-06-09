@@ -34,7 +34,7 @@ public class QOauthTmp extends EntityPathBase<OauthTmp> {
 
     public final StringPath uid = createString("uid");
 
-    public final com.hckst.respal.authentication.oauth.dto.request.info.QUserInfo userInfo;
+    public final com.hckst.respal.authentication.oauth.presentation.dto.request.info.QUserInfo userInfo;
 
     public QOauthTmp(String variable) {
         this(OauthTmp.class, forVariable(variable), INITS);
@@ -54,7 +54,7 @@ public class QOauthTmp extends EntityPathBase<OauthTmp> {
 
     public QOauthTmp(Class<? extends OauthTmp> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.userInfo = inits.isInitialized("userInfo") ? new com.hckst.respal.authentication.oauth.dto.request.info.QUserInfo(forProperty("userInfo")) : null;
+        this.userInfo = inits.isInitialized("userInfo") ? new com.hckst.respal.authentication.oauth.presentation.dto.request.info.QUserInfo(forProperty("userInfo")) : null;
     }
 
 }

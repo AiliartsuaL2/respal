@@ -1,8 +1,7 @@
-package com.hckst.respal.authentication.oauth.dto.request.info;
+package com.hckst.respal.authentication.oauth.presentation.dto.request.info;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
-import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
@@ -16,7 +15,7 @@ import com.querydsl.core.types.Path;
 @Generated("com.querydsl.codegen.DefaultEmbeddableSerializer")
 public class QUserInfo extends BeanPath<UserInfo> {
 
-    private static final long serialVersionUID = 289299175L;
+    private static final long serialVersionUID = -1052811813L;
 
     public static final QUserInfo userInfo = new QUserInfo("userInfo");
 

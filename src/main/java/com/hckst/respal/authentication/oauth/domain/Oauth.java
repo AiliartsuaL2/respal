@@ -26,17 +26,11 @@ public class Oauth {
     @JoinColumn(name= "MEMBERS_ID")
     private Members membersId;
 
-    @Column(length = 255)
-    private String accessToken;
-
     //소셜 타입
     @Convert(converter = ProviderConverter.class)
     @Column(columnDefinition = "varchar(10)")
     private Provider provider;
 
-    public void updateAccessToken(String accessToken){
-        this.accessToken = accessToken;
-    }
     @Builder
     public Oauth(Members membersId, Provider provider){
         this.membersId = membersId;
