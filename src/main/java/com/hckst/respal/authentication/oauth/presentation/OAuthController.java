@@ -66,8 +66,7 @@ public class OAuthController {
 
     @Operation(summary = "OAuth 정보 요청 메서드", description = "리다이렉트 되며 저장된 OAuth 로그인 및 회원가입 정보를 반환해주는 url 입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "신규 회원", content = @Content(schema = @Schema(implementation = RedirectResponse.class))),
-            @ApiResponse(responseCode = "200", description = "기존 회원", content = @Content(schema = @Schema(implementation = RedirectCallBackResponse.class))),
+            @ApiResponse(responseCode = "200", description = "기존 회원, 신규회원에 accessToken, refreshToken 추가", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "Uid 불일치 및 type 불일치", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/user/{uid}")

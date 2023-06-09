@@ -8,8 +8,12 @@ import lombok.Getter;
 @Builder
 @Schema(description = "일반 이메일 로그인 응답")
 public class MembersLoginResponseDto {
+    @Schema(description = "토큰 타입")
     private String grantType;
+    @Schema(description = "액세스 토큰")
     private String accessToken;
+    @Schema(description = "리프레쉬 토큰")
     private String refreshToken;
+    @Schema(description = "회원 이메일")
     private String membersEmail;
 }

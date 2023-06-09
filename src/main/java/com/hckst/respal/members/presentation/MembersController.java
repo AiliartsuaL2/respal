@@ -42,7 +42,7 @@ public class MembersController {
 
     @Operation(summary = "로그인 메서드", description = "일반 이메일 로그인 메서드입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "로그인 성공", content = @Content(schema = @Schema(implementation = MembersLoginResponseDto.class))),
+            @ApiResponse(responseCode = "200", description = "로그인 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "로그인 실패(올바르지 않은 사용자 정보)", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/member/login")
@@ -65,7 +65,7 @@ public class MembersController {
 
     @Operation(summary = "회원가입 메서드", description = "일반 이메일 회원가입 메서드입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "회원가입 성공", content = @Content(schema = @Schema(implementation = MembersLoginResponseDto.class))),
+            @ApiResponse(responseCode = "201", description = "회원가입 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "회원가입 실패 (중복된 이메일)", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/member/join")
@@ -96,8 +96,8 @@ public class MembersController {
 
     @Operation(summary = "access token 재발급 메서드", description = "access token 재발급 메서드입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "access 토큰 재발급", content = @Content(schema = @Schema(implementation = RefreshAccessTokenResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "access 토큰 재발급 실패(올바르지 않은 refresh token)", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+            @ApiResponse(responseCode = "200", description = "access 토큰 재발급", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "401", description = "access 토큰 재발급 실패(올바르지 않은 refresh token)", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/jwt/refresh")
     @ResponseBody
@@ -111,14 +111,24 @@ public class MembersController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "비밀번호 찾기 메서드", description = "비밀번호 찾기 메서드 입니다. 아직 구현되지 않았습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "비밀번호 찾기 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "비밀번호 찾기 실패", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
     @PostMapping("/find/password")
     @ResponseBody
-    public ResponseEntity<?> findPassword(String email){
+    public ResponseEntity<ApiCommonResponse<String>> findPassword(String email){
         // 이메일 인증,, 비밀번호 재설정 다이렉션 전송
         return ResponseEntity.ok(null);
     }
 
     // refresh token만 db에서 삭제
+    @Operation(summary = "로그아웃 메서드", description = "로그아웃 메서드입니다. Database에서 refreshToken을 제거합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "refresh token 제거 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "refresh token 확인 불가", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
     @PostMapping("/member/logout")
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<String>> logout(@RequestHeader(value = "Authorization") String refreshToken){
