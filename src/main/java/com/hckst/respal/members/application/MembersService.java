@@ -13,6 +13,7 @@ import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -79,7 +80,11 @@ public class MembersService {
         message.setText(mailDto.getMessage());
         message.setFrom(mailDto.getFromAddress());
         message.setReplyTo(mailDto.getFromAddress());
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+        } catch (MailException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 }
