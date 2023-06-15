@@ -1,14 +1,13 @@
 package com.hckst.respal.service;
 
 import com.hckst.respal.exception.members.IncorrectMailArgumentException;
-import com.hckst.respal.exception.oauth.NoSuchOAuthTmpUidException;
 import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.domain.Members;
-import com.hckst.respal.members.presentation.dto.request.MailDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
+import com.hckst.respal.members.presentation.dto.request.SendEmailRequestDto;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,30 +99,22 @@ class MembersServiceTest {
     @Test
     void mailSuccessTest(){
         //given
-        MailDto mailDto = MailDto.builder()
-                .toAddress("ailiartsual2@gmail.com")
-                .title("제목 테스트")
-                .message("메일 테스트")
-                .fromAddress("respalOfficial@gmail.com")
-                .build();
+        String successEmail = "ailiartsual2@gmail.com";
+        SendEmailRequestDto sendEmailRequestDto = new SendEmailRequestDto(successEmail);
         //when
-        membersService.sendResetEmailDirection(mailDto);
+        membersService.sendEmail(sendEmailRequestDto);
         //then
     }
 
     @Test
     void mailFailedTest(){
         //given
-        MailDto mailDto = MailDto.builder()
-                .title("제목 테스트")
-                .message("메일 테스트")
-                .toAddress("없는email")
-                .fromAddress("없는email")
-                .build();
+        String failEmail = "asdfsadf";
         //when
+        SendEmailRequestDto sendEmailRequestDto = new SendEmailRequestDto(failEmail);
 
         //then
-        Assertions.assertThatThrownBy(() ->  membersService.sendResetEmailDirection(mailDto))
+        Assertions.assertThatThrownBy(() ->  membersService.sendEmail(sendEmailRequestDto))
                 .isInstanceOf(IncorrectMailArgumentException.class);
     }
 }

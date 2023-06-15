@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface MembersRepositoryCustom {
     Optional<MembersOAuthDto> findMembersOauthForLogin(String email, Provider provider);
     Boolean existsMembersOauthForJoin(String email, Provider provider);
+    Optional<Members> findCommonMembersByEmail(String email);
 }

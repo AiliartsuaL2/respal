@@ -2,6 +2,7 @@ package com.hckst.respal.members.domain.repository;
 
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.members.domain.Members;
+import com.hckst.respal.members.domain.QMembers;
 import com.hckst.respal.members.domain.repository.dto.MembersOAuthDto;
 import com.hckst.respal.members.domain.repository.dto.QMembersOAuthDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -38,6 +39,16 @@ public class MembersRepositoryImpl implements MembersRepositoryCustom {
                 .where(members.email.eq(email)
                         .and(oauth.provider.eq(provider).or(oauth.provider.isNull())))
                 .fetchFirst() != null;
+    }
+
+    @Override
+    public Optional<Members> findCommonMembersByEmail(String email) {
+        Members member = queryFactory.selectFrom(QMembers.members)
+                .leftJoin(QMembers.members.oauthList, oauth)
+                .where(QMembers.members.email.eq(email)
+                        .and(oauth.provider.isNull())
+                ).fetchOne();
+        return Optional.ofNullable(member);
     }
 
 }

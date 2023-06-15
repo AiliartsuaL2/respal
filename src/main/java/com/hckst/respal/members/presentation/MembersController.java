@@ -12,6 +12,8 @@ import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.members.application.MembersService;
+import com.hckst.respal.members.presentation.dto.request.PasswordPatchRequestDto;
+import com.hckst.respal.members.presentation.dto.request.SendEmailRequestDto;
 import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -111,16 +113,37 @@ public class MembersController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "비밀번호 찾기 메서드", description = "비밀번호 찾기 메서드 입니다. 아직 구현되지 않았습니다.")
+    @Operation(summary = "비밀번호 재설정 URL 전송 메서드", description = "이메일로 Redirection Url을 전송합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "비밀번호 찾기 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "비밀번호 찾기 실패", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    @PostMapping("/find/password")
+    @GetMapping("/password")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<String>> findPassword(String email){
-        // 이메일 인증,, 비밀번호 재설정 다이렉션 전송
-        return ResponseEntity.ok(null);
+    public ResponseEntity<ApiCommonResponse<String>> findPassword(@RequestBody SendEmailRequestDto sendEmailRequestDto){
+        // 이메일로 비밀번호 재설정 다이렉션 전송
+        membersService.sendEmail(sendEmailRequestDto);
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(200)
+                .data("해당 이메일로 비밀번호 재설정 이메일을 전송하였습니다.")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "비밀번호 재설정 메서드", description = "비밀번호 재설정을 진행합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "비밀번호 찾기 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "비밀번호 찾기 실패", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @PatchMapping("/password")
+    @ResponseBody
+    public ResponseEntity<ApiCommonResponse<String>> updatePassword(@RequestBody PasswordPatchRequestDto passwordPatchRequestDto){
+        membersService.updatePassword(passwordPatchRequestDto);
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(200)
+                .data("비밀번호를 성공적으로 변경하였습니다.")
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     // refresh token만 db에서 삭제

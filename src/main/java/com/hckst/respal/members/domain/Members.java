@@ -66,10 +66,15 @@ public class Members implements UserDetails {
         this.roles.add(role);
     }
 
-    //업데이트 처리 메서드
+    //회원정보 수정
     public void updateMemberInfo(String password, String nickname){
         this.password = encryptPassword(password);
         this.nickname = nickname;
+    }
+
+    //비밀번호 수정
+    public void updatePassword(String password){
+        this.password = encryptPassword(password);
     }
 
     // 비밀번호를 암호화하는 메서드
