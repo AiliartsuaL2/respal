@@ -2,6 +2,7 @@ package com.hckst.respal.members.application;
 
 import com.hckst.respal.converter.RoleType;
 import com.hckst.respal.exception.members.DuplicateEmailException;
+import com.hckst.respal.exception.members.IncorrectMailArgumentException;
 import com.hckst.respal.exception.members.InvalidMembersException;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.Role;
@@ -73,7 +74,7 @@ public class MembersService {
     }
 
     // 이메일 재설정 direction 설정
-    public String sendResetEmailDirection(MailDto mailDto) {
+    public Boolean sendResetEmailDirection(MailDto mailDto) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(mailDto.getToAddress());
         message.setSubject(mailDto.getTitle());
@@ -83,8 +84,8 @@ public class MembersService {
         try {
             mailSender.send(message);
         } catch (MailException e) {
-            e.printStackTrace();
+            throw new IncorrectMailArgumentException();
         }
-        return null;
+        return true;
     }
 }

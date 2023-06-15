@@ -1,5 +1,7 @@
 package com.hckst.respal.service;
 
+import com.hckst.respal.exception.members.IncorrectMailArgumentException;
+import com.hckst.respal.exception.oauth.NoSuchOAuthTmpUidException;
 import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.presentation.dto.request.MailDto;
@@ -7,6 +9,7 @@ import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -114,9 +117,13 @@ class MembersServiceTest {
         MailDto mailDto = MailDto.builder()
                 .title("제목 테스트")
                 .message("메일 테스트")
+                .toAddress("없는email")
+                .fromAddress("없는email")
                 .build();
         //when
-        membersService.sendResetEmailDirection(mailDto);
+
         //then
+        Assertions.assertThatThrownBy(() ->  membersService.sendResetEmailDirection(mailDto))
+                .isInstanceOf(IncorrectMailArgumentException.class);
     }
 }
