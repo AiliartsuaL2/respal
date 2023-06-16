@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@Schema(description = "에러 응답")
+@Schema(description = "응답")
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApiCommonResponse<T> {
