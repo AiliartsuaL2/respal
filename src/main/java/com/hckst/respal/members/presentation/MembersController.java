@@ -122,6 +122,10 @@ public class MembersController {
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<String>> findPassword(@RequestBody SendEmailRequestDto sendEmailRequestDto){
         // 이메일로 비밀번호 재설정 다이렉션 전송
+        membersService.checkMembers(sendEmailRequestDto);
+        String uid = membersService.createPasswordResetDirection(sendEmailRequestDto);
+        // sendEmail이 async 메소드이기 때문에 해당 메서드 따로 호출
+        sendEmailRequestDto.setUid(uid);
         membersService.sendEmail(sendEmailRequestDto);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)

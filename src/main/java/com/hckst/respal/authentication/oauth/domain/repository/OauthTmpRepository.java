@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface OauthTmpRepository extends JpaRepository<OauthTmp, Long> {
 
     public Optional<OauthTmp> findOauthTmpByUid(String uid);
-    public Optional<OauthTmp> findOauthTmpByUserInfoAndProvider(UserInfo userInfo, Provider provider);
+    public Optional<OauthTmp> findOauthTmpByUserInfoEmailAndProvider(String email, Provider provider);
 }

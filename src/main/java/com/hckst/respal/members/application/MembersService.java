@@ -98,11 +98,7 @@ public class MembersService {
 //      QueueCapacity 초과 요청에 대한 비동기 method 호출시 방어 코드 작성
     @Async
     public void sendEmail(SendEmailRequestDto sendEmailRequestDto) {
-        membersRepository.findCommonMembersByEmail(sendEmailRequestDto.getEmail()).orElseThrow(
-                () -> new NotExistMembersException()
-        );
-        String direction = createPasswordResetDirection(sendEmailRequestDto.getEmail());
-        String mailMessage = MAIL_MESSAGE + direction;
+        String mailMessage = MAIL_MESSAGE + sendEmailRequestDto.getUid();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setSubject(MAIL_TITLE);
         message.setTo(sendEmailRequestDto.getEmail());
@@ -114,7 +110,14 @@ public class MembersService {
             throw new IncorrectMailArgumentException();
         }
     }
+    //회원임을 확인하는 로직 이메일 send는 Async 처리로 controller에서 해당 로직으로 확인 후 메일 전송
+    public void checkMembers(SendEmailRequestDto sendEmailRequestDto){
+        membersRepository.findCommonMembersByEmail(sendEmailRequestDto.getEmail()).orElseThrow(
+                () -> new NotExistMembersException()
+        );
+    }
 
+    // 비밀번호 변경 후에는 해당 uid 로우를 삭제한다.
     @Transactional
     public void updatePassword(PasswordPatchRequestDto passwordPatchRequestDto) {
         OauthTmp oauthTmp = oauthTmpRepository.findOauthTmpByUid(passwordPatchRequestDto.getUid()).orElseThrow(
@@ -123,20 +126,23 @@ public class MembersService {
         Members members = membersRepository.findCommonMembersByEmail(oauthTmp.getUserInfo().getEmail()).orElseThrow(
                 () -> new NotExistMembersException());
         members.updatePassword(passwordPatchRequestDto.getPassword()); // 변경감지
-
+        oauthTmpRepository.delete(oauthTmp);
     }
 
     // 비밀번호 재설정 Direction 생성 메서드
+    // 기존에는 암, 복호화로 uid를 설정하였으나, 이렇게 설정시 동일한 URL로 계속 변경이 가능함,
+    // async로 인하여 controller호출
     @Transactional
-    public String createPasswordResetDirection(String email) {
+    public String createPasswordResetDirection(SendEmailRequestDto sendEmailRequestDto) {
         String uid = UUID.randomUUID().toString();
-        Optional<OauthTmp> optOauthTmp = oauthTmpRepository.findOauthTmpByUserInfoAndProvider(UserInfo.builder().email(email).build(),Provider.COMMON);
+        Optional<OauthTmp> optOauthTmp = oauthTmpRepository.findOauthTmpByUserInfoEmailAndProvider(sendEmailRequestDto.getEmail(),Provider.COMMON);
+        // 해당 email로 기존에 direction을 만들었던 경우에는 기존것을 삭제하고 새로 만들어줌.
         if(optOauthTmp.isPresent()){
             oauthTmpRepository.delete(optOauthTmp.get());
         }
         OauthTmp oauthTmp = OauthTmp.builder()
                 .uid(uid)
-                .userInfo(UserInfo.builder().email(email).build())
+                .userInfo(UserInfo.builder().email(sendEmailRequestDto.getEmail()).build())
                 .provider(Provider.COMMON)
                 .build();
         oauthTmpRepository.save(oauthTmp);
