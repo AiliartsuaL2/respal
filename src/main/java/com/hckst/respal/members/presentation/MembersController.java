@@ -115,8 +115,8 @@ public class MembersController {
 
     @Operation(summary = "비밀번호 재설정 URL 전송 메서드", description = "이메일로 Redirection Url을 전송합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "비밀번호 찾기 성공", useReturnTypeSchema = true),
-            @ApiResponse(responseCode = "400", description = "비밀번호 찾기 실패", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+            @ApiResponse(responseCode = "200", description = "이메일 전송 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "이메일 전송 실패", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/password")
     @ResponseBody
@@ -132,8 +132,8 @@ public class MembersController {
 
     @Operation(summary = "비밀번호 재설정 메서드", description = "비밀번호 재설정을 진행합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "비밀번호 찾기 성공", useReturnTypeSchema = true),
-            @ApiResponse(responseCode = "400", description = "비밀번호 찾기 실패", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+            @ApiResponse(responseCode = "200", description = "비밀번호 재설정 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "비밀번호 재설정 실패", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PatchMapping("/password")
     @ResponseBody
