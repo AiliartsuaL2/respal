@@ -104,7 +104,7 @@ public class MembersController {
             @ApiResponse(responseCode = "200", description = "access 토큰 재발급", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "401", description = "access 토큰 재발급 실패(올바르지 않은 refresh token)", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    @GetMapping("/join")
+    @GetMapping("/member/join")
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<String>> sendEmailForJoin(SendEmailRequestDto sendEmailRequestDto){
         if(membersService.checkMembers(sendEmailRequestDto)){
