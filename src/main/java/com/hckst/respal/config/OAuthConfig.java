@@ -22,7 +22,7 @@ public class OAuthConfig {
         private final String clientId;
         private final String clientSecret;
         private final String webDevRedirectUri ;
-        private final String webStagingRedirectUri ;
+        private final String webStgRedirectUri ;
         private final String webLiveRedirectUri ;
         private final String appRedirectUri ;
         private final String tokenUrl ;

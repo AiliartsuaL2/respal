@@ -72,7 +72,7 @@ public class GoogleOAuthService implements OAuthService {
         if(Client.WEB_DEV.getValue().equals(client)){
             oAuthConfig.getGoogle().getWebDevRedirectUri();
         }else if(Client.WEB_STAGING.getValue().equals(client)){
-            oAuthConfig.getGoogle().getWebStagingRedirectUri();
+            oAuthConfig.getGoogle().getWebStgRedirectUri();
         }else if(Client.WEB_LIVE.getValue().equals(client)){
             oAuthConfig.getGoogle().getWebLiveRedirectUri();
         }

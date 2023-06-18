@@ -70,7 +70,7 @@ public class GithubOAuthService implements OAuthService{
         if(Client.WEB_DEV.getValue().equals(client)){
             oAuthConfig.getGithub().getWebDevRedirectUri();
         }else if(Client.WEB_STAGING.getValue().equals(client)){
-            oAuthConfig.getGithub().getWebStagingRedirectUri();
+            oAuthConfig.getGithub().getWebStgRedirectUri();
         }else if(Client.WEB_LIVE.getValue().equals(client)){
             oAuthConfig.getGithub().getWebLiveRedirectUri();
         }

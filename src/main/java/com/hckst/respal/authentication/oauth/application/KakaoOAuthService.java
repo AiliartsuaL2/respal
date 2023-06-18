@@ -67,7 +67,7 @@ public class KakaoOAuthService implements OAuthService{
         if(Client.WEB_DEV.getValue().equals(client)){
             oAuthConfig.getKakao().getWebDevRedirectUri();
         }else if(Client.WEB_STAGING.getValue().equals(client)){
-            oAuthConfig.getKakao().getWebStagingRedirectUri();
+            oAuthConfig.getKakao().getWebStgRedirectUri();
         }else if(Client.WEB_LIVE.getValue().equals(client)){
             oAuthConfig.getKakao().getWebLiveRedirectUri();
         }
