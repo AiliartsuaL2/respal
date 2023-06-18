@@ -65,11 +65,13 @@ public class KakaoOAuthService implements OAuthService{
 
         String redirectUri = null;
         if(Client.WEB_DEV.getValue().equals(client)){
-            oAuthConfig.getKakao().getWebDevRedirectUri();
+            redirectUri = oAuthConfig.getKakao().getWebDevRedirectUri();
         }else if(Client.WEB_STAGING.getValue().equals(client)){
-            oAuthConfig.getKakao().getWebStgRedirectUri();
+            redirectUri = oAuthConfig.getKakao().getWebStgRedirectUri();
         }else if(Client.WEB_LIVE.getValue().equals(client)){
-            oAuthConfig.getKakao().getWebLiveRedirectUri();
+            redirectUri = oAuthConfig.getKakao().getWebLiveRedirectUri();
+        }else if(Client.APP.getValue().equals(client)){
+            redirectUri = oAuthConfig.getKakao().getAppRedirectUri();
         }
 
         // Uri 빌더 사용
