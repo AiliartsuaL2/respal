@@ -63,7 +63,15 @@ public class KakaoOAuthService implements OAuthService{
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity request = new HttpEntity(headers);
 
-        String redirectUri = Client.WEB.getValue().equals(client) ? oAuthConfig.getKakao().getWebRedirectUri() : oAuthConfig.getKakao().getAppRedirectUri();
+        String redirectUri = null;
+        if(Client.WEB_DEV.getValue().equals(client)){
+            oAuthConfig.getKakao().getWebDevRedirectUri();
+        }else if(Client.WEB_STAGING.getValue().equals(client)){
+            oAuthConfig.getKakao().getWebStagingRedirectUri();
+        }else if(Client.WEB_LIVE.getValue().equals(client)){
+            oAuthConfig.getKakao().getWebLiveRedirectUri();
+        }
+
         // Uri 빌더 사용
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getKakao().getTokenUrl())
                 .queryParam("grant_type", oAuthConfig.getKakao().getGrantType())

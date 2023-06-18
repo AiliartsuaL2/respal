@@ -100,9 +100,10 @@ class MembersServiceTest {
     void mailSuccessTest(){
         //given
         String successEmail = "ailiartsual2@gmail.com";
-        SendEmailRequestDto sendEmailRequestDto = new SendEmailRequestDto(successEmail);
+        SendEmailRequestDto sendEmailRequestDto = new SendEmailRequestDto();
+        sendEmailRequestDto.setEmail(successEmail);
         //when
-        membersService.sendEmail(sendEmailRequestDto);
+        membersService.sendPasswordResetEmail(sendEmailRequestDto);
         //then
     }
 
@@ -111,10 +112,11 @@ class MembersServiceTest {
         //given
         String failEmail = "asdfsadf";
         //when
-        SendEmailRequestDto sendEmailRequestDto = new SendEmailRequestDto(failEmail);
+        SendEmailRequestDto sendEmailRequestDto = new SendEmailRequestDto();
+        sendEmailRequestDto.setEmail(failEmail);
 
         //then
-        Assertions.assertThatThrownBy(() ->  membersService.sendEmail(sendEmailRequestDto))
+        Assertions.assertThatThrownBy(() ->  membersService.sendPasswordResetEmail(sendEmailRequestDto))
                 .isInstanceOf(IncorrectMailArgumentException.class);
     }
 }

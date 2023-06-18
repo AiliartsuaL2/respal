@@ -66,9 +66,14 @@ public class GithubOAuthService implements OAuthService{
         headers.setAccept(Arrays.asList(new MediaType[] { MediaType.APPLICATION_JSON }));
         HttpEntity request = new HttpEntity(headers);
 
-
-        String redirectUri = Client.WEB.getValue().equals(client) ? oAuthConfig.getGithub().getWebRedirectUri() : oAuthConfig.getGithub().getAppRedirectUri();
-
+        String redirectUri = null;
+        if(Client.WEB_DEV.getValue().equals(client)){
+            oAuthConfig.getGithub().getWebDevRedirectUri();
+        }else if(Client.WEB_STAGING.getValue().equals(client)){
+            oAuthConfig.getGithub().getWebStagingRedirectUri();
+        }else if(Client.WEB_LIVE.getValue().equals(client)){
+            oAuthConfig.getGithub().getWebLiveRedirectUri();
+        }
         // Uri 빌더 사용
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getGithub().getTokenUrl())
                 .queryParam("client_id", oAuthConfig.getGithub().getClientId())

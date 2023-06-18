@@ -68,7 +68,14 @@ public class GoogleOAuthService implements OAuthService {
          */
         // Uri 빌더 사용
 
-        String redirectUri = Client.WEB.getValue().equals(client) ? oAuthConfig.getGoogle().getWebRedirectUri() : oAuthConfig.getGoogle().getAppRedirectUri();
+        String redirectUri = null;
+        if(Client.WEB_DEV.getValue().equals(client)){
+            oAuthConfig.getGoogle().getWebDevRedirectUri();
+        }else if(Client.WEB_STAGING.getValue().equals(client)){
+            oAuthConfig.getGoogle().getWebStagingRedirectUri();
+        }else if(Client.WEB_LIVE.getValue().equals(client)){
+            oAuthConfig.getGoogle().getWebLiveRedirectUri();
+        }
 
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getGoogle().getTokenUrl())
                 .queryParam("grant_type", oAuthConfig.getGoogle().getGrantType())

@@ -32,10 +32,14 @@ public class OAuthServiceImpl {
     private final JwtService jwtService;
 
     // 신규회원
-    private static final String SIGNUP_WEB_REDIRECT_URL = "http://localhost:3000/signup/social?uid=";
+    private static final String SIGNUP_WEB_DEV_REDIRECT_URL = "http://localhost:3000/signup/social?uid=";
+    private static final String SIGNUP_WEB_STAGING_REDIRECT_URL = "https://respal-front-staging.vercel.app/signup/social?uid=";
+    private static final String SIGNUP_WEB_LIVE_REDIRECT_URL = "https://respal-front-live.vercel.app/signup/social?uid=";
     private static final String SIGNUP_APP_REDIRECT_URL = "app://signup?uid=";
     // 기존회원
-    private static final String CALLBACK_WEB_REDIRECT_URL = "http://localhost:3000/callback?uid=";
+    private static final String CALLBACK_WEB_DEV_REDIRECT_URL = "http://localhost:3000/callback?uid=";
+    private static final String CALLBACK_WEB_STAGING_REDIRECT_URL = "https://respal-front-staging.vercel.app/callback?uid=";
+    private static final String CALLBACK_WEB_LIVE_REDIRECT_URL = "https://respal-front-live.vercel.app/callback?uid=";
     private static final String CALLBACK_APP_REDIRECT_URL = "app://callback?uid=";
 
     public Token login(Provider provider, UserInfo userInfo, String accessToken) {
@@ -98,7 +102,15 @@ public class OAuthServiceImpl {
                     .build();
             oauthTmpRepository.save(oauthTmpData);
 
-            return Client.WEB.getValue().equals(client) ? URI.create(SIGNUP_WEB_REDIRECT_URL+uid) : URI.create(SIGNUP_APP_REDIRECT_URL+uid);
+            if(Client.WEB_DEV.getValue().equals(client)){
+                return URI.create(SIGNUP_WEB_DEV_REDIRECT_URL+uid);
+            }else if(Client.WEB_STAGING.getValue().equals(client)){
+                return URI.create(SIGNUP_WEB_STAGING_REDIRECT_URL+uid);
+            }else if(Client.WEB_LIVE.getValue().equals(client)){
+                return URI.create(SIGNUP_WEB_LIVE_REDIRECT_URL+uid);
+            }else{
+                return URI.create(SIGNUP_APP_REDIRECT_URL+uid);
+            }
         }
 
         // 기존 회원인 경우
@@ -113,8 +125,15 @@ public class OAuthServiceImpl {
                 .build();
         oauthTmpRepository.save(oauthTmpData);
 
-        //true면 app요청, false or null이면 web요청 ,, "true".equals >> NPE 방지
-        return Client.WEB.getValue().equals(client) ? URI.create(CALLBACK_WEB_REDIRECT_URL+uid) : URI.create(CALLBACK_APP_REDIRECT_URL+uid);
+        if(Client.WEB_DEV.getValue().equals(client)){
+            return URI.create(CALLBACK_WEB_DEV_REDIRECT_URL+uid);
+        }else if(Client.WEB_STAGING.getValue().equals(client)){
+            return URI.create(CALLBACK_WEB_STAGING_REDIRECT_URL+uid);
+        }else if(Client.WEB_LIVE.getValue().equals(client)){
+            return URI.create(CALLBACK_WEB_LIVE_REDIRECT_URL+uid);
+        }else{
+            return URI.create(CALLBACK_APP_REDIRECT_URL+uid);
+        }
     }
 
     public void logout(String refreshToken) {

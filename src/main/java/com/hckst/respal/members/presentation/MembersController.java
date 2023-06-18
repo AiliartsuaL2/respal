@@ -5,6 +5,8 @@ import com.hckst.respal.authentication.jwt.service.JwtService;
 import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
+import com.hckst.respal.exception.members.DuplicateEmailException;
+import com.hckst.respal.exception.members.NotExistMembersException;
 import com.hckst.respal.exception.members.NotExistProviderType;
 import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
@@ -96,6 +98,25 @@ public class MembersController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+
+    @Operation(summary = "이메일 확인 메서드", description = "")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "access 토큰 재발급", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "401", description = "access 토큰 재발급 실패(올바르지 않은 refresh token)", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @GetMapping("/join")
+    @ResponseBody
+    public ResponseEntity<ApiCommonResponse<String>> sendEmailForJoin(SendEmailRequestDto sendEmailRequestDto){
+        if(membersService.checkMembers(sendEmailRequestDto)){
+            throw new DuplicateEmailException();
+        }
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(200)
+                .data("인증번호 확인 이메일을 전송하였습니다.")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "access token 재발급 메서드", description = "access token 재발급 메서드입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "access 토큰 재발급", useReturnTypeSchema = true),
@@ -118,15 +139,17 @@ public class MembersController {
             @ApiResponse(responseCode = "200", description = "이메일 전송 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "이메일 전송 실패", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    @GetMapping("/password")
+    @GetMapping("/{client}/password")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<String>> findPassword(@RequestBody SendEmailRequestDto sendEmailRequestDto){
-        // 이메일로 비밀번호 재설정 다이렉션 전송
-        membersService.checkMembers(sendEmailRequestDto);
-        String uid = membersService.createPasswordResetDirection(sendEmailRequestDto);
+    // 이메일로 비밀번호 재설정 다이렉션 전송
+    public ResponseEntity<ApiCommonResponse<String>> findPassword(@PathVariable String client, @RequestBody SendEmailRequestDto sendEmailRequestDto){
+        if(!membersService.checkMembers(sendEmailRequestDto)){
+            throw new NotExistMembersException();
+        }
+        String uid = membersService.createPasswordResetDirection(sendEmailRequestDto, client);
         // sendEmail이 async 메소드이기 때문에 해당 메서드 따로 호출
         sendEmailRequestDto.setUid(uid);
-        membersService.sendEmail(sendEmailRequestDto);
+        membersService.sendPasswordResetEmail(sendEmailRequestDto);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .data("해당 이메일로 비밀번호 재설정 이메일을 전송하였습니다.")

@@ -21,7 +21,9 @@ public class OAuthConfig {
         private final String grantType = "authorization_code";
         private final String clientId;
         private final String clientSecret;
-        private final String webRedirectUri ;
+        private final String webDevRedirectUri ;
+        private final String webStagingRedirectUri ;
+        private final String webLiveRedirectUri ;
         private final String appRedirectUri ;
         private final String tokenUrl ;
         private final String infoUrl ;
