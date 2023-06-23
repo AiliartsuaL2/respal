@@ -91,6 +91,9 @@ public class Members implements UserDetails {
         this.passwordTmpYn = TFCode.TRUE;
         this.password = encryptPassword(password);
     }
+    public void tmpPasswordToFalse(){
+        this.passwordTmpYn = TFCode.FALSE;
+    }
 
     // 비밀번호를 암호화하는 메서드
     public String encryptPassword(String password) {

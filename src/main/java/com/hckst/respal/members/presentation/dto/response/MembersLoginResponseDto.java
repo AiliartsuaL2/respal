@@ -16,4 +16,7 @@ public class MembersLoginResponseDto {
     private String refreshToken;
     @Schema(description = "회원 이메일")
     private String membersEmail;
+    @Schema(description = "임시 비밀번호 status , Y인 경우 임시 비밀번호 / N인 경우 일반 비밀번호")
+    private String tmpPasswordStatus;
+
 }

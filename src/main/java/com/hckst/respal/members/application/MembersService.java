@@ -3,10 +3,7 @@ package com.hckst.respal.members.application;
 import com.hckst.respal.authentication.oauth.domain.OauthTmp;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepository;
 import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
-import com.hckst.respal.converter.Client;
-import com.hckst.respal.converter.Provider;
-import com.hckst.respal.converter.RoleType;
-import com.hckst.respal.converter.TFCode;
+import com.hckst.respal.converter.*;
 import com.hckst.respal.exception.members.*;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.Role;
@@ -53,9 +50,6 @@ public class MembersService {
         );
         if (!matchPassword(membersLoginRequestDto.getPassword(), members.getPassword())) { // 비밀번호가 일치하지 않을경우
             throw new InvalidMembersException();
-        }
-        if(TFCode.TRUE.equals(members.getPasswordTmpYn())){
-            throw new ChangePasswordException();
         }
         return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
     }
@@ -156,5 +150,14 @@ public class MembersService {
         String password = UUID.randomUUID().toString();
         members.updateTmpPassword(password);
         return password;
+    }
+
+    public String checkTmpPasswordStatus(MembersLoginRequestDto membersLoginRequestDto) {
+        TFCodeConverter tfCodeConverter = new TFCodeConverter();
+        Members members = membersRepository.findCommonMembersByEmail(membersLoginRequestDto.getEmail()).get();
+        TFCode passwordTmpYn = members.getPasswordTmpYn();
+        String result = tfCodeConverter.convertToDatabaseColumn(passwordTmpYn);
+        members.tmpPasswordToFalse();
+        return result;
     }
 }

@@ -54,11 +54,13 @@ public class MembersController {
     public ResponseEntity<ApiCommonResponse<MembersLoginResponseDto>> login(@RequestBody MembersLoginRequestDto membersLoginRequestDto){
         Token token = membersService.loginMembers(membersLoginRequestDto);
         jwtService.login(token);
+        String tmpPasswordStatus = membersService.checkTmpPasswordStatus(membersLoginRequestDto);
         MembersLoginResponseDto responseDto = MembersLoginResponseDto.builder()
                 .membersEmail(token.getMembersEmail())
                 .refreshToken(token.getRefreshToken())
                 .accessToken(token.getAccessToken())
                 .grantType(token.getGrantType())
+                .tmpPasswordStatus(tmpPasswordStatus)
                 .build();
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)

@@ -49,7 +49,6 @@ class MembersServiceTest {
     @Test
     void loginMembersFailTest() {
         //given
-        //given
         MembersLoginRequestDto membersLoginRequestDto = MembersLoginRequestDto.builder()
                 .email(EXIST_MEMBERS_EMAIL_1)
                 .password(FAIL_PASSWORD)
@@ -118,5 +117,30 @@ class MembersServiceTest {
         //then
         Assertions.assertThatThrownBy(() ->  membersService.sendPasswordResetEmail(sendEmailRequestDto))
                 .isInstanceOf(IncorrectMailArgumentException.class);
+    }
+
+    @Test
+    void checkTmpPasswordCheckSuccessTest(){
+        //given
+        String memberEmail = "ailiartsual2@gmail.com";
+        MembersLoginRequestDto build = MembersLoginRequestDto.builder().email(memberEmail).build();
+
+        //when
+        String tmpStatus = membersService.checkTmpPasswordStatus(build);
+        //then
+        Assertions.assertThat(tmpStatus).isEqualTo("Y");
+
+    }
+    @Test
+    void checkTmpPasswordCheckFailTest(){
+        //given
+        String memberEmail = "juho74@naver.com";
+        MembersLoginRequestDto build = MembersLoginRequestDto.builder().email(memberEmail).build();
+
+        //when
+        String tmpStatus = membersService.checkTmpPasswordStatus(build);
+        //then
+        Assertions.assertThat(tmpStatus).isEqualTo("N");
+
     }
 }
