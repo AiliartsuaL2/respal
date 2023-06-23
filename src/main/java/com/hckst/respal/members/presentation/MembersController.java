@@ -134,25 +134,21 @@ public class MembersController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "비밀번호 재설정 URL 전송 메서드", description = "이메일로 Redirection Url을 전송합니다.")
+    @Operation(summary = "임시 비밀번호 이메일 전송 메서드", description = "임시 비밀번호 설정 후 이메일로 임시 비밀번호를 전송합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이메일 전송 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "이메일 전송 실패", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    @GetMapping("/{client}/password")
+    @GetMapping("/password")
     @ResponseBody
     // 이메일로 비밀번호 재설정 다이렉션 전송
-    public ResponseEntity<ApiCommonResponse<String>> findPassword(@PathVariable String client, @RequestBody SendEmailRequestDto sendEmailRequestDto){
-        if(!membersService.checkMembers(sendEmailRequestDto)){
-            throw new NotExistMembersException();
-        }
-        String uid = membersService.createPasswordResetDirection(sendEmailRequestDto, client);
-        // sendEmail이 async 메소드이기 때문에 해당 메서드 따로 호출
-        sendEmailRequestDto.setUid(uid);
+    public ResponseEntity<ApiCommonResponse<String>> findPassword(@RequestBody SendEmailRequestDto sendEmailRequestDto){
+        String password = membersService.passwordResetToTmp(sendEmailRequestDto.getEmail());
+        sendEmailRequestDto.setTmpPassword(password);
         membersService.sendPasswordResetEmail(sendEmailRequestDto);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
-                .data("해당 이메일로 비밀번호 재설정 이메일을 전송하였습니다.")
+                .data("해당 이메일로 임시 비밀번호를 전송하였습니다.")
                 .build();
         return ResponseEntity.ok(response);
     }

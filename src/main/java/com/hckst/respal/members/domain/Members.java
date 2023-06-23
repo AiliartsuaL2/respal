@@ -1,6 +1,8 @@
 package com.hckst.respal.members.domain;
 
 import com.hckst.respal.authentication.oauth.domain.Oauth;
+import com.hckst.respal.converter.TFCode;
+import com.hckst.respal.converter.TFCodeConverter;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -42,6 +44,11 @@ public class Members implements UserDetails {
     // 가입일시
     private LocalDateTime regTime;
 
+    // 비밀번호 재설정 컬럼 Y인경우 재설정 필요
+    @Convert(converter = TFCodeConverter.class)
+    @Column(columnDefinition = "char")
+    private TFCode passwordTmpYn;
+
     //권한
     @ManyToMany(cascade=CascadeType.ALL)
     @JoinTable(
@@ -64,6 +71,7 @@ public class Members implements UserDetails {
         this.email = email;
         this.oauthList = new ArrayList<>();
         this.roles.add(role);
+        this.passwordTmpYn = TFCode.FALSE;
     }
 
     //회원정보 수정
@@ -74,6 +82,13 @@ public class Members implements UserDetails {
 
     //비밀번호 수정
     public void updatePassword(String password){
+        this.passwordTmpYn = TFCode.FALSE;
+        this.password = encryptPassword(password);
+    }
+
+    //임시 비밀번호 설정
+    public void updateTmpPassword(String password){
+        this.passwordTmpYn = TFCode.TRUE;
         this.password = encryptPassword(password);
     }
 

@@ -15,6 +15,8 @@ import lombok.Setter;
 public class SendEmailRequestDto {
     @Schema(description = "이메일", nullable = false, example = "abc@jiniworld.me")
     private String email;
-    private String uid;
+    @Schema(description = "임시 비밀번호", nullable = false)
+    private String tmpPassword;
+
 
 }

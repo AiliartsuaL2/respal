@@ -6,6 +6,7 @@ import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserI
 import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.RoleType;
+import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.exception.members.*;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.Role;
@@ -40,14 +41,9 @@ public class MembersService {
     private final OauthTmpRepository oauthTmpRepository;
     private final JavaMailSender mailSender;
 
-
-    private static final String RESET_PASSWORD_DIRECTION_WEB_DEV_PREFIX = "http://localhost:3000/reset/password?uid=";
-    private static final String RESET_PASSWORD_DIRECTION_WEB_STAGING_PREFIX = "https://respal-front-staging.vercel.app/reset/password?uid=";
-    private static final String RESET_PASSWORD_DIRECTION_WEB_LIVE_PREFIX = "https://respal-front-live.vercel.app/reset/password?uid=";
-    private static final String RESET_PASSWORD_DIRECTION_APP_PREFIX = "app://reset/password?uid=";
-    private static final String RESET_PASSWORD_MAIL_TITLE = "[Respal] 비밀번호 재설정 링크입니다.";
+    private static final String RESET_PASSWORD_MAIL_TITLE = "[Respal] 변경된 임시 비밀번호입니다.";
     private static final String JOIN_MAIL_TITLE = "[Respal] 비밀번호 재설정 링크입니다.";
-    private static final String MAIL_MESSAGE = "비밀번호 변경을 원하시면 아래 링크를 통해 변경하실 수 있습니다. \n";
+    private static final String MAIL_MESSAGE = "변경된 임시 비밀번호는 아래와 같습니다. \n";
 
     // 로그인 체크
     public Token loginMembers(MembersLoginRequestDto membersLoginRequestDto) {
@@ -57,6 +53,9 @@ public class MembersService {
         );
         if (!matchPassword(membersLoginRequestDto.getPassword(), members.getPassword())) { // 비밀번호가 일치하지 않을경우
             throw new InvalidMembersException();
+        }
+        if(TFCode.TRUE.equals(members.getPasswordTmpYn())){
+            throw new ChangePasswordException();
         }
         return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
     }
@@ -119,7 +118,7 @@ public class MembersService {
 //      QueueCapacity 초과 요청에 대한 비동기 method 호출시 방어 코드 작성
     @Async
     public void sendPasswordResetEmail(SendEmailRequestDto sendEmailRequestDto) {
-        String mailMessage = MAIL_MESSAGE + sendEmailRequestDto.getUid();
+        String mailMessage = MAIL_MESSAGE + sendEmailRequestDto.getTmpPassword();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setSubject(RESET_PASSWORD_MAIL_TITLE);
         message.setTo(sendEmailRequestDto.getEmail());
@@ -136,45 +135,26 @@ public class MembersService {
         return membersRepository.findCommonMembersByEmail(sendEmailRequestDto.getEmail()).isPresent();
     }
 
-    // 비밀번호 변경 후에는 해당 uid 로우를 삭제한다.
+    // 비밀번호 변경
     @Transactional
     public void updatePassword(PasswordPatchRequestDto passwordPatchRequestDto) {
-        OauthTmp oauthTmp = oauthTmpRepository.findOauthTmpByUid(passwordPatchRequestDto.getUid()).orElseThrow(
-                () -> new NotExistPasswordResetDirectionUid()
-        );
-        Members members = membersRepository.findCommonMembersByEmail(oauthTmp.getUserInfo().getEmail()).orElseThrow(
+        Members members = membersRepository.findCommonMembersByEmail(passwordPatchRequestDto.getEmail()).orElseThrow(
                 () -> new NotExistMembersException());
-        members.updatePassword(passwordPatchRequestDto.getPassword()); // 변경감지
-        oauthTmpRepository.delete(oauthTmp);
+        // 비밀번호 검증
+        if (!matchPassword(passwordPatchRequestDto.getTmpPassword(), members.getPassword())) { // 비밀번호가 일치하지 않을경우
+            throw new InvalidMembersException();
+        }
+        members.updatePassword(passwordPatchRequestDto.getNewPassword()); // 변경감지
+
     }
 
-    // 비밀번호 재설정 Direction 생성 메서드
-    // 기존에는 암, 복호화로 uid를 설정하였으나, 이렇게 설정시 동일한 URL로 계속 변경이 가능함,
-    // async로 인하여 controller호출
+    // 비밀번호 재설정 메서드, UUID로 비밀번호를 설정 후 해당 이메일로 임시 비밀번호를 전송해줌.
     @Transactional
-    public String createPasswordResetDirection(SendEmailRequestDto sendEmailRequestDto, String client) {
-        String uid = UUID.randomUUID().toString();
-        Optional<OauthTmp> optOauthTmp = oauthTmpRepository.findOauthTmpByUserInfoEmailAndProvider(sendEmailRequestDto.getEmail(),Provider.COMMON);
-        // 해당 email로 기존에 direction을 만들었던 경우에는 기존것을 삭제하고 새로 만들어줌.
-        if(optOauthTmp.isPresent()){
-            oauthTmpRepository.delete(optOauthTmp.get());
-        }
-        OauthTmp oauthTmp = OauthTmp.builder()
-                .uid(uid)
-                .userInfo(UserInfo.builder().email(sendEmailRequestDto.getEmail()).build())
-                .provider(Provider.COMMON)
-                .build();
-
-        oauthTmpRepository.save(oauthTmp);
-
-        if(Client.WEB_DEV.getValue().equals(client)){
-            return RESET_PASSWORD_DIRECTION_WEB_DEV_PREFIX+uid;
-        }else if(Client.WEB_STAGING.getValue().equals(client)){
-            return RESET_PASSWORD_DIRECTION_WEB_STAGING_PREFIX+uid;
-        }else if(Client.WEB_LIVE.getValue().equals(client)){
-            return RESET_PASSWORD_DIRECTION_WEB_LIVE_PREFIX+uid;
-        }else{
-            return RESET_PASSWORD_DIRECTION_APP_PREFIX+uid;
-        }
+    public String passwordResetToTmp(String email) {
+        Members members = membersRepository.findCommonMembersByEmail(email).orElseThrow(
+                () -> new NotExistMembersException());
+        String password = UUID.randomUUID().toString();
+        members.updateTmpPassword(password);
+        return password;
     }
 }

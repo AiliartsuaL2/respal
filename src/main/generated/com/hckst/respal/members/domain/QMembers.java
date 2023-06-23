@@ -30,6 +30,8 @@ public class QMembers extends EntityPathBase<Members> {
 
     public final StringPath password = createString("password");
 
+    public final EnumPath<com.hckst.respal.converter.TFCode> passwordTmpYn = createEnum("passwordTmpYn", com.hckst.respal.converter.TFCode.class);
+
     public final StringPath picture = createString("picture");
 
     public final DateTimePath<java.time.LocalDateTime> regTime = createDateTime("regTime", java.time.LocalDateTime.class);
