@@ -74,7 +74,7 @@ public class GithubOAuthService implements OAuthService{
         }else if(Client.WEB_LIVE.getValue().equals(client)){
             redirectUri = oAuthConfig.getGithub().getWebLiveRedirectUri();
         }else if(Client.APP.getValue().equals(client)){
-            redirectUri = oAuthConfig.getKakao().getAppRedirectUri();
+            redirectUri = oAuthConfig.getGithub().getAppRedirectUri();
         }
         // Uri 빌더 사용
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getGithub().getTokenUrl())
