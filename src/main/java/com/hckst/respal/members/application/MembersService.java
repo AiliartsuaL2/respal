@@ -65,7 +65,7 @@ public class MembersService {
         if (duplicationCheckEmail(membersJoinRequestDto.getEmail())) {
             throw new DuplicateEmailException();
         }
-
+        
         Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()
                 .email(membersJoinRequestDto.getEmail())
@@ -152,6 +152,7 @@ public class MembersService {
         return password;
     }
 
+    // tmpPasswordStatus 확인 메서드 , 비밀번호 재설정 후 로그인시 tmpPasswordStatus 확인 후 False로 다시 처리
     public String checkTmpPasswordStatus(MembersLoginRequestDto membersLoginRequestDto) {
         TFCodeConverter tfCodeConverter = new TFCodeConverter();
         Members members = membersRepository.findCommonMembersByEmail(membersLoginRequestDto.getEmail()).get();
