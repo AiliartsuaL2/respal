@@ -1,13 +1,12 @@
 package com.hckst.respal.members.presentation;
 
 import com.hckst.respal.authentication.jwt.dto.response.RefreshAccessTokenResponseDto;
-import com.hckst.respal.authentication.jwt.service.JwtService;
+import com.hckst.respal.authentication.jwt.application.JwtService;
 import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
-import com.hckst.respal.exception.members.DuplicateEmailException;
-import com.hckst.respal.exception.members.NotExistMembersException;
-import com.hckst.respal.exception.members.NotExistProviderType;
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
@@ -29,6 +28,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Controller
 @Slf4j
@@ -76,10 +77,10 @@ public class MembersController {
     })
     @PostMapping("/member/join")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<MembersLoginResponseDto>> join(@RequestBody MembersJoinRequestDto membersJoinRequestDto){
+    public ResponseEntity<ApiCommonResponse<MembersLoginResponseDto>> join(@Valid @RequestBody MembersJoinRequestDto membersJoinRequestDto){
         // provider type 없는경우 exception
         if(membersJoinRequestDto.getProvider() == null){
-            throw new NotExistProviderType();
+            throw new ApplicationException(ErrorMessage.NOT_EXIST_PROVIDER_TYPE);
         }
         ProviderConverter pc = new ProviderConverter();
         Provider provider = pc.convertToEntityAttribute(membersJoinRequestDto.getProvider());
@@ -110,7 +111,7 @@ public class MembersController {
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<String>> sendEmailForJoin(SendEmailRequestDto sendEmailRequestDto){
         if(membersService.checkMembers(sendEmailRequestDto)){
-            throw new DuplicateEmailException();
+            throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)

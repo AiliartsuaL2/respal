@@ -1,8 +1,8 @@
 package com.hckst.respal.authentication.jwt.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.global.dto.ApiErrorResponse;
-import com.hckst.respal.exception.jwt.JwtCustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -24,12 +24,12 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         try {
             chain.doFilter(request, response);
-        } catch (JwtCustomException ex) {
+        } catch (ApplicationException ex) {
             setResponse(ex, response);
         }
     }
 
-    private void setResponse(JwtCustomException ex, HttpServletResponse response) throws RuntimeException, IOException {
+    private void setResponse(ApplicationException ex, HttpServletResponse response) throws RuntimeException, IOException {
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse(ex.getStatusCode(), ex.getMessage(), ex.getErrorCode());
         response.setStatus(ex.getStatusCode());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

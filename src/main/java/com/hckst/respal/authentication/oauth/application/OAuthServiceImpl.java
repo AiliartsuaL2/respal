@@ -1,15 +1,15 @@
 package com.hckst.respal.authentication.oauth.application;
 
 import com.hckst.respal.authentication.jwt.dto.Token;
-import com.hckst.respal.authentication.jwt.service.JwtService;
+import com.hckst.respal.authentication.jwt.application.JwtService;
 import com.hckst.respal.authentication.oauth.domain.OauthTmp;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepository;
 import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
-import com.hckst.respal.exception.jwt.NotExistRefreshTokenException;
-import com.hckst.respal.exception.oauth.NoSuchOAuthCodeException;
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +55,7 @@ public class OAuthServiceImpl {
 
     public OAuthToken getAccessToken(Provider provider, String code, String client) {
         if(code == null){
-            throw new NoSuchOAuthCodeException();
+            throw new ApplicationException(ErrorMessage.NO_SUCH_OAUTH_CODE_EXCEPTION);
         }
         if(Provider.KAKAO.equals(provider)){
             return kakaoOAuthService.getAccessToken(code, client);
@@ -138,7 +138,7 @@ public class OAuthServiceImpl {
 
     public void logout(String refreshToken) {
         if(refreshToken == null){
-            throw new NotExistRefreshTokenException();
+            throw new ApplicationException(ErrorMessage.NOT_EXIST_REFRESH_TOKEN_EXCEPTION);
         }
         jwtService.deleteRefreshToken(refreshToken);
     }

@@ -1,6 +1,6 @@
 package com.hckst.respal.service;
 
-import com.hckst.respal.exception.members.IncorrectMailArgumentException;
+import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
@@ -116,7 +116,7 @@ class MembersServiceTest {
 
         //then
         Assertions.assertThatThrownBy(() ->  membersService.sendPasswordResetEmail(sendEmailRequestDto))
-                .isInstanceOf(IncorrectMailArgumentException.class);
+                .isInstanceOf(ApplicationException.class);
     }
 
     @Test

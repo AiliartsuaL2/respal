@@ -1,10 +1,9 @@
 package com.hckst.respal.members.application;
 
-import com.hckst.respal.authentication.oauth.domain.OauthTmp;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepository;
-import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
 import com.hckst.respal.converter.*;
-import com.hckst.respal.exception.members.*;
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.Role;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
@@ -24,7 +23,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 
 
@@ -46,10 +44,10 @@ public class MembersService {
     public Token loginMembers(MembersLoginRequestDto membersLoginRequestDto) {
         // 이메일이 존재하지 않는경우
         Members members = membersRepository.findMembersByEmail(membersLoginRequestDto.getEmail()).orElseThrow(
-                () -> new InvalidMembersException()
+                () -> new ApplicationException(ErrorMessage.INVALID_MEMBER_EXCEPTION)
         );
         if (!matchPassword(membersLoginRequestDto.getPassword(), members.getPassword())) { // 비밀번호가 일치하지 않을경우
-            throw new InvalidMembersException();
+            throw new ApplicationException(ErrorMessage.INVALID_MEMBER_EXCEPTION);
         }
         return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
     }
@@ -63,9 +61,9 @@ public class MembersService {
     @Transactional // insert query,, read-only false
     public Token joinMembers(MembersJoinRequestDto membersJoinRequestDto) {
         if (duplicationCheckEmail(membersJoinRequestDto.getEmail())) {
-            throw new DuplicateEmailException();
+            throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
-        
+
         Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()
                 .email(membersJoinRequestDto.getEmail())
@@ -99,7 +97,7 @@ public class MembersService {
             mailSender.send(message);
         } catch (MailException e) {
             log.info(e.getMessage());
-            throw new IncorrectMailArgumentException();
+            throw new ApplicationException(ErrorMessage.INCORRECT_MAIL_ARGUMENT_EXCEPTION);
         }
     }
 
@@ -121,7 +119,7 @@ public class MembersService {
             mailSender.send(message);
         } catch (MailException e) {
             log.info(e.getMessage());
-            throw new IncorrectMailArgumentException();
+            throw new ApplicationException(ErrorMessage.INCORRECT_MAIL_ARGUMENT_EXCEPTION);
         }
     }
     //회원임을 확인하는 로직 이메일 send는 Async 처리로 controller에서 해당 로직으로 확인 후 메일 전송
@@ -133,10 +131,10 @@ public class MembersService {
     @Transactional
     public void updatePassword(PasswordPatchRequestDto passwordPatchRequestDto) {
         Members members = membersRepository.findCommonMembersByEmail(passwordPatchRequestDto.getEmail()).orElseThrow(
-                () -> new NotExistMembersException());
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
         // 비밀번호 검증
         if (!matchPassword(passwordPatchRequestDto.getTmpPassword(), members.getPassword())) { // 비밀번호가 일치하지 않을경우
-            throw new InvalidMembersException();
+            throw new ApplicationException(ErrorMessage.INVALID_MEMBER_EXCEPTION);
         }
         members.updatePassword(passwordPatchRequestDto.getNewPassword()); // 변경감지
 
@@ -146,7 +144,7 @@ public class MembersService {
     @Transactional
     public String passwordResetToTmp(String email) {
         Members members = membersRepository.findCommonMembersByEmail(email).orElseThrow(
-                () -> new NotExistMembersException());
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
         String password = UUID.randomUUID().toString();
         members.updateTmpPassword(password);
         return password;

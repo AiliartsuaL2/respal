@@ -10,10 +10,10 @@ public class ApplicationException extends RuntimeException{
     private final Integer statusCode;
     private final HttpStatus httpStatus;
 
-    protected ApplicationException(int statusCode , HttpStatus httpStatus, String errorCode , String message) {
-        super(message);
-        this.errorCode = errorCode;
-        this.statusCode = statusCode;
-        this.httpStatus = httpStatus;
+    public ApplicationException(ErrorMessage errorMessage) {
+        super(errorMessage.getMsg());
+        this.errorCode = errorMessage.getErrorCode();
+        this.statusCode = errorMessage.getCode();
+        this.httpStatus = errorMessage.getHttpStatus();
     }
 }

@@ -1,4 +1,4 @@
-package com.hckst.respal.authentication.jwt.service;
+package com.hckst.respal.authentication.jwt.application;
 
 
 import com.hckst.respal.authentication.jwt.dto.Token;
@@ -6,10 +6,8 @@ import com.hckst.respal.authentication.jwt.dto.response.RefreshAccessTokenRespon
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.authentication.jwt.domain.RefreshToken;
 import com.hckst.respal.authentication.jwt.repository.RefreshTokenRepository;
-import com.hckst.respal.exception.jwt.IncorrectRefreshTokenException;
-import com.hckst.respal.exception.jwt.NotExistRefreshTokenException;
-import com.hckst.respal.exception.jwt.NotExistTokenException;
-import com.hckst.respal.exception.members.InvalidMembersException;
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,14 +31,14 @@ public class JwtService {
     @Transactional
     public void login(Token tokenDto){
         if(tokenDto == null){
-            throw new NotExistTokenException();
+            throw new ApplicationException(ErrorMessage.NOT_EXIST_TOKEN_INFO_EXCEPTION);
         }
         RefreshToken refreshToken = RefreshToken.builder()
                 .keyId(tokenDto.getMembersId())
                 .refreshToken(tokenDto.getRefreshToken())
                 .build();
         Members members = membersRepository.findById(refreshToken.getKeyId()).orElseThrow(
-                () -> new InvalidMembersException());
+                () -> new ApplicationException(ErrorMessage.INVALID_MEMBER_EXCEPTION));
         String email = members.getEmail();
         tokenDto.setMembersEmail(email);
         if(refreshTokenRepository.existsByKeyId(tokenDto.getMembersId())){
@@ -57,7 +55,7 @@ public class JwtService {
     public RefreshAccessTokenResponseDto validateRefreshToken(String requestRefreshToken){
         requestRefreshToken = requestRefreshToken.replace(TOKEN_PREFIX,""); // Bearer 제거
         RefreshToken refreshToken = getRefreshToken(requestRefreshToken).orElseThrow(
-                () -> new IncorrectRefreshTokenException()
+                () -> new ApplicationException(ErrorMessage.INCORRECT_REFRESH_TOKEN_EXCEPTION)
         );
         String createdAccessToken = jwtTokenProvider.validateRefreshToken(refreshToken.getRefreshToken());
         return createRefreshJson(createdAccessToken);
@@ -65,7 +63,7 @@ public class JwtService {
 
     public RefreshAccessTokenResponseDto createRefreshJson(String accessToken){
         if(accessToken == null){
-            throw new IncorrectRefreshTokenException();
+            throw new ApplicationException(ErrorMessage.INCORRECT_REFRESH_TOKEN_EXCEPTION);
         }
         RefreshAccessTokenResponseDto response = RefreshAccessTokenResponseDto.builder()
                 .accessToken(accessToken)
@@ -78,7 +76,7 @@ public class JwtService {
     public void deleteRefreshToken(String refreshToken){
         refreshToken = refreshToken.replace(TOKEN_PREFIX,""); // Bearer 제거
         RefreshToken storedRefreshToken = refreshTokenRepository.findByRefreshToken(refreshToken).orElseThrow(
-                () -> new NotExistRefreshTokenException()
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_REFRESH_TOKEN_EXCEPTION)
         );
         refreshTokenRepository.deleteByKeyId(storedRefreshToken.getKeyId());
     }

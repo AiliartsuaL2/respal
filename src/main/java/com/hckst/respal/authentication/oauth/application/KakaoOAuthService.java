@@ -7,7 +7,8 @@ import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserI
 import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.RoleType;
-import com.hckst.respal.exception.members.DuplicateEmailException;
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.members.domain.Role;
@@ -134,7 +135,7 @@ public class KakaoOAuthService implements OAuthService{
 
         // 이미 이메일과 provider로 존재하는경우 exception
         if(membersRepository.existsMembersOauthForJoin(membersJoinRequestDto.getEmail(),Provider.KAKAO)){
-            throw new DuplicateEmailException();
+            throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
         Members members = Members.builder()
                 .email(membersJoinRequestDto.getEmail())

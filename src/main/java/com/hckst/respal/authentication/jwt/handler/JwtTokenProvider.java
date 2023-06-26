@@ -1,11 +1,8 @@
 package com.hckst.respal.authentication.jwt.handler;
 
 import com.hckst.respal.authentication.jwt.dto.Token;
-import com.hckst.respal.authentication.jwt.domain.RefreshToken;
-import com.hckst.respal.exception.jwt.ExpiredTokenException;
-import com.hckst.respal.exception.jwt.IncorrectRefreshTokenException;
-import com.hckst.respal.exception.jwt.MalformedTokenException;
-import com.hckst.respal.exception.jwt.SignatureTokenException;
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Role;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
@@ -107,16 +104,16 @@ public class JwtTokenProvider {
             return !claims.getBody().getExpiration().before(new Date());
         }catch (SignatureException e) {
             log.info("SignatureException");
-            throw new SignatureTokenException();
+            throw new ApplicationException(ErrorMessage.SIGNATURE_TOKEN_EXCEPTION);
         } catch (MalformedJwtException e) {
             log.info("MalformedJwtException");
-            throw new MalformedTokenException();
+            throw new ApplicationException(ErrorMessage.MALFORMED_TOKEN_EXCEPTION);
         } catch (ExpiredJwtException e) {
             log.info("ExpiredJwtException");
-            throw new ExpiredTokenException();
+            throw new ApplicationException(ErrorMessage.EXPIRED_TOKEN_EXCEPTION);
         } catch (IllegalArgumentException e) {
             log.info("IllegalArgumentException");
-            throw new IncorrectRefreshTokenException();
+            throw new ApplicationException(ErrorMessage.INCORRECT_REFRESH_TOKEN_EXCEPTION);
         }
     }
 
@@ -129,16 +126,16 @@ public class JwtTokenProvider {
             }
         }catch (SignatureException e) {
             log.info("SignatureException");
-            throw new SignatureTokenException();
+            throw new ApplicationException(ErrorMessage.SIGNATURE_TOKEN_EXCEPTION);
         } catch (MalformedJwtException e) {
             log.info("MalformedJwtException");
-            throw new MalformedTokenException();
+            throw new ApplicationException(ErrorMessage.MALFORMED_TOKEN_EXCEPTION);
         } catch (ExpiredJwtException e) {
             log.info("ExpiredJwtException");
-            throw new ExpiredTokenException();
+            throw new ApplicationException(ErrorMessage.EXPIRED_TOKEN_EXCEPTION);
         } catch (IllegalArgumentException e) {
             log.info("IllegalArgumentException");
-            throw new IncorrectRefreshTokenException();
+            throw new ApplicationException(ErrorMessage.INCORRECT_REFRESH_TOKEN_EXCEPTION);
         }
         return null;
     }

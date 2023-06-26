@@ -1,5 +1,6 @@
-package com.hckst.respal.authentication.jwt.service;
+package com.hckst.respal.authentication.jwt.application;
 
+import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
         return membersRepository.findById(Long.parseLong(id))
                 .orElseThrow(
-                        () -> new UsernameNotFoundException(ErrorMessage.NOT_EXIST_MEMBER.getMsg())
+                        () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION)
                 );
     }
 }
