@@ -97,10 +97,10 @@ public class KakaoOAuthService implements OAuthService{
         WebClient webClient = WebClient.builder()
                 .baseUrl(oAuthConfig.getKakao().getInfoUrl()) // 요청 할 API Url
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE) // 헤더 설정
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer"+accessToken)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken)
                 .build();
 
-        String response = webClient.get()
+        String response = webClient.post()
                 .retrieve() // 데이터 받는 방식, 스프링에서는 exchange는 메모리 누수 가능성 때문에 retrieve 권장
                 .bodyToMono(String.class) // Mono 객체로 데이터를 받음 , Mono는 단일 데이터, Flux는 복수 데이터
                 .block();// 비동기 방식으로 데이터를 받아옴

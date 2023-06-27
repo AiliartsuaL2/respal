@@ -102,7 +102,7 @@ public class GoogleOAuthService implements OAuthService {
         WebClient webClient = WebClient.builder()
                 .baseUrl(oAuthConfig.getGoogle().getInfoUrl()) // 요청 할 API Url
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE) // 헤더 설정
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer"+accessToken)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken)
                 .build();
 
         String response = webClient.get()

@@ -72,11 +72,11 @@ public class GithubOAuthService implements OAuthService{
         WebClient webClient = WebClient.builder()
                 .baseUrl(oAuthConfig.getGithub().getTokenUrl()) // 요청 할 API Url
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE) // 헤더 설정
+                .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .build();
 
         String response = webClient.post()
                 .uri(uriBuilder -> uriBuilder
-                        .queryParam("grant_type", oAuthConfig.getGithub().getGrantType())
                         .queryParam("client_id", oAuthConfig.getGithub().getClientId())
                         .queryParam("client_secret", oAuthConfig.getGithub().getClientSecret())
                         .queryParam("redirect_uri", redirectUri)
@@ -99,7 +99,7 @@ public class GithubOAuthService implements OAuthService{
         WebClient webClient = WebClient.builder()
                 .baseUrl(oAuthConfig.getGithub().getInfoUrl()) // 요청 할 API Url
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE) // 헤더 설정
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer"+accessToken)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken)
                 .build();
 
         String response = webClient.get()
