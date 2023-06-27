@@ -39,6 +39,12 @@ dependencies {
 	//@valid
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+	// WebClient
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	//netty IOS
+	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.68.Final:osx-aarch_64'
+
 	// // QueryDSL
 	implementation "com.querydsl:querydsl-jpa"
 	implementation "com.querydsl:querydsl-core"

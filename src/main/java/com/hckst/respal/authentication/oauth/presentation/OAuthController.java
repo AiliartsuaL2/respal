@@ -57,7 +57,7 @@ public class OAuthController {
 
         OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, client);
         UserInfo userInfo = oAuthService.getUserInfo(providerType, oAuthToken.getAccessToken());
-        Token token = oAuthService.login(providerType, userInfo, oAuthToken.getAccessToken());
+        Token token = oAuthService.login(providerType, userInfo);
         URI redirectUrl = oAuthService.getRedirectUrl(providerType,userInfo,token, client);
 
         return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();

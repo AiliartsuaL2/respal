@@ -42,13 +42,13 @@ public class OAuthServiceImpl {
     private static final String CALLBACK_WEB_LIVE_REDIRECT_URL = "https://respal-front-live.vercel.app/callback?uid=";
     private static final String CALLBACK_APP_REDIRECT_URL = "app://callback?uid=";
 
-    public Token login(Provider provider, UserInfo userInfo, String accessToken) {
+    public Token login(Provider provider, UserInfo userInfo) {
         if(Provider.KAKAO.equals(provider)){
-            return kakaoOAuthService.login(userInfo,accessToken);
+            return kakaoOAuthService.login(userInfo);
         }else if(Provider.GOOGLE.equals(provider)){
-            return googleOAuthService.login(userInfo,accessToken);
+            return googleOAuthService.login(userInfo);
         }else if(Provider.GITHUB.equals(provider)){
-            return githubOAuthService.login(userInfo,accessToken);
+            return githubOAuthService.login(userInfo);
         }
         return null;
     }

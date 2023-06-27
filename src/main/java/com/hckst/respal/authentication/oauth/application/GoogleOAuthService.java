@@ -25,8 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -42,7 +41,7 @@ public class GoogleOAuthService implements OAuthService {
     private final OauthRepository oauthRepository;
 
     @Override
-    public Token login(UserInfo userInfo, String accessToken) {
+    public Token login(UserInfo userInfo) {
         log.info("google login 진입");
         String email = userInfo.getEmail();
         Optional<MembersOAuthDto> membersOauth = membersRepository.findMembersOauthForLogin(email, Provider.GOOGLE);
@@ -55,21 +54,12 @@ public class GoogleOAuthService implements OAuthService {
 
     @Override
     public OAuthToken getAccessToken(String code, String client) {
-        RestTemplate restTemplate = new RestTemplate();
-
-        // 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        HttpEntity request = new HttpEntity(headers);
-
         /*
          https://accounts.google.com/o/oauth2/v2/auth?scope=profile&response_type=code
          &client_id="할당받은 id"&redirect_uri="access token 처리")
          로 Redirect URL을 생성하는 로직을 구성
          */
-        // Uri 빌더 사용
-
-        String redirectUri = null;
+        String redirectUri;
         if(Client.WEB_DEV.getValue().equals(client)){
             redirectUri = oAuthConfig.getGoogle().getWebDevRedirectUri();
         }else if(Client.WEB_STAGING.getValue().equals(client)){
@@ -78,25 +68,30 @@ public class GoogleOAuthService implements OAuthService {
             redirectUri = oAuthConfig.getGoogle().getWebLiveRedirectUri();
         }else if(Client.APP.getValue().equals(client)){
             redirectUri = oAuthConfig.getGoogle().getAppRedirectUri();
+        } else {
+            redirectUri = null;
         }
 
-        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(oAuthConfig.getGoogle().getTokenUrl())
-                .queryParam("grant_type", oAuthConfig.getGoogle().getGrantType())
-                .queryParam("client_id",  oAuthConfig.getGoogle().getClientId())
-                .queryParam("client_secret",  oAuthConfig.getGoogle().getClientSecret())
-                .queryParam("redirect_uri",  redirectUri)
-                .queryParam("code", code);
+        WebClient webClient = WebClient.builder()
+                .baseUrl(oAuthConfig.getGoogle().getTokenUrl()) // 요청 할 API Url
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE) // 헤더 설정
+                .build();
 
-        ResponseEntity<String> response = restTemplate.exchange(
-                uriComponentsBuilder.toUriString(),
-                HttpMethod.POST,
-                request,
-                String.class
-        );
+        String response = webClient.post()
+                .uri(uriBuilder -> uriBuilder
+                        .queryParam("grant_type", oAuthConfig.getGoogle().getGrantType())
+                        .queryParam("client_id", oAuthConfig.getGoogle().getClientId())
+                        .queryParam("client_secret", oAuthConfig.getGoogle().getClientSecret())
+                        .queryParam("redirect_uri", redirectUri)
+                        .queryParam("code", code)
+                        .build())
+                .retrieve() // 데이터 받는 방식, 스프링에서는 exchange는 메모리 누수 가능성 때문에 retrieve 권장
+                .bodyToMono(String.class) // Mono 객체로 데이터를 받음 , Mono는 단일 데이터, Flux는 복수 데이터
+                .block();// 비동기 방식으로 데이터를 받아옴
 
         // UnderScoreCase To Camel GsonBuilder,, googleOAuth2Token 객체에 매핑
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-        OAuthToken oAuthToken = gson.fromJson(response.getBody(), OAuthToken.class);
+        OAuthToken oAuthToken = gson.fromJson(response, OAuthToken.class);
         log.info("구글 액세스 토큰 : " + oAuthToken.getAccessToken());
 
         return oAuthToken;
@@ -104,24 +99,19 @@ public class GoogleOAuthService implements OAuthService {
 
     @Override
     public UserInfo getUserInfo(String accessToken) {
-        RestTemplate restTemplate = new RestTemplate();
+        WebClient webClient = WebClient.builder()
+                .baseUrl(oAuthConfig.getGoogle().getInfoUrl()) // 요청 할 API Url
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE) // 헤더 설정
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer"+accessToken)
+                .build();
 
-        // 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.add("Authorization","Bearer "+accessToken);
-
-        HttpEntity request = new HttpEntity(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(
-                oAuthConfig.getGoogle().getInfoUrl(),
-                HttpMethod.GET,
-                request, // 요청시 보낼 데이터
-                String.class // 요청시 반환 데이터 타입
-        );
+        String response = webClient.get()
+                .retrieve() // 데이터 받는 방식, 스프링에서는 exchange는 메모리 누수 가능성 때문에 retrieve 권장
+                .bodyToMono(String.class) // Mono 객체로 데이터를 받음 , Mono는 단일 데이터, Flux는 복수 데이터
+                .block();// 비동기 방식으로 데이터를 받아옴
 
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-        GoogleUserInfo googleUserInfo = gson.fromJson(response.getBody(), GoogleUserInfo.class);
+        GoogleUserInfo googleUserInfo = gson.fromJson(response , GoogleUserInfo.class);
 
         UserInfo oAuthUserInfoResponseDto = UserInfo.builder()
                 .id(googleUserInfo.getId())
