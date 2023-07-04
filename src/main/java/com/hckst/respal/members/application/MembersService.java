@@ -6,6 +6,7 @@ import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.Role;
+import com.hckst.respal.members.domain.repository.JobRepository;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
@@ -33,7 +34,6 @@ import java.util.UUID;
 public class MembersService {
     private final MembersRepository membersRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final OauthTmpRepository oauthTmpRepository;
     private final JavaMailSender mailSender;
 
     private static final String RESET_PASSWORD_MAIL_TITLE = "[Respal] 변경된 임시 비밀번호입니다.";

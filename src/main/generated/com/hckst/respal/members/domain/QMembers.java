@@ -18,11 +18,15 @@ public class QMembers extends EntityPathBase<Members> {
 
     private static final long serialVersionUID = -1087310675L;
 
+    private static final PathInits INITS = PathInits.DIRECT2;
+
     public static final QMembers members = new QMembers("members");
 
     public final StringPath email = createString("email");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
+
+    public final QJob jobId;
 
     public final StringPath nickname = createString("nickname");
 
@@ -39,15 +43,24 @@ public class QMembers extends EntityPathBase<Members> {
     public final ListPath<Role, QRole> roles = this.<Role, QRole>createList("roles", Role.class, QRole.class, PathInits.DIRECT2);
 
     public QMembers(String variable) {
-        super(Members.class, forVariable(variable));
+        this(Members.class, forVariable(variable), INITS);
     }
 
     public QMembers(Path<? extends Members> path) {
-        super(path.getType(), path.getMetadata());
+        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
     public QMembers(PathMetadata metadata) {
-        super(Members.class, metadata);
+        this(metadata, PathInits.getFor(metadata, INITS));
+    }
+
+    public QMembers(PathMetadata metadata, PathInits inits) {
+        this(Members.class, metadata, inits);
+    }
+
+    public QMembers(Class<? extends Members> type, PathMetadata metadata, PathInits inits) {
+        super(type, metadata, inits);
+        this.jobId = inits.isInitialized("jobId") ? new QJob(forProperty("jobId")) : null;
     }
 
 }

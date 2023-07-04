@@ -49,6 +49,11 @@ public class Members implements UserDetails {
     @Column(columnDefinition = "char")
     private TFCode passwordTmpYn;
 
+    // 직업 id, 단방향 매핑
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name= "JOB_ID")
+    private Job jobId;
+
     //권한
     @ManyToMany(cascade=CascadeType.ALL)
     @JoinTable(

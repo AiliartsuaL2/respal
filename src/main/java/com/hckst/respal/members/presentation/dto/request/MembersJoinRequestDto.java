@@ -21,11 +21,13 @@ public class MembersJoinRequestDto {
     private String email;
     @Schema(description = "비밀번호")
 
-//    @Pattern(regexp = "[0-9]{8,16}", message = "핸드폰 번호는 10~11자리의 숫자만 입력해주세요.")
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[~`!@#$%^&*()\\-_=+\\\\|\\[\\]{};:'\",<.>/?]).{8,16}$",
             message = "비밀번호는 영문 소문자, 대문자, 숫자, 특수문자를 각각 1개 이상 포함하고, 8자리 이상 16자리 이하여야 합니다.")
     private String password;
     @Schema(description = "닉네임", nullable = false)
+    @Pattern(regexp = "^[a-zA-Z가-힣0-9]{2,16}$",
+            message = "닉네임은 특수문자를 제외한 2자이상 16자이하의 문자열만 입력이 가능합니다."
+    )
     private String nickname;
     @Schema(description = "사진", nullable = false)
     private String picture;
