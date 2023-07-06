@@ -14,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -87,6 +90,7 @@ class MembersServiceTest {
         MembersJoinRequestDto membersJoinRequestDto = MembersJoinRequestDto.builder()
                 .email(NEW_EMAIL)
                 .password(SUCCESS_PASSWORD)
+                .jobId(1)
                 .build();
         //when
         membersService.joinMembers(membersJoinRequestDto);

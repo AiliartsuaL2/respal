@@ -67,7 +67,7 @@ public class Members implements UserDetails {
     private List<Oauth> oauthList;
 
     @Builder
-    public Members(String password, String nickname, String email, String picture, Role role){
+    public Members(String password, String nickname, String email, String picture, Role role, Job jobId){
         this.password = encryptPassword(password);
         this.picture = picture;
         this.nickname = nickname;
@@ -75,6 +75,7 @@ public class Members implements UserDetails {
         this.regTime = LocalDateTime.now();
         this.email = email;
         this.oauthList = new ArrayList<>();
+        this.jobId = jobId;
         this.roles.add(role);
         this.passwordTmpYn = TFCode.FALSE;
     }

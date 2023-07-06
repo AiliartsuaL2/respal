@@ -31,6 +31,9 @@ public class MembersJoinRequestDto {
     private String nickname;
     @Schema(description = "사진", nullable = false)
     private String picture;
+    @Schema(description = "직업 id", nullable = false)
+    @NotNull
+    private Integer jobId;
     @Schema(description = "provider", nullable = false, allowableValues = {"common","kakao","google","github"})
     @NotNull
     private String provider;

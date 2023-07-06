@@ -19,9 +19,11 @@ public class QJob extends EntityPathBase<Job> {
 
     public static final QJob job = new QJob("job");
 
-    public final NumberPath<Long> id = createNumber("id", Long.class);
+    public final NumberPath<Integer> id = createNumber("id", Integer.class);
 
     public final StringPath jobName = createString("jobName");
+
+    public final NumberPath<Integer> sort = createNumber("sort", Integer.class);
 
     public QJob(String variable) {
         super(Job.class, forVariable(variable));

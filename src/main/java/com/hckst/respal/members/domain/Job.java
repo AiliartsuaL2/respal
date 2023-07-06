@@ -7,7 +7,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name="MEMBERS")
+@Table(name="JOB")
 @AllArgsConstructor
 public class Job {
 
@@ -15,6 +15,7 @@ public class Job {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "JOB_ID")
-    private Long id;
+    private Integer id;
     private String jobName;
+    private Integer sort;
 }

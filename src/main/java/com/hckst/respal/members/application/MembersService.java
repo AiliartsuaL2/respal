@@ -34,6 +34,7 @@ import java.util.UUID;
 public class MembersService {
     private final MembersRepository membersRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final JobRepository jobRepository;
     private final JavaMailSender mailSender;
 
     private static final String RESET_PASSWORD_MAIL_TITLE = "[Respal] 변경된 임시 비밀번호입니다.";
@@ -70,6 +71,7 @@ public class MembersService {
                 .password(membersJoinRequestDto.getPassword())
                 .picture(membersJoinRequestDto.getPicture())
                 .nickname(membersJoinRequestDto.getNickname())
+                .jobId(jobRepository.getReferenceById(membersJoinRequestDto.getJobId()))
                 .role(role)
                 .build();
         membersRepository.save(members);

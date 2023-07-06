@@ -3,7 +3,7 @@ import com.hckst.respal.authentication.oauth.domain.OauthTmp;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepository;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectCallBackResponse;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectResponse;
-import com.hckst.respal.exception.oauth.NoSuchOAuthTmpUidException;
+import com.hckst.respal.exception.ApplicationException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +62,6 @@ class OAuthTmpServiceTest {
         //when
         //then
         Assertions.assertThatThrownBy(() -> oAuthTmpService.getOauthTmp(uid, type))
-                .isInstanceOf(NoSuchOAuthTmpUidException.class);
+                .isInstanceOf(ApplicationException.class);
     }
 }

@@ -8,6 +8,8 @@ import com.hckst.respal.converter.ProviderConverter;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.global.dto.ApiCommonResponse;
+import com.hckst.respal.members.domain.Job;
+import com.hckst.respal.members.domain.repository.JobRepository;
 import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.global.dto.ApiErrorResponse;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Controller
 @Slf4j
@@ -39,11 +42,13 @@ public class MembersController {
     private final MembersService membersService;
     private final OAuthServiceImpl oAuthService;
     private final JwtService jwtService;
+    private final JobRepository jobRepository;
 
     @GetMapping("/member/login")
     public String loginPage(){
         return "member/login.html";
     }
+
 
     @Operation(summary = "로그인 메서드", description = "일반 이메일 로그인 메서드입니다.")
     @ApiResponses(value = {
@@ -66,6 +71,21 @@ public class MembersController {
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .data(responseDto)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "직업 목록 조회 API", description = "직업 목록 조회 API 입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "직업 목록 조회 성공", useReturnTypeSchema = true)
+    })
+    @GetMapping("/job")
+    @ResponseBody
+    public ResponseEntity<ApiCommonResponse<List<Job>>> jobs(){
+        List<Job> jobs = jobRepository.findAll();
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(200)
+                .data(jobs)
                 .build();
         return ResponseEntity.ok(response);
     }
