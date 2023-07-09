@@ -13,9 +13,5 @@ public class ApiErrorResponse {
     @Schema(description = "Http 응답 코드")
     private Integer statusCode;
 
-    @Schema(description = "에러 메세지")
-    private String message;
-
-    @Schema(description = "커스텀 에러코드")
-    private String errorCode;
+    private ApiErrorMessageAndCode result;
 }

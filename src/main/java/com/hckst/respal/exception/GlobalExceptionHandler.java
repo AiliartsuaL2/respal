@@ -1,5 +1,6 @@
 package com.hckst.respal.exception;
 
+import com.hckst.respal.global.dto.ApiErrorMessageAndCode;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,13 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity
                 .status(ex.getHttpStatus())
-                .body(new ApiErrorResponse(statusCode,ex.getMessage(),ex.getErrorCode()));
+                .body(ApiErrorResponse.builder()
+                        .statusCode(statusCode)
+                        .result(ApiErrorMessageAndCode.builder()
+                                        .errorCode(ex.getErrorCode())
+                                        .message(ex.getMessage())
+                                        .build())
+                        .build());
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -36,7 +43,9 @@ public class GlobalExceptionHandler {
         log.error(message,stackTraceElements[0]);
         ApiErrorResponse response = ApiErrorResponse.builder()
                 .statusCode(400)
-                .message(message)
+                .result(ApiErrorMessageAndCode.builder()
+                                .message(message)
+                                .build())
                 .build();
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }
@@ -51,8 +60,10 @@ public class GlobalExceptionHandler {
         log.error(message,stackTraceElements[0]);
         ApiErrorResponse response = ApiErrorResponse.builder()
                 .statusCode(400)
-                .message(message)
-                .errorCode("R201")
+                .result(ApiErrorMessageAndCode.builder()
+                                .errorCode("R201")
+                                .message(message)
+                                .build())
                 .build();
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }

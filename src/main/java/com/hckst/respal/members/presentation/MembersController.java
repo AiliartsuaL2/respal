@@ -70,7 +70,7 @@ public class MembersController {
                 .build();
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
-                .data(responseDto)
+                .result(responseDto)
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -85,7 +85,7 @@ public class MembersController {
         List<Job> jobs = jobRepository.findAll();
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
-                .data(jobs)
+                .result(jobs)
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -116,7 +116,7 @@ public class MembersController {
 
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(201)
-                .data(responseDto)
+                .result(responseDto)
                 .build();
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -135,7 +135,7 @@ public class MembersController {
         }
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
-                .data("인증번호 확인 이메일을 전송하였습니다.")
+                .result("인증번호 확인 이메일을 전송하였습니다.")
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -152,7 +152,7 @@ public class MembersController {
 
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
-                .data(responseDto)
+                .result(responseDto)
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -171,41 +171,33 @@ public class MembersController {
         membersService.sendPasswordResetEmail(sendEmailRequestDto);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
-                .data("해당 이메일로 임시 비밀번호를 전송하였습니다.")
+                .result("해당 이메일로 임시 비밀번호를 전송하였습니다.")
                 .build();
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "비밀번호 재설정 메서드", description = "비밀번호 재설정을 진행합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "비밀번호 재설정 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "204", description = "비밀번호 재설정 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "비밀번호 재설정 실패", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PatchMapping("/password")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<String>> updatePassword(@RequestBody PasswordPatchRequestDto passwordPatchRequestDto){
+    public ResponseEntity updatePassword(@RequestBody PasswordPatchRequestDto passwordPatchRequestDto){
         membersService.updatePassword(passwordPatchRequestDto);
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
-                .data("비밀번호를 성공적으로 변경하였습니다.")
-                .build();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 
     // refresh token만 db에서 삭제
     @Operation(summary = "로그아웃 메서드", description = "로그아웃 메서드입니다. Database에서 refreshToken을 제거합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "refresh token 제거 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "204", description = "refresh token 제거 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "refresh token 확인 불가", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/member/logout")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<String>> logout(@RequestHeader(value = "Authorization") String refreshToken){
+    public ResponseEntity logout(@RequestHeader(value = "Authorization") String refreshToken){
         oAuthService.logout(refreshToken);
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
-                .data("정상적으로 로그아웃이 되었습니다.")
-                .build();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -2,6 +2,7 @@ package com.hckst.respal.authentication.jwt.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.global.dto.ApiErrorMessageAndCode;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,14 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
     }
 
     private void setResponse(ApplicationException ex, HttpServletResponse response) throws RuntimeException, IOException {
-        ApiErrorResponse apiErrorResponse = new ApiErrorResponse(ex.getStatusCode(), ex.getMessage(), ex.getErrorCode());
+        ApiErrorResponse apiErrorResponse = ApiErrorResponse.builder()
+                .statusCode(ex.getStatusCode())
+                .result(ApiErrorMessageAndCode.builder()
+                                .message(ex.getMessage())
+                                .errorCode(ex.getErrorCode())
+                                .build())
+                .build();
+
         response.setStatus(ex.getStatusCode());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");

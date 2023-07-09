@@ -8,13 +8,13 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
-@Schema(description = "응답")
+@Schema(description = "에러 메세지, 에러 코드")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApiCommonResponse<T> {
-    @Schema(description = "Http 응답 코드")
-    private Integer statusCode;
+public class ApiErrorMessageAndCode {
+    @Schema(description = "에러 메세지")
+    private String message;
 
-    @Schema(description = "응답 데이터")
-    private T result;
+    @Schema(description = "커스텀 에러코드")
+    private String errorCode;
 }

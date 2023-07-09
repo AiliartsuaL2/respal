@@ -33,7 +33,7 @@ public class testController {
                 .build();
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
-                .data(responseDto)
+                .result(responseDto)
                 .build();
         return ResponseEntity.ok(response);
     }
