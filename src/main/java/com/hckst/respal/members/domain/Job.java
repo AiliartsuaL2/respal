@@ -17,5 +17,4 @@ public class Job {
     @Column(name = "JOB_ID")
     private Integer id;
     private String jobName;
-    private Integer sort;
 }

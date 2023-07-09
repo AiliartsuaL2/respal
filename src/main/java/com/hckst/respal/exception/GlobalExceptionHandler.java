@@ -44,21 +44,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> MethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         StackTraceElement[] stackTraceElements = ex.getStackTrace();
-        BindingResult bindingResult = ex.getBindingResult();
 
-        StringBuilder builder = new StringBuilder();
-        for (FieldError fieldError : bindingResult.getFieldErrors()) {
-            builder.append(fieldError.getDefaultMessage());
-            builder.append(" 입력된 값: [");
-            builder.append(fieldError.getRejectedValue());
-            builder.append("]");
-        }
-        String message = builder.toString();
+        BindingResult bindingResult = ex.getBindingResult();
+        String message = bindingResult.getFieldErrors().get(0).getDefaultMessage();
+
         log.error(message,stackTraceElements[0]);
         ApiErrorResponse response = ApiErrorResponse.builder()
                 .statusCode(400)
                 .message(message)
-                .errorCode("R")
+                .errorCode("R201")
                 .build();
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }

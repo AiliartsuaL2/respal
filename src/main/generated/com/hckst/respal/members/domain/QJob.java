@@ -23,8 +23,6 @@ public class QJob extends EntityPathBase<Job> {
 
     public final StringPath jobName = createString("jobName");
 
-    public final NumberPath<Integer> sort = createNumber("sort", Integer.class);
-
     public QJob(String variable) {
         super(Job.class, forVariable(variable));
     }
