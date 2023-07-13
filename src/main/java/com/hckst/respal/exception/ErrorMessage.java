@@ -23,7 +23,10 @@ public enum ErrorMessage {
     INVALID_MEMBER_EXCEPTION(HttpStatus.BAD_REQUEST,"유효하지 않은 사용자에요.","R201"),
     INCORRECT_MAIL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST,"메일 발송 조건이 충족되지 않았어요.","R201"),
     NOT_EXIST_PROVIDER_TYPE(HttpStatus.BAD_REQUEST,"Provider 타입이 존재하지 않아요.","R201"),
-    NOT_EXIST_MEMBER_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 회원이 존재하지 않아요.","R201");
+    NOT_EXIST_MEMBER_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 회원이 존재하지 않아요.","R201"),
+
+    // 202번대 Resume 관련 오류
+    NOT_EXIST_RESUME_ID(HttpStatus.BAD_REQUEST,"해당 이력서가 존재하지 않아요","R202");
 
 
     private final String msg;

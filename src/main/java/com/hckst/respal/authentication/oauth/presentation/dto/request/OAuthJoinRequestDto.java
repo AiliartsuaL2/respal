@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
-@Schema(description = "OAuth 회원가입시 요청")
+@Schema(description = "OAuth 회원가입시 요청 DTO")
 public class OAuthJoinRequestDto {
     @Schema(description = "이메일")
     private String email;

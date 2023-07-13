@@ -4,6 +4,7 @@ package com.hckst.respal.authentication;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.TestResponseDto;
 import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.global.dto.ApiErrorResponse;
+import com.hckst.respal.members.domain.Members;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,8 +27,8 @@ public class testController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/test")
-    public ResponseEntity<ApiCommonResponse<TestResponseDto>> test(){
-        String message = "ok";
+    public ResponseEntity<ApiCommonResponse<TestResponseDto>> test(@AuthenticationPrincipal Members members){
+        String message = members.getNickname();
         TestResponseDto responseDto = TestResponseDto.builder()
                 .message(message)
                 .code(HttpStatus.OK.value())

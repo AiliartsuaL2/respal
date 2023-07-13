@@ -29,26 +29,28 @@ public class Members implements UserDetails {
     // 이메일 , 일반 로그인 식별자
     @Column(length = 50)
     private String email;
-
     // 비밀번호 , 암호화 되어 진행, 결과값은 항상 60
     @Column(length = 60)
     private String password;
-
     // 닉네임
     @Column(length = 20)
     private String nickname;
-
     @Column(length = 100)
     private String picture;
 
-    // 가입일시
-    private LocalDateTime regTime;
 
     // 비밀번호 재설정 컬럼 Y인경우 재설정 필요
     @Convert(converter = TFCodeConverter.class)
     @Column(columnDefinition = "char")
     private TFCode passwordTmpYn;
 
+    // 가입일시
+    private LocalDateTime regTime;
+
+
+    /**
+     * 연관관계 설정
+     */
     // 직업 id, 단방향 매핑
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "JOB_ID")
