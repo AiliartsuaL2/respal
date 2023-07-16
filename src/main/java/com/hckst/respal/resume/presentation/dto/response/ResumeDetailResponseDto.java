@@ -1,13 +1,14 @@
 package com.hckst.respal.resume.presentation.dto.response;
 
 
+import com.hckst.respal.comment.presentation.dto.response.CommentsResponseDto;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.resume.domain.Resume;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Getter
 @Builder
@@ -39,7 +40,9 @@ public class ResumeDetailResponseDto {
     // 수정시간
     private String modifyTime;
 
-    public ResumeDetailResponseDto(Resume resume) {
+    private List<CommentsResponseDto> commentList;
+
+    public ResumeDetailResponseDto(Resume resume, List<CommentsResponseDto> commentList) {
         this.title = resume.getTitle();
         this.content = resume.getContent();
         this.filePath = resume.getFilePath();
@@ -50,5 +53,6 @@ public class ResumeDetailResponseDto {
         this.modifyYn = TFCode.TRUE.equals(resume.getModifyYn()) ? "Y" : "N";
         this.regTime = resume.getRegTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
         this.modifyTime = resume.getModifyTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
+        this.commentList = commentList;
     }
 }

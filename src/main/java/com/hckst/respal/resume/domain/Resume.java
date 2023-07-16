@@ -1,5 +1,6 @@
 package com.hckst.respal.resume.domain;
 
+import com.hckst.respal.comment.domain.Comment;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
 import com.hckst.respal.members.domain.Members;
@@ -10,6 +11,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -30,6 +33,9 @@ public class Resume {
     // 파일 경로
     @Column(length = 255)
     private String filePath;
+    // 게시물 조회수
+    @Column(length = 10)
+    private int views;
 
     // 대표 여부
     @Convert(converter = TFCodeConverter.class)
@@ -53,12 +59,24 @@ public class Resume {
 
     /**
      * 연관관계 매핑
+     * 단방향
      * Members
-     * One to Many
+     * Many to One
      */
     @ManyToOne
     @JoinColumn(name = "MEMBERS_ID")
     private Members members;
+
+
+    /**
+     * 연관관계 매핑
+     * 양방향
+     * Comment
+     * One to Many
+     */
+    @OneToMany(mappedBy = "resume")
+    private List<Comment> commentList;
+
 
     @Builder
     public Resume(String title, String content, String filePath, Members members){
@@ -70,6 +88,7 @@ public class Resume {
         this.deleteYn = TFCode.FALSE;
         this.regTime = LocalDateTime.now();
         this.members = members;
+        this.commentList = new ArrayList<>();
     }
 
     public void updateResume(String title, String content, String filePath){

@@ -1,6 +1,7 @@
 package com.hckst.respal.members.domain;
 
 import com.hckst.respal.authentication.oauth.domain.Oauth;
+import com.hckst.respal.comment.domain.Comment;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
 import lombok.*;
@@ -50,11 +51,22 @@ public class Members implements UserDetails {
 
     /**
      * 연관관계 설정
+     * Job
+     * Many To One 단방향
      */
     // 직업 id, 단방향 매핑
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "JOB_ID")
     private Job jobId;
+
+    /**
+     * 연관관계 매핑
+     * 양방향
+     * Comment
+     * One to Many
+     */
+    @OneToMany(mappedBy = "resume")
+    private List<Comment> commentList;
 
     //권한
     @ManyToMany(cascade=CascadeType.ALL)
@@ -80,6 +92,7 @@ public class Members implements UserDetails {
         this.jobId = jobId;
         this.roles.add(role);
         this.passwordTmpYn = TFCode.FALSE;
+        this.commentList = new ArrayList<>();
     }
 
     //회원정보 수정
