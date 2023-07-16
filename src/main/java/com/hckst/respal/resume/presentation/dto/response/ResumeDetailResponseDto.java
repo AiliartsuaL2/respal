@@ -1,17 +1,18 @@
 package com.hckst.respal.resume.presentation.dto.response;
 
 
+import com.hckst.respal.comment.domain.Comment;
 import com.hckst.respal.comment.presentation.dto.response.CommentsResponseDto;
 import com.hckst.respal.converter.TFCode;
-import com.hckst.respal.resume.domain.Resume;
+import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
@@ -40,19 +41,23 @@ public class ResumeDetailResponseDto {
     // 수정시간
     private String modifyTime;
 
-    private List<CommentsResponseDto> commentList;
+    private List<Comment> commentList;
 
-    public ResumeDetailResponseDto(Resume resume, List<CommentsResponseDto> commentList) {
-        this.title = resume.getTitle();
-        this.content = resume.getContent();
-        this.filePath = resume.getFilePath();
-        this.membersId = resume.getMembers().getId();
-        this.membersNickname = resume.getMembers().getNickname();
-        this.membersPicture = resume.getMembers().getPicture();
-        this.mainYn = TFCode.TRUE.equals(resume.getMainYn()) ? "Y" : "N";
-        this.modifyYn = TFCode.TRUE.equals(resume.getModifyYn()) ? "Y" : "N";
-        this.regTime = resume.getRegTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
-        this.modifyTime = resume.getModifyTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
+    @QueryProjection
+    @Builder
+    public ResumeDetailResponseDto(Long resumeId, String title, String content, String filePath, Long membersId, String membersNickname, String membersPicture, TFCode mainYn, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime, List<Comment> commentList) {
+        this.resumeId = resumeId;
+        this.title = title;
+        this.content = content;
+        this.filePath = filePath;
+        this.membersId = membersId;
+        this.membersNickname = membersNickname;
+        this.membersPicture = membersPicture;
+        this.mainYn = TFCode.TRUE.equals(mainYn) ? "Y" : "N";
+        this.modifyYn = TFCode.TRUE.equals(modifyYn) ? "Y" : "N";
+        this.regTime = regTime != null ? regTime.format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
+        this.modifyTime = modifyTime != null ? modifyTime.format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
         this.commentList = commentList;
     }
+
 }

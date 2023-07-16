@@ -22,6 +22,8 @@ public class QMembers extends EntityPathBase<Members> {
 
     public static final QMembers members = new QMembers("members");
 
+    public final ListPath<com.hckst.respal.comment.domain.Comment, com.hckst.respal.comment.domain.QComment> commentList = this.<com.hckst.respal.comment.domain.Comment, com.hckst.respal.comment.domain.QComment>createList("commentList", com.hckst.respal.comment.domain.Comment.class, com.hckst.respal.comment.domain.QComment.class, PathInits.DIRECT2);
+
     public final StringPath email = createString("email");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);

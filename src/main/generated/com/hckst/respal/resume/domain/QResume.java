@@ -22,6 +22,8 @@ public class QResume extends EntityPathBase<Resume> {
 
     public static final QResume resume = new QResume("resume");
 
+    public final ListPath<com.hckst.respal.comment.domain.Comment, com.hckst.respal.comment.domain.QComment> commentList = this.<com.hckst.respal.comment.domain.Comment, com.hckst.respal.comment.domain.QComment>createList("commentList", com.hckst.respal.comment.domain.Comment.class, com.hckst.respal.comment.domain.QComment.class, PathInits.DIRECT2);
+
     public final StringPath content = createString("content");
 
     public final DateTimePath<java.time.LocalDateTime> deleteTime = createDateTime("deleteTime", java.time.LocalDateTime.class);
@@ -43,6 +45,8 @@ public class QResume extends EntityPathBase<Resume> {
     public final DateTimePath<java.time.LocalDateTime> regTime = createDateTime("regTime", java.time.LocalDateTime.class);
 
     public final StringPath title = createString("title");
+
+    public final NumberPath<Integer> views = createNumber("views", Integer.class);
 
     public QResume(String variable) {
         this(Resume.class, forVariable(variable), INITS);
