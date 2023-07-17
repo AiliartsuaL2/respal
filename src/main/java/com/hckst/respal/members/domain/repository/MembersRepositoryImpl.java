@@ -2,7 +2,6 @@ package com.hckst.respal.members.domain.repository;
 
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.members.domain.Members;
-import com.hckst.respal.members.domain.QMembers;
 import com.hckst.respal.members.domain.repository.dto.MembersOAuthDto;
 import com.hckst.respal.members.domain.repository.dto.QMembersOAuthDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -12,8 +11,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static com.hckst.respal.members.domain.QMembers.members;
+import static com.hckst.respal.comment.domain.QComment.comment;
 import static com.hckst.respal.authentication.oauth.domain.QOauth.oauth;
+import static com.hckst.respal.members.domain.QMembers.members;
+import static com.hckst.respal.resume.domain.QResume.resume;
 
 @Repository
 @RequiredArgsConstructor
@@ -43,12 +44,35 @@ public class MembersRepositoryImpl implements MembersRepositoryCustom {
 
     @Override
     public Optional<Members> findCommonMembersByEmail(String email) {
-        Members member = queryFactory.selectFrom(QMembers.members)
-                .leftJoin(QMembers.members.oauthList, oauth)
-                .where(QMembers.members.email.eq(email)
+        Members member = queryFactory.select(members)
+                .from(members)
+                .leftJoin(members.oauthList, oauth)
+                .where(members.email.eq(email)
                         .and(oauth.provider.isNull())
-                ).fetchOne();
+                )
+                .fetchOne();
         return Optional.ofNullable(member);
     }
+
+    @Override
+    public Optional<Members> findMembersAndCommentById(long membersId) {
+        Members member = queryFactory.select(members)
+                .from(members)
+                .leftJoin(members.commentList, comment).fetchJoin()
+                .where(members.id.eq(membersId))
+                .fetchOne();
+        return Optional.ofNullable(member);
+    }
+
+    @Override
+    public Optional<Members> findMembersAndResumeById(long membersId) {
+        Members member = queryFactory.select(members)
+                .from(members)
+                .leftJoin(members.resumeList, resume).fetchJoin()
+                .where(members.id.eq(membersId))
+                .fetchOne();
+        return Optional.ofNullable(member);
+    }
+
 
 }

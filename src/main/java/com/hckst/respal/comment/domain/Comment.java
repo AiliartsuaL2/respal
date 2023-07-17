@@ -69,4 +69,8 @@ public class Comment {
         this.deleteYn = TFCode.FALSE;
         this.regTime = LocalDateTime.now();
     }
+
+    public void delete(){
+        this.deleteYn = TFCode.TRUE;
+    }
 }

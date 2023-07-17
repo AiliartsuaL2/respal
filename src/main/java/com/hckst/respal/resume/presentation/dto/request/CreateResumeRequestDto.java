@@ -15,5 +15,4 @@ public class CreateResumeRequestDto {
     private String title;
     private String content;
     private String filePath;
-    private Members members;
 }

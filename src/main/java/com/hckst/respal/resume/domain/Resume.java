@@ -59,11 +59,11 @@ public class Resume {
 
     /**
      * 연관관계 매핑
-     * 단방향
+     * 양방향
      * Members
      * Many to One
      */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBERS_ID")
     private Members members;
 
@@ -89,6 +89,7 @@ public class Resume {
         this.regTime = LocalDateTime.now();
         this.members = members;
         this.commentList = new ArrayList<>();
+        this.members.getResumeList().add(this);
     }
 
     public void updateResume(String title, String content, String filePath){
@@ -101,6 +102,10 @@ public class Resume {
     public void deleteResume(){
         this.deleteYn = TFCode.TRUE;
         this.deleteTime = LocalDateTime.now();
+    }
+    // 조회수 증가
+    public void viewsCountUp(){
+        this.views++;
     }
 
 }

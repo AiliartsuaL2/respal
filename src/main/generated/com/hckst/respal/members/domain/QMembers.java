@@ -42,6 +42,8 @@ public class QMembers extends EntityPathBase<Members> {
 
     public final DateTimePath<java.time.LocalDateTime> regTime = createDateTime("regTime", java.time.LocalDateTime.class);
 
+    public final ListPath<com.hckst.respal.resume.domain.Resume, com.hckst.respal.resume.domain.QResume> resumeList = this.<com.hckst.respal.resume.domain.Resume, com.hckst.respal.resume.domain.QResume>createList("resumeList", com.hckst.respal.resume.domain.Resume.class, com.hckst.respal.resume.domain.QResume.class, PathInits.DIRECT2);
+
     public final ListPath<Role, QRole> roles = this.<Role, QRole>createList("roles", Role.class, QRole.class, PathInits.DIRECT2);
 
     public QMembers(String variable) {

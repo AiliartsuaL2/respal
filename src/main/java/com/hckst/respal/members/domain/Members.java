@@ -4,6 +4,7 @@ import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.comment.domain.Comment;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
+import com.hckst.respal.resume.domain.Resume;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -59,13 +60,23 @@ public class Members implements UserDetails {
     @JoinColumn(name= "JOB_ID")
     private Job jobId;
 
+
+    /**
+     * 연관관계 매핑
+     * 양방향
+     * Resume
+     * One to Many
+     */
+    @OneToMany(mappedBy = "members")
+    private List<Resume> resumeList;
+
     /**
      * 연관관계 매핑
      * 양방향
      * Comment
      * One to Many
      */
-    @OneToMany(mappedBy = "resume")
+    @OneToMany(mappedBy = "members")
     private List<Comment> commentList;
 
     //권한
@@ -93,6 +104,7 @@ public class Members implements UserDetails {
         this.roles.add(role);
         this.passwordTmpYn = TFCode.FALSE;
         this.commentList = new ArrayList<>();
+        this.resumeList = new ArrayList<>();
     }
 
     //회원정보 수정

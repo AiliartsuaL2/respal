@@ -17,7 +17,7 @@ import java.util.List;
 public class ResumeController {
     private final ResumeService resumeService;
     public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> getResumeDetail(long resumeSeq){
-        ResumeDetailResponseDto resumeDetail = resumeService.getResumeDetail(resumeSeq);
+        ResumeDetailResponseDto resumeDetail = resumeService.getResumeDetailByResumeId(resumeSeq);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .result(resumeDetail)
