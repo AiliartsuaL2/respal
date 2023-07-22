@@ -5,7 +5,9 @@ import lombok.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -19,7 +21,6 @@ public class MembersJoinRequestDto {
     @NotNull(message = "회원가입 필수 입력 조건이 충족되지 않았어요.")
     private String email;
     @Schema(description = "비밀번호")
-
     @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[~`!@#$%^&*()\\-_=+\\\\|\\[\\]{};:'\",<.>/?]).{8,16}$",
             message = "비밀번호는 영문 , 숫자, 특수문자를 각각 1개 이상 포함하고, 8자리 이상 16자리 이하여야해요.")
     private String password;

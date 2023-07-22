@@ -58,7 +58,7 @@ public class Members implements UserDetails {
     // 직업 id, 단방향 매핑
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "JOB_ID")
-    private Job jobId;
+    private Job job;
 
 
     /**
@@ -92,7 +92,7 @@ public class Members implements UserDetails {
     private List<Oauth> oauthList;
 
     @Builder
-    public Members(String password, String nickname, String email, String picture, Role role, Job jobId){
+    public Members(String password, String nickname, String email, String picture, Role role, Job job){
         this.password = encryptPassword(password);
         this.picture = picture;
         this.nickname = nickname;
@@ -100,7 +100,7 @@ public class Members implements UserDetails {
         this.regTime = LocalDateTime.now();
         this.email = email;
         this.oauthList = new ArrayList<>();
-        this.jobId = jobId;
+        this.job = job;
         this.roles.add(role);
         this.passwordTmpYn = TFCode.FALSE;
         this.commentList = new ArrayList<>();

@@ -1,6 +1,7 @@
 package com.hckst.respal.resume.presentation.dto.request;
 
 import com.hckst.respal.converter.Sort;
+import com.hckst.respal.members.domain.Job;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -19,8 +20,8 @@ public class ResumeListRequestDto {
     // 요청당 페이지 수
     @NotNull
     private int limit;
-    // 필터( 직업 아이디 )
-    private int jobId;
+    // 필터( 직업)
+    private Job job;
     // 정렬 조건
     private Sort sort;
 }

@@ -1,6 +1,5 @@
 package com.hckst.respal.members.application;
 
-import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepository;
 import com.hckst.respal.converter.*;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
@@ -71,7 +70,7 @@ public class MembersService {
                 .password(membersJoinRequestDto.getPassword())
                 .picture(membersJoinRequestDto.getPicture())
                 .nickname(membersJoinRequestDto.getNickname())
-                .jobId(jobRepository.getReferenceById(membersJoinRequestDto.getJobId()))
+                .job(jobRepository.getReferenceById(membersJoinRequestDto.getJobId()))
                 .role(role)
                 .build();
         membersRepository.save(members);

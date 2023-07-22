@@ -35,32 +35,31 @@ public class OAuthController {
     private final OAuthServiceImpl oAuthService;
     private final OAuthTmpService oAuthTmpService;
 
+    /**
+     * 클라이언트 : 로그인 후 oauth 서버로부터 받은 code를 queryParam으로 전송
+     * 서버 : code값으로 로그인 여부 확인하여 OAuth TMP 테이블에 uid를 기준으로 사용자 정보를 저장 후 return
+     * - 앱인경우 커스텀 스킴으로 redicrect 한다.
+     */
     @Operation(summary = "OAuth 로그인 메서드", description = "OAuth 로그인 메서드입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "307", description = "로그인 및 회원가입 성공, redirect url로 응답"),
+            @ApiResponse(responseCode = "200", description = "로그인 성공"),
             @ApiResponse(responseCode = "400", description = "OAuth code값 없음", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/{client}/login/{provider}")
     @ResponseBody
-    public ResponseEntity<?> oAuthLogin(@PathVariable String client, @PathVariable String provider, String code){
-        /**
-         *- 기존 회원인 경우
-         *  - respal의 accessToken과 refreshToken을 응답해준다.
-         *
-         * - 신규 회원인 경우
-         *   1. 서버 - oauth 인증을 받으면 oauth의 accessToken과 provider(socialType) 정보와 redirectUrl을 보내준다.
-         *   2. 클라이언트 - 회원가입 폼에서 닉네임, 비밀번호를 설정 후(email과 profileImage는 oauth에서 받아옴) redirectUrl로 Post 요청을 한다.
-         *   3. 서버 - 해당 정보를 db에 저장 후 respal의 accessToken과 refreshToken을 응답해준다.
-         */
+    public ResponseEntity<ApiCommonResponse<Token>> oAuthLogin(@PathVariable String client, @PathVariable String provider, String code){
         ProviderConverter providerConverter = new ProviderConverter();
         Provider providerType = providerConverter.convertToEntityAttribute(provider);
 
         OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, client);
         UserInfo userInfo = oAuthService.getUserInfo(providerType, oAuthToken.getAccessToken());
         Token token = oAuthService.login(providerType, userInfo);
-        URI redirectUrl = oAuthService.getRedirectUrl(providerType,userInfo,token, client);
-
-        return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
+        String uid = oAuthService.login(providerType, userInfo, token);
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(200)
+                .result(uid)
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "OAuth 정보 요청 메서드", description = "리다이렉트 되며 저장된 OAuth 로그인 및 회원가입 정보를 반환해주는 url 입니다.")

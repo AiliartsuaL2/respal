@@ -10,6 +10,7 @@ import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
+import com.hckst.respal.exception.OAuthLoginException;
 import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import lombok.RequiredArgsConstructor;
@@ -91,28 +92,18 @@ public class OAuthServiceImpl {
         return null;
     }
 
-    public URI getRedirectUrl(Provider providerType, UserInfo userInfo, Token token, String client) {
+    public String login(Provider providerType, UserInfo userInfo, Token token) {
         // 신규 회원인경우, email, nickname, image oauth_tmp에 저장 후 redirect
         String uid = UUID.randomUUID().toString().replace("-", "");
-        if(token == null){
+        if(token == null) {
             OauthTmp oauthTmpData = OauthTmp.builder()
                     .uid(uid)
                     .provider(providerType)
                     .userInfo(userInfo)
                     .build();
             oauthTmpRepository.save(oauthTmpData);
-
-            if(Client.WEB_DEV.getValue().equals(client)){
-                return URI.create(SIGNUP_WEB_DEV_REDIRECT_URL+uid);
-            }else if(Client.WEB_STAGING.getValue().equals(client)){
-                return URI.create(SIGNUP_WEB_STAGING_REDIRECT_URL+uid);
-            }else if(Client.WEB_LIVE.getValue().equals(client)){
-                return URI.create(SIGNUP_WEB_LIVE_REDIRECT_URL+uid);
-            }else{
-                return URI.create(SIGNUP_APP_REDIRECT_URL+uid);
-            }
+            throw new OAuthLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION,uid);
         }
-
         // 기존 회원인 경우
         jwtService.login(token); // refresh 토큰 초기화
         // 로그인 성공시 응답
@@ -124,16 +115,7 @@ public class OAuthServiceImpl {
                 .refreshToken(token.getRefreshToken())
                 .build();
         oauthTmpRepository.save(oauthTmpData);
-
-        if(Client.WEB_DEV.getValue().equals(client)){
-            return URI.create(CALLBACK_WEB_DEV_REDIRECT_URL+uid);
-        }else if(Client.WEB_STAGING.getValue().equals(client)){
-            return URI.create(CALLBACK_WEB_STAGING_REDIRECT_URL+uid);
-        }else if(Client.WEB_LIVE.getValue().equals(client)){
-            return URI.create(CALLBACK_WEB_LIVE_REDIRECT_URL+uid);
-        }else{
-            return URI.create(CALLBACK_APP_REDIRECT_URL+uid);
-        }
+        return uid;
     }
 
     public void logout(String refreshToken) {

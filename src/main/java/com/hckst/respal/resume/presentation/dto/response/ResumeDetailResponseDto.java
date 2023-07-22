@@ -48,12 +48,12 @@ public class ResumeDetailResponseDto {
     private List<CommentsResponseDto> commentList;
 
     @QueryProjection
-    @Builder
-    public ResumeDetailResponseDto(Long resumeId, String title, String content, String filePath, Long membersId, String membersNickname, String membersPicture, TFCode mainYn, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime, List<Comment> commentList) {
+    public ResumeDetailResponseDto(Long resumeId, String title, String content, String filePath, int views, Long membersId, String membersNickname, String membersPicture, TFCode mainYn, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime) {
         this.resumeId = resumeId;
         this.title = title;
         this.content = content;
         this.filePath = filePath;
+        this.views = views;
         this.membersId = membersId;
         this.membersNickname = membersNickname;
         this.membersPicture = membersPicture;
@@ -61,19 +61,9 @@ public class ResumeDetailResponseDto {
         this.modifyYn = TFCode.TRUE.equals(modifyYn) ? "Y" : "N";
         this.regTime = regTime != null ? regTime.format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
         this.modifyTime = modifyTime != null ? modifyTime.format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
-        this.commentList = commentList.stream()
-                .map(c -> CommentsResponseDto.builder()
-                        .id(c.getId())
-                        .content(c.getContent())
-                        .xLocation(c.getXLocation())
-                        .yLocation(c.getYLocation())
-                        .membersId(c.getMembers().getId())
-                        .membersPicture(c.getMembers().getPicture())
-                        .membersNickname(c.getMembers().getNickname())
-                        .build())
-                .collect(Collectors.toList());
     }
 
+    @Builder
     public ResumeDetailResponseDto(Resume resume, List<CommentsResponseDto> commentList) {
         this.title = resume.getTitle();
         this.content = resume.getContent();

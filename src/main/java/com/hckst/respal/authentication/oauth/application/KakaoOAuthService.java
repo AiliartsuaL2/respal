@@ -135,7 +135,7 @@ public class KakaoOAuthService implements OAuthService{
                 .role(new Role(RoleType.ROLE_USER))
                 .picture(membersJoinRequestDto.getPicture())
                 .password(UUID.randomUUID().toString().replace("-", ""))
-                .jobId(jobRepository.getReferenceById(membersJoinRequestDto.getJobId()))
+                .job(jobRepository.getReferenceById(membersJoinRequestDto.getJobId()))
                 .build();
         Oauth oauth = Oauth.builder()
                 .membersId(members)

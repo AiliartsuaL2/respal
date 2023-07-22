@@ -28,7 +28,7 @@ public class QMembers extends EntityPathBase<Members> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final QJob jobId;
+    public final QJob job;
 
     public final StringPath nickname = createString("nickname");
 
@@ -64,7 +64,7 @@ public class QMembers extends EntityPathBase<Members> {
 
     public QMembers(Class<? extends Members> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.jobId = inits.isInitialized("jobId") ? new QJob(forProperty("jobId")) : null;
+        this.job = inits.isInitialized("job") ? new QJob(forProperty("job")) : null;
     }
 
 }

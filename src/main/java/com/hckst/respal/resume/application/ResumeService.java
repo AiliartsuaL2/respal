@@ -1,6 +1,7 @@
 package com.hckst.respal.resume.application;
 
 import com.hckst.respal.comment.domain.Comment;
+import com.hckst.respal.comment.domain.repository.CommentRepository;
 import com.hckst.respal.comment.presentation.dto.response.CommentsResponseDto;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.exception.ApplicationException;
@@ -17,7 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 public class ResumeService {
     private final ResumeRepository resumeRepository;
     private final MembersRepository membersRepository;
+    private final CommentRepository commentRepository;
 
     /**
      * 이력서 추가 메서드
@@ -50,29 +54,27 @@ public class ResumeService {
      */
     @Transactional
     public ResumeDetailResponseDto getResumeDetailByResumeId(Long resumeId){
-        Resume resume = resumeRepository.findById(resumeId).orElseThrow(
+
+        // resume entity 가져오기
+        Resume resume = resumeRepository.findResumeByIdAndDeleteYn(resumeId,TFCode.FALSE).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID));
-        if(TFCode.TRUE.equals(resume.getDeleteYn())){
-            throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID);
-        }
+        /**
+         * Resume entity 가져오기
+         * 조회수 증가, 댓글 가져와서 DTO 변환
+         * DTO 변환하여 반환
+         */
+
         // 댓글
-        List<CommentsResponseDto> commentList = resume.getCommentList().stream()
-                // 삭제되지 않은 댓글들만 가져옴
-                .filter(c -> TFCode.FALSE.equals(c.getDeleteYn()))
-                .map(c -> CommentsResponseDto.builder()
-                        .id(c.getId())
-                        .content(c.getContent())
-                        .xLocation(c.getXLocation())
-                        .yLocation(c.getYLocation())
-                        .membersId(c.getMembers().getId())
-                        .membersPicture(c.getMembers().getPicture())
-                        .membersNickname(c.getMembers().getNickname())
-                        .build())
-                .collect(Collectors.toList());
-        ResumeDetailResponseDto resumeDetailResponseDto = new ResumeDetailResponseDto(resume,commentList);
+//        List<Comment> comments = commentRepository.findCommentByResumeAndDeleteYn(resume,TFCode.FALSE).orElse(new ArrayList<>());
+
         // 조회수 증가
         resume.viewsCountUp();
 
+        // DTO 변환
+        ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
+                .resume(resume)
+//                .commentList(comments)
+                .build();
         return resumeDetailResponseDto;
     }
 
