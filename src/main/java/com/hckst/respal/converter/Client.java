@@ -7,9 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Client implements BaseEnumCode<String> {
 
-    WEB_DEV("web-dev"),
-    WEB_STAGING("web-stg"),
-    WEB_LIVE("web-live"),
+    WEB("web"),
     APP("app");
 
     private final String value;

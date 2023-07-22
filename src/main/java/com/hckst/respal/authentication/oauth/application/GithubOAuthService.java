@@ -45,7 +45,7 @@ public class GithubOAuthService implements OAuthService{
     private final OAuthConfig oAuthConfig;
 
     @Override
-    public Token login(UserInfo userInfo) {
+    public Token checkUser(UserInfo userInfo) {
         log.info("github login 진입");
         String email = userInfo.getEmail();
         Optional<MembersOAuthDto> membersOauth = membersRepository.findMembersOauthForLogin(email, Provider.GITHUB);
@@ -57,19 +57,7 @@ public class GithubOAuthService implements OAuthService{
     }
 
     @Override
-    public OAuthToken getAccessToken(String code, String client) {
-        String redirectUri;
-        if(Client.WEB_DEV.getValue().equals(client)){
-            redirectUri = oAuthConfig.getGithub().getWebDevRedirectUri();
-        }else if(Client.WEB_STAGING.getValue().equals(client)){
-            redirectUri = oAuthConfig.getGithub().getWebStgRedirectUri();
-        }else if(Client.WEB_LIVE.getValue().equals(client)){
-            redirectUri = oAuthConfig.getGithub().getWebLiveRedirectUri();
-        }else if(Client.APP.getValue().equals(client)){
-            redirectUri = oAuthConfig.getGithub().getAppRedirectUri();
-        } else {
-            redirectUri = null;
-        }
+    public OAuthToken getAccessToken(String code, String redirectUrl) {
 
         WebClient webClient = WebClient.builder()
                 .baseUrl(oAuthConfig.getGithub().getTokenUrl()) // 요청 할 API Url
@@ -81,7 +69,7 @@ public class GithubOAuthService implements OAuthService{
                 .uri(uriBuilder -> uriBuilder
                         .queryParam("client_id", oAuthConfig.getGithub().getClientId())
                         .queryParam("client_secret", oAuthConfig.getGithub().getClientSecret())
-                        .queryParam("redirect_uri", redirectUri)
+                        .queryParam("redirect_uri", redirectUrl)
                         .queryParam("code", code)
                         .build())
                 .retrieve() // 데이터 받는 방식, 스프링에서는 exchange는 메모리 누수 가능성 때문에 retrieve 권장

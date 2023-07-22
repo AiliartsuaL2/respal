@@ -6,6 +6,7 @@ import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserI
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectResponse;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
+import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
 import com.hckst.respal.global.dto.ApiCommonResponse;
@@ -24,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 
 @Controller
@@ -34,6 +36,8 @@ import java.net.URI;
 public class OAuthController {
     private final OAuthServiceImpl oAuthService;
     private final OAuthTmpService oAuthTmpService;
+    private static final String OAUTH_LOGIN_APP_SCHEME = "app://callback?uid=";
+
 
     /**
      * 클라이언트 : 로그인 후 oauth 서버로부터 받은 code를 queryParam으로 전송
@@ -43,18 +47,25 @@ public class OAuthController {
     @Operation(summary = "OAuth 로그인 메서드", description = "OAuth 로그인 메서드입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공"),
+            @ApiResponse(responseCode = "304", description = "앱 요청시 리다이렉트(커스텀 스킴 호출)"),
             @ApiResponse(responseCode = "400", description = "OAuth code값 없음", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/{client}/login/{provider}")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<Token>> oAuthLogin(@PathVariable String client, @PathVariable String provider, String code){
+    public ResponseEntity<ApiCommonResponse<Token>> oAuthLogin(HttpServletRequest request, @PathVariable String client, @PathVariable String provider, String code){
         ProviderConverter providerConverter = new ProviderConverter();
         Provider providerType = providerConverter.convertToEntityAttribute(provider);
-
-        OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, client);
+        String serverName = request.getRequestURL().toString();
+        OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, serverName);
         UserInfo userInfo = oAuthService.getUserInfo(providerType, oAuthToken.getAccessToken());
-        Token token = oAuthService.login(providerType, userInfo);
-        String uid = oAuthService.login(providerType, userInfo, token);
+        Token token = oAuthService.checkUser(providerType, userInfo);
+        String uid = oAuthService.login(providerType, userInfo, token, client);
+
+        // 앱인경우 커스텀스킴 url로 redirect
+        if(Client.APP.getValue().equals(client)){
+            URI redirectUrl = URI.create(OAUTH_LOGIN_APP_SCHEME+uid);
+            return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
+        }
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .result(uid)

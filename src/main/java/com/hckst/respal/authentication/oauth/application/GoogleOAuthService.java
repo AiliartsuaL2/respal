@@ -43,7 +43,7 @@ public class GoogleOAuthService implements OAuthService {
     private final JobRepository jobRepository;
 
     @Override
-    public Token login(UserInfo userInfo) {
+    public Token checkUser(UserInfo userInfo) {
         log.info("google login 진입");
         String email = userInfo.getEmail();
         Optional<MembersOAuthDto> membersOauth = membersRepository.findMembersOauthForLogin(email, Provider.GOOGLE);
@@ -55,24 +55,12 @@ public class GoogleOAuthService implements OAuthService {
     }
 
     @Override
-    public OAuthToken getAccessToken(String code, String client) {
+    public OAuthToken getAccessToken(String code, String redirectUrl) {
         /*
          https://accounts.google.com/o/oauth2/v2/auth?scope=profile&response_type=code
          &client_id="할당받은 id"&redirect_uri="access token 처리")
          로 Redirect URL을 생성하는 로직을 구성
          */
-        String redirectUri;
-        if(Client.WEB_DEV.getValue().equals(client)){
-            redirectUri = oAuthConfig.getGoogle().getWebDevRedirectUri();
-        }else if(Client.WEB_STAGING.getValue().equals(client)){
-            redirectUri = oAuthConfig.getGoogle().getWebStgRedirectUri();
-        }else if(Client.WEB_LIVE.getValue().equals(client)){
-            redirectUri = oAuthConfig.getGoogle().getWebLiveRedirectUri();
-        }else if(Client.APP.getValue().equals(client)){
-            redirectUri = oAuthConfig.getGoogle().getAppRedirectUri();
-        } else {
-            redirectUri = null;
-        }
 
         WebClient webClient = WebClient.builder()
                 .baseUrl(oAuthConfig.getGoogle().getTokenUrl()) // 요청 할 API Url
@@ -84,7 +72,7 @@ public class GoogleOAuthService implements OAuthService {
                         .queryParam("grant_type", oAuthConfig.getGoogle().getGrantType())
                         .queryParam("client_id", oAuthConfig.getGoogle().getClientId())
                         .queryParam("client_secret", oAuthConfig.getGoogle().getClientSecret())
-                        .queryParam("redirect_uri", redirectUri)
+                        .queryParam("redirect_uri", redirectUrl)
                         .queryParam("code", code)
                         .build())
                 .retrieve() // 데이터 받는 방식, 스프링에서는 exchange는 메모리 누수 가능성 때문에 retrieve 권장

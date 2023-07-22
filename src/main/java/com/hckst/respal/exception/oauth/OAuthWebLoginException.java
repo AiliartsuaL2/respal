@@ -1,16 +1,17 @@
-package com.hckst.respal.exception;
+package com.hckst.respal.exception.oauth;
 
+import com.hckst.respal.exception.ErrorMessage;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class OAuthLoginException extends RuntimeException {
+public class OAuthWebLoginException extends RuntimeException {
     private final String errorCode;
     private final Integer statusCode;
     private final String uid;
     private final HttpStatus httpStatus;
 
-    public OAuthLoginException(ErrorMessage errorMessage,String uid) {
+    public OAuthWebLoginException(ErrorMessage errorMessage, String uid) {
         super(errorMessage.getMsg());
         this.errorCode = errorMessage.getErrorCode();
         this.statusCode = errorMessage.getCode();

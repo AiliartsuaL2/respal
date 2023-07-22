@@ -10,7 +10,8 @@ import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
-import com.hckst.respal.exception.OAuthLoginException;
+import com.hckst.respal.exception.oauth.OAuthAppLoginException;
+import com.hckst.respal.exception.oauth.OAuthWebLoginException;
 import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import lombok.RequiredArgsConstructor;
@@ -32,38 +33,29 @@ public class OAuthServiceImpl {
     private final OauthTmpRepository oauthTmpRepository;
     private final JwtService jwtService;
 
-    // 신규회원
-    private static final String SIGNUP_WEB_DEV_REDIRECT_URL = "http://localhost:3000/signup/social?uid=";
-    private static final String SIGNUP_WEB_STAGING_REDIRECT_URL = "https://respal-front-staging.vercel.app/signup/social?uid=";
-    private static final String SIGNUP_WEB_LIVE_REDIRECT_URL = "https://respal-front-live.vercel.app/signup/social?uid=";
-    private static final String SIGNUP_APP_REDIRECT_URL = "app://signup?uid=";
-    // 기존회원
-    private static final String CALLBACK_WEB_DEV_REDIRECT_URL = "http://localhost:3000/callback?uid=";
-    private static final String CALLBACK_WEB_STAGING_REDIRECT_URL = "https://respal-front-staging.vercel.app/callback?uid=";
-    private static final String CALLBACK_WEB_LIVE_REDIRECT_URL = "https://respal-front-live.vercel.app/callback?uid=";
-    private static final String CALLBACK_APP_REDIRECT_URL = "app://callback?uid=";
+    private static final String OAUTH_SIGNUP_APP_SCHEME = "app://signup?uid=";
 
-    public Token login(Provider provider, UserInfo userInfo) {
+    public Token checkUser(Provider provider, UserInfo userInfo) {
         if(Provider.KAKAO.equals(provider)){
-            return kakaoOAuthService.login(userInfo);
+            return kakaoOAuthService.checkUser(userInfo);
         }else if(Provider.GOOGLE.equals(provider)){
-            return googleOAuthService.login(userInfo);
+            return googleOAuthService.checkUser(userInfo);
         }else if(Provider.GITHUB.equals(provider)){
-            return githubOAuthService.login(userInfo);
+            return githubOAuthService.checkUser(userInfo);
         }
         return null;
     }
 
-    public OAuthToken getAccessToken(Provider provider, String code, String client) {
+    public OAuthToken getAccessToken(Provider provider, String code, String redirectUrl) {
         if(code == null){
             throw new ApplicationException(ErrorMessage.NO_SUCH_OAUTH_CODE_EXCEPTION);
         }
         if(Provider.KAKAO.equals(provider)){
-            return kakaoOAuthService.getAccessToken(code, client);
+            return kakaoOAuthService.getAccessToken(code, redirectUrl);
         }else if(Provider.GOOGLE.equals(provider)){
-            return googleOAuthService.getAccessToken(code, client);
+            return googleOAuthService.getAccessToken(code, redirectUrl);
         }else if(Provider.GITHUB.equals(provider)){
-            return githubOAuthService.getAccessToken(code, client);
+            return githubOAuthService.getAccessToken(code, redirectUrl);
         }
         return null;
     }
@@ -92,25 +84,33 @@ public class OAuthServiceImpl {
         return null;
     }
 
-    public String login(Provider providerType, UserInfo userInfo, Token token) {
+    public String login(Provider providerType, UserInfo userInfo, Token token, String client) {
         // 신규 회원인경우, email, nickname, image oauth_tmp에 저장 후 redirect
         String uid = UUID.randomUUID().toString().replace("-", "");
+
+        OauthTmp.OauthTmpBuilder oauthbuilder = OauthTmp.builder()
+                .uid(uid)
+                .provider(providerType)
+                .userInfo(userInfo);
+
+        if(Client.APP.getValue().equals(client)){
+            if(token == null) {
+                URI redirectUrl = URI.create(OAUTH_SIGNUP_APP_SCHEME+uid);
+                OauthTmp oauthTmpData = oauthbuilder.build();
+                oauthTmpRepository.save(oauthTmpData);
+                throw new OAuthAppLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION,uid,redirectUrl);
+            }
+        }
+
         if(token == null) {
-            OauthTmp oauthTmpData = OauthTmp.builder()
-                    .uid(uid)
-                    .provider(providerType)
-                    .userInfo(userInfo)
-                    .build();
+            OauthTmp oauthTmpData = oauthbuilder.build();
             oauthTmpRepository.save(oauthTmpData);
-            throw new OAuthLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION,uid);
+            throw new OAuthWebLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION,uid);
         }
         // 기존 회원인 경우
         jwtService.login(token); // refresh 토큰 초기화
         // 로그인 성공시 응답
-        OauthTmp oauthTmpData = OauthTmp.builder()
-                .uid(uid)
-                .provider(providerType)
-                .userInfo(userInfo)
+        OauthTmp oauthTmpData = oauthbuilder
                 .accessToken(token.getAccessToken())
                 .refreshToken(token.getRefreshToken())
                 .build();
