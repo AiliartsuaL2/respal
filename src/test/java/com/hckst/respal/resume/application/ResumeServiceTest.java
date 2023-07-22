@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -34,7 +35,7 @@ class ResumeServiceTest {
         //when
         ResumeDetailResponseDto resumeDetail = resumeService.getResumeDetailByResumeId(1L);
         //then
-        Assertions.assertThat(resumeDetail.getMembersId()).isEqualTo(6L);
+        assertThat(resumeDetail.getMembersId()).isEqualTo(existMembersId);
     }
 
     @Test
@@ -42,8 +43,10 @@ class ResumeServiceTest {
         //given
         long resumeId = 4L;
         //when
-        ResumeDetailResponseDto resumeDetail = resumeService.getResumeDetailByResumeId(resumeId);
+        ResumeDetailResponseDto resumeDetailByResumeId = resumeService.getResumeDetailByResumeId(resumeId);
         //then
-        Assertions.assertThat(resumeDetail.getCommentList().size()).isEqualTo(101);
+        assertThat(resumeDetailByResumeId.getMembersNickname()).isEqualTo("asdf");
+        assertThat(resumeDetailByResumeId.getCommentList().size()).isEqualTo(102);
+
     }
 }

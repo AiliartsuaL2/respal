@@ -56,7 +56,7 @@ public class ResumeService {
     public ResumeDetailResponseDto getResumeDetailByResumeId(Long resumeId){
 
         // resume entity 가져오기
-        Resume resume = resumeRepository.findResumeByIdAndDeleteYn(resumeId,TFCode.FALSE).orElseThrow(
+        Resume resume = resumeRepository.findResumeJoinWithMembersById(resumeId).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID));
         /**
          * Resume entity 가져오기
@@ -65,7 +65,7 @@ public class ResumeService {
          */
 
         // 댓글
-//        List<Comment> comments = commentRepository.findCommentByResumeAndDeleteYn(resume,TFCode.FALSE).orElse(new ArrayList<>());
+        List<CommentsResponseDto> comments = commentRepository.findCommentsDtoByResume(resume).orElse(new ArrayList<>());
 
         // 조회수 증가
         resume.viewsCountUp();
@@ -73,7 +73,7 @@ public class ResumeService {
         // DTO 변환
         ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
                 .resume(resume)
-//                .commentList(comments)
+                .commentList(comments)
                 .build();
         return resumeDetailResponseDto;
     }

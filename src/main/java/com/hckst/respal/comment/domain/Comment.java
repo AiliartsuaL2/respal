@@ -72,5 +72,6 @@ public class Comment {
 
     public void delete(){
         this.deleteYn = TFCode.TRUE;
+        this.deleteTime = LocalDateTime.now();
     }
 }
