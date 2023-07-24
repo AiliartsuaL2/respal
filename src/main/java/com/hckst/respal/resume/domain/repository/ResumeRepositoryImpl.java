@@ -33,18 +33,32 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
 
     @Override
     public ResumeListResponseDto findResumeListByConditions(ResumeListRequestDto requestDto) {
-        List<ResumeDetailResponseDto> result = queryFactory.select(new QResumeDetailResponseDto(resume,comment.id.count()))
+        List<ResumeDetailResponseDto> result = queryFactory
+                .select(new QResumeDetailResponseDto(
+                        resume.id,
+                        resume.title,
+                        resume.content,
+                        resume.filePath,
+                        resume.views,
+                        members.id,
+                        members.nickname,
+                        members.picture,
+                        resume.mainYn,
+                        resume.modifyYn,
+                        resume.regTime,
+                        resume.modifyTime,
+                        comment.id.count()))
                 .from(resume)
                 .innerJoin(resume.members, members)
                 .innerJoin(members.job, job)
                 .leftJoin(resume.commentList, comment)
                 .where(resume.deleteYn.eq(TFCode.FALSE)
-                        .and(jobIdContains(requestDto.getJobId()))
-                ).limit(requestDto.getLimit())
+                        .and(jobIdContains(requestDto.getJobId())))
+                .groupBy(resume.id)
+                .limit(requestDto.getLimit())
                 .offset(requestDto.getOffset())
                 .orderBy(resumeSort(requestDto.getSort()))
                 .fetch();
-
         long count = queryFactory.select(resume.count())
                 .from(resume)
                 .innerJoin(resume.members, members)
