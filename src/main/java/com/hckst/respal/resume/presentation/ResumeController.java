@@ -4,6 +4,7 @@ import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.resume.application.ResumeService;
 import com.hckst.respal.resume.presentation.dto.request.ResumeListRequestDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto;
+import com.hckst.respal.resume.presentation.dto.response.ResumeListResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class ResumeController {
         return ResponseEntity.ok(response);
     }
     public ResponseEntity<ApiCommonResponse<List<ResumeDetailResponseDto>>> getResumeList(ResumeListRequestDto requestDto){
-        List<ResumeDetailResponseDto> resumeList = resumeService.getResumeList(requestDto);
+        ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .result(resumeList)

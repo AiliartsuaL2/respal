@@ -11,6 +11,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,27 +45,16 @@ public class ResumeDetailResponseDto {
     private String regTime;
     // 수정시간
     private String modifyTime;
+    // 이력서 리스트를 위한 댓글 개수
+    private long commentsCount;
 
+    // 이력서 상세를 위한 댓글 리스트
     private List<CommentsResponseDto> commentList;
 
+    // List를 위한 QueryProjection
     @QueryProjection
-    public ResumeDetailResponseDto(Long resumeId, String title, String content, String filePath, int views, Long membersId, String membersNickname, String membersPicture, TFCode mainYn, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime) {
-        this.resumeId = resumeId;
-        this.title = title;
-        this.content = content;
-        this.filePath = filePath;
-        this.views = views;
-        this.membersId = membersId;
-        this.membersNickname = membersNickname;
-        this.membersPicture = membersPicture;
-        this.mainYn = TFCode.TRUE.equals(mainYn) ? "Y" : "N";
-        this.modifyYn = TFCode.TRUE.equals(modifyYn) ? "Y" : "N";
-        this.regTime = regTime != null ? regTime.format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
-        this.modifyTime = modifyTime != null ? modifyTime.format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
-    }
-
-    @Builder
-    public ResumeDetailResponseDto(Resume resume, List<CommentsResponseDto> commentList) {
+    public ResumeDetailResponseDto(Resume resume, long commentsCount) {
+        this.resumeId = resume.getId();
         this.title = resume.getTitle();
         this.content = resume.getContent();
         this.filePath = resume.getFilePath();
@@ -76,7 +66,23 @@ public class ResumeDetailResponseDto {
         this.modifyYn = TFCode.TRUE.equals(resume.getModifyYn()) ? "Y" : "N";
         this.regTime = resume.getRegTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
         this.modifyTime = resume.getModifyTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
-        this.commentList = commentList;
+        this.commentsCount = commentsCount;
     }
 
+    @Builder
+    public ResumeDetailResponseDto(Resume resume, List<CommentsResponseDto> commentList) {
+        this.resumeId = resume.getId();
+        this.title = resume.getTitle();
+        this.content = resume.getContent();
+        this.filePath = resume.getFilePath();
+        this.views = resume.getViews();
+        this.membersId = resume.getMembers().getId();
+        this.membersNickname = resume.getMembers().getNickname();
+        this.membersPicture = resume.getMembers().getPicture();
+        this.mainYn = TFCode.TRUE.equals(resume.getMainYn()) ? "Y" : "N";
+        this.modifyYn = TFCode.TRUE.equals(resume.getModifyYn()) ? "Y" : "N";
+        this.regTime = resume.getRegTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
+        this.modifyTime = resume.getModifyTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
+        this.commentList = commentList == null ? new ArrayList<>() : commentList;
+    }
 }

@@ -11,5 +11,5 @@ import java.util.List;
 @Builder
 public class ResumeListResponseDto {
     private List<ResumeDetailResponseDto> resumeList;
-    private int commentListCount;
+    private long resumeListCount;
 }
