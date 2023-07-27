@@ -100,7 +100,7 @@ public class MembersController {
     public ResponseEntity<ApiCommonResponse<MembersLoginResponseDto>> join(@Valid @RequestBody MembersJoinRequestDto membersJoinRequestDto){
         // provider type 없는경우 exception
         if(membersJoinRequestDto.getProvider() == null){
-            throw new ApplicationException(ErrorMessage.NOT_EXIST_PROVIDER_TYPE);
+            throw new ApplicationException(ErrorMessage.NOT_EXIST_PROVIDER_TYPE_EXCEPTION);
         }
         ProviderConverter pc = new ProviderConverter();
         Provider provider = pc.convertToEntityAttribute(membersJoinRequestDto.getProvider());

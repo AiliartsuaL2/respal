@@ -20,17 +20,18 @@ public enum ErrorMessage {
 
     // 201번대 Members 관련 오류
     DUPLICATE_EMAIL_EXCEPTION(HttpStatus.BAD_REQUEST,"이미 존재하는 이메일이에요.","R201"),
+    NOT_EXIST_PASSWORD_EXCEPTION(HttpStatus.BAD_REQUEST,"일반 회원은 비밀번호 설정이 필수에요.","R201"),
     INVALID_MEMBER_EXCEPTION(HttpStatus.BAD_REQUEST,"유효하지 않은 사용자에요.","R201"),
     INCORRECT_MAIL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST,"메일 발송 조건이 충족되지 않았어요.","R201"),
-    NOT_EXIST_PROVIDER_TYPE(HttpStatus.BAD_REQUEST,"Provider 타입이 존재하지 않아요.","R201"),
+    NOT_EXIST_PROVIDER_TYPE_EXCEPTION(HttpStatus.BAD_REQUEST,"Provider 타입이 존재하지 않아요.","R201"),
     NOT_EXIST_MEMBER_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 회원이 존재하지 않아요.","R201"),
-    PERMITION_DENIED_TO_DELETE(HttpStatus.BAD_REQUEST,"삭제 권한이 없습니다.","R201"),
+    PERMITION_DENIED_TO_DELETE_EXCEPTION(HttpStatus.BAD_REQUEST,"삭제 권한이 없습니다.","R201"),
 
     // 202번대 Resume 관련 오류
-    NOT_EXIST_RESUME_ID(HttpStatus.BAD_REQUEST,"해당 이력서가 존재하지 않아요","R202"),
+    NOT_EXIST_RESUME_ID_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 이력서가 존재하지 않아요","R202"),
 
     // 203번대 Comment 관련 오류
-    NOT_EXIST_COMMENT(HttpStatus.BAD_REQUEST,"존재하지 않는 댓글이에요","R203");
+    NOT_EXIST_COMMENT_EXCEPTION(HttpStatus.BAD_REQUEST,"존재하지 않는 댓글이에요","R203");
 
 
     private final String msg;

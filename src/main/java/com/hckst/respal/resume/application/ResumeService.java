@@ -62,7 +62,7 @@ public class ResumeService {
     public ResumeDetailResponseDto getResumeDetailByResumeId(Long resumeId){
         // resume entity 가져오기
         Resume resume = resumeRepository.findResumeJoinWithMembersById(resumeId).orElseThrow(
-                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID));
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID_EXCEPTION));
         /**
          * Resume entity 가져오기
          * 조회수 증가, 댓글 가져와서 Comment DTO로 변환

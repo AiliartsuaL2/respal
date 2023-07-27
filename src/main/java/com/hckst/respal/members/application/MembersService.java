@@ -23,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -63,11 +64,10 @@ public class MembersService {
         if (duplicationCheckEmail(membersJoinRequestDto.getEmail())) {
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
-
         Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()
                 .email(membersJoinRequestDto.getEmail())
-                .password(membersJoinRequestDto.getPassword())
+                .password(Optional.ofNullable(membersJoinRequestDto.getPassword()).orElseThrow( () -> new ApplicationException(ErrorMessage.NOT_EXIST_PASSWORD_EXCEPTION)))
                 .picture(membersJoinRequestDto.getPicture())
                 .nickname(membersJoinRequestDto.getNickname())
                 .job(jobRepository.getReferenceById(membersJoinRequestDto.getJobId()))

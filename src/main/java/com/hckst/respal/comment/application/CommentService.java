@@ -36,10 +36,10 @@ public class CommentService {
     @Transactional
     public void createComment(CreateCommentRequestDto requestDto, long membersId, long resumeId){
         Resume resume = resumeRepository.findById(resumeId).orElseThrow(
-                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID));
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID_EXCEPTION));
         // delete_yn 컬럼이 Y인경우
         if(TFCode.TRUE.equals(resume.getDeleteYn())){
-            throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID);
+            throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID_EXCEPTION);
         }
         Members members = membersRepository.findMembersAndCommentById(membersId).get();
 
@@ -62,13 +62,13 @@ public class CommentService {
     public void deleteComment(Long commentId, Members members){
         // 댓글이 존재하지 않는경우
         Comment comment = commentRepository.findById(commentId).orElseThrow(
-                () -> new ApplicationException(ErrorMessage.NOT_EXIST_COMMENT));
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_COMMENT_EXCEPTION));
         if(TFCode.TRUE.equals(comment.getDeleteYn())){
-            throw new ApplicationException(ErrorMessage.NOT_EXIST_COMMENT);
+            throw new ApplicationException(ErrorMessage.NOT_EXIST_COMMENT_EXCEPTION);
         }
         // 삭제 권한이 없는경우
         if(!(members.equals(comment.getMembers()) || members.equals(comment.getResume().getMembers()))){
-            throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_DELETE);
+            throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_DELETE_EXCEPTION);
         }
         comment.delete();
     }
