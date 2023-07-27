@@ -89,7 +89,6 @@ public class Resume {
         this.regTime = LocalDateTime.now();
         this.members = members;
         this.commentList = new ArrayList<>();
-        this.members.getResumeList().add(this);
     }
 
     public void updateResume(String title, String content, String filePath){

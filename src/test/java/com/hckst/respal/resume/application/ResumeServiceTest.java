@@ -1,5 +1,7 @@
 package com.hckst.respal.resume.application;
 
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.resume.presentation.dto.request.CreateResumeRequestDto;
@@ -12,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,7 +37,8 @@ class ResumeServiceTest {
                     .content("내용 테스트")
                     .filePath("파일 경로")
                     .build();
-        resumeService.createResume(resumeRequestDto, existMembersId);
+        Members members = membersRepository.findById(existMembersId).orElseThrow(()-> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
+        resumeService.createResume(resumeRequestDto, members);
         //when
         ResumeDetailResponseDto resumeDetail = resumeService.getResumeDetailByResumeId(1L);
         //then
@@ -61,8 +66,9 @@ class ResumeServiceTest {
                 .content("이력서의 내용 테스트")
                 .filePath("이력서 파일 테스트")
                 .build();
+        Members members = membersRepository.findById(membersId).orElseThrow(()-> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
         //when
-        ResumeDetailResponseDto savedResume = resumeService.createResume(dto, membersId);
+        ResumeDetailResponseDto savedResume = resumeService.createResume(dto, members);
         //then
         ResumeDetailResponseDto foundResume = resumeService.getResumeDetailByResumeId(savedResume.getResumeId());
         assertThat(foundResume.getViews()).isEqualTo(1);

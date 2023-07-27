@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +47,7 @@ public class ResumeController {
             @ApiResponse(responseCode = "200", description = "이력서 ", useReturnTypeSchema = true)
     })
     @GetMapping("/resume")
-    public ResponseEntity<ApiCommonResponse<List<ResumeDetailResponseDto>>> getResumeList(ResumeListRequestDto requestDto){
+    public ResponseEntity<ApiCommonResponse<List<ResumeDetailResponseDto>>> getResumeList(@RequestBody ResumeListRequestDto requestDto){
         ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
@@ -56,16 +57,16 @@ public class ResumeController {
     }
     @Operation(summary = "이력서 생성 API", description = "이력서를 생성하는 API 입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "이력서 ", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "201", description = "이력서 생성에 성공하였습니다. ", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "401", description = "이력서 생성 권한이 없는경우 발생합니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/resume")
-    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> createResume(CreateResumeRequestDto requestDto, @AuthenticationPrincipal Members members){
-        ResumeDetailResponseDto savedResume = resumeService.createResume(requestDto, members.getId());
+    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> createResume(@RequestBody CreateResumeRequestDto requestDto, @AuthenticationPrincipal Members members){
+        ResumeDetailResponseDto savedResume = resumeService.createResume(requestDto, members);
         ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
+                .statusCode(201)
                 .result(savedResume)
                 .build();
-        return ResponseEntity.ok(response);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }

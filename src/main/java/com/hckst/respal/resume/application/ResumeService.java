@@ -38,8 +38,7 @@ public class ResumeService {
      * 회원 존재하지 않을시 401 떨어지므로 예외처리하지 않음
      */
     @Transactional
-    public ResumeDetailResponseDto createResume(CreateResumeRequestDto createResumeRequestDto, long membersId){
-        Members members = membersRepository.findMembersAndResumeById(membersId).get();
+    public ResumeDetailResponseDto createResume(CreateResumeRequestDto createResumeRequestDto, Members members){
         Resume resume = Resume.builder()
                 .title(createResumeRequestDto.getTitle())
                 .content(createResumeRequestDto.getContent())
