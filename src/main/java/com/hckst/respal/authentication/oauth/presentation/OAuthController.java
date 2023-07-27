@@ -12,6 +12,7 @@ import com.hckst.respal.converter.ProviderConverter;
 import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.links.Link;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -46,8 +47,8 @@ public class OAuthController {
      */
     @Operation(summary = "OAuth 로그인 메서드", description = "OAuth 로그인 메서드입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "로그인 성공"),
-            @ApiResponse(responseCode = "304", description = "앱 요청시 리다이렉트(커스텀 스킴 호출)"),
+            @ApiResponse(responseCode = "200", description = "로그인 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "304", description = "앱 요청시 리다이렉트(커스텀 스킴 호출)",content = @Content(schema = @Schema(implementation = Void.class))),
             @ApiResponse(responseCode = "400", description = "OAuth code값 없음", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/{client}/login/{provider}")
@@ -66,9 +67,10 @@ public class OAuthController {
             URI redirectUrl = URI.create(OAUTH_LOGIN_APP_SCHEME+uid);
             return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
         }
+        // 웹 요청이면 token return
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
-                .result(uid)
+                .result(token)
                 .build();
         return ResponseEntity.ok(response);
     }

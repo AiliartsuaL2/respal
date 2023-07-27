@@ -2,7 +2,6 @@ package com.hckst.respal.resume.domain.repository;
 
 import com.hckst.respal.converter.ResumeSort;
 import com.hckst.respal.converter.TFCode;
-import com.hckst.respal.members.domain.Job;
 import com.hckst.respal.resume.domain.Resume;
 import com.hckst.respal.resume.presentation.dto.request.ResumeListRequestDto;
 import com.hckst.respal.resume.presentation.dto.response.QResumeDetailResponseDto;
@@ -12,10 +11,8 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberExpression;
-import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -93,6 +90,7 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
         if(resumeSort == null){
             return null;
         }
+
         Order direction = resumeSort.getOrder();
         NumberExpression<?> sortCondition = resumeSort.getSortCondition();
         return new OrderSpecifier(direction, sortCondition);

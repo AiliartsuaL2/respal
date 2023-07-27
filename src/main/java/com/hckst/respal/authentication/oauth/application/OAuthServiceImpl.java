@@ -93,19 +93,17 @@ public class OAuthServiceImpl {
                 .provider(providerType)
                 .userInfo(userInfo);
 
-        if(Client.APP.getValue().equals(client)){
-            if(token == null) {
-                URI redirectUrl = URI.create(OAUTH_SIGNUP_APP_SCHEME+uid);
-                OauthTmp oauthTmpData = oauthbuilder.build();
-                oauthTmpRepository.save(oauthTmpData);
-                throw new OAuthAppLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION,uid,redirectUrl);
-            }
-        }
-
+        // 토큰값이 없으면
         if(token == null) {
             OauthTmp oauthTmpData = oauthbuilder.build();
             oauthTmpRepository.save(oauthTmpData);
-            throw new OAuthWebLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION,uid);
+            // 앱 요청인경우
+            if(Client.APP.getValue().equals(client)){
+                URI redirectUrl = URI.create(OAUTH_SIGNUP_APP_SCHEME+uid);
+                throw new OAuthAppLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION,uid,redirectUrl);
+            }else{ // 웹 요청인경우
+                throw new OAuthWebLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION,uid);
+            }
         }
         // 기존 회원인 경우
         jwtService.login(token); // refresh 토큰 초기화
