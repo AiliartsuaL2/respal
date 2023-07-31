@@ -14,5 +14,5 @@ import lombok.*;
 public class CreateResumeRequestDto {
     private String title;
     private String content;
-    private String filePath;
+    private Long resumeFileId;
 }

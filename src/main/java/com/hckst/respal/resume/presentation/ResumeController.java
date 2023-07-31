@@ -4,8 +4,10 @@ import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.resume.application.ResumeService;
+import com.hckst.respal.resume.domain.ResumeFile;
 import com.hckst.respal.resume.presentation.dto.request.CreateResumeRequestDto;
 import com.hckst.respal.resume.presentation.dto.request.ResumeListRequestDto;
+import com.hckst.respal.resume.presentation.dto.response.CreateResumeFileResponseDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeListResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -69,4 +72,22 @@ public class ResumeController {
                 .build();
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
+    @Operation(summary = "이력서 파일 저장 API", description = "이력서 파일을 저장하는 API 입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "이력서의 파일 저장에 성공하는경우 응답입니다. ", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "401", description = "이력서 생성 권한이 없는경우 발생합니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @PostMapping("/resume/file")
+    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> createResumeFile( @RequestPart("resumeFile") MultipartFile requestDto){
+        CreateResumeFileResponseDto resumeFile = resumeService.createResumeFile(requestDto);
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(201)
+                .result(resumeFile)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+
+
 }

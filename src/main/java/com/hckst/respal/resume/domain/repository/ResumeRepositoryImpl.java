@@ -22,6 +22,7 @@ import static com.hckst.respal.comment.domain.QComment.comment;
 import static com.hckst.respal.members.domain.QJob.job;
 import static com.hckst.respal.members.domain.QMembers.members;
 import static com.hckst.respal.resume.domain.QResume.resume;
+import static com.hckst.respal.resume.domain.QResumeFile.resumeFile;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,7 +36,6 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                         resume.id,
                         resume.title,
                         resume.content,
-                        resume.filePath,
                         resume.views,
                         members.id,
                         members.nickname,
@@ -48,6 +48,7 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                 .from(resume)
                 .innerJoin(resume.members, members)
                 .innerJoin(members.job, job)
+                .innerJoin(resume.resumeFile, resumeFile)
                 .leftJoin(resume.commentList, comment)
                 .where(resume.deleteYn.eq(TFCode.FALSE)
                         .and(jobIdContains(requestDto.getJobId())))
@@ -77,6 +78,7 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
     public Optional<Resume> findResumeJoinWithMembersById(long id) {
         Resume result = queryFactory.select(resume)
                 .from(resume)
+                .innerJoin(resume.resumeFile, resumeFile).fetchJoin()
                 .innerJoin(resume.members, members).fetchJoin()
                 .where(resumeIdCondition(id)
                     .and(resume.deleteYn.eq(TFCode.FALSE))

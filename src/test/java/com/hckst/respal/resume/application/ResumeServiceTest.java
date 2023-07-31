@@ -35,7 +35,7 @@ class ResumeServiceTest {
         CreateResumeRequestDto resumeRequestDto = CreateResumeRequestDto.builder()
                     .title("제목 테스트")
                     .content("내용 테스트")
-                    .filePath("파일 경로")
+                    .resumeFileId(1L)
                     .build();
         Members members = membersRepository.findById(existMembersId).orElseThrow(()-> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
         resumeService.createResume(resumeRequestDto, members);
@@ -64,7 +64,7 @@ class ResumeServiceTest {
         CreateResumeRequestDto dto = CreateResumeRequestDto.builder()
                 .title("이력서의 제목 테스트")
                 .content("이력서의 내용 테스트")
-                .filePath("이력서 파일 테스트")
+                .resumeFileId(1L)
                 .build();
         Members members = membersRepository.findById(membersId).orElseThrow(()-> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
         //when

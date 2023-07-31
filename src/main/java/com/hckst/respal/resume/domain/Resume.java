@@ -30,9 +30,6 @@ public class Resume {
     // 이력서 내용
     @Column(length = 1000)
     private String content;
-    // 파일 경로
-    @Column(length = 255)
-    private String filePath;
     // 게시물 조회수
     @Column(length = 10)
     private int views;
@@ -67,6 +64,9 @@ public class Resume {
     @JoinColumn(name = "MEMBERS_ID")
     private Members members;
 
+    @OneToOne
+    private ResumeFile resumeFile;
+
 
     /**
      * 연관관계 매핑
@@ -79,22 +79,22 @@ public class Resume {
 
 
     @Builder
-    public Resume(String title, String content, String filePath, Members members){
+    public Resume(String title, String content ,ResumeFile resumeFile , Members members){
         this.title = title;
         this.content = content;
-        this.filePath = filePath;
         this.mainYn = TFCode.FALSE;
         this.modifyYn = TFCode.FALSE;
         this.deleteYn = TFCode.FALSE;
         this.regTime = LocalDateTime.now();
         this.members = members;
         this.commentList = new ArrayList<>();
+        this.resumeFile = resumeFile;
     }
 
-    public void updateResume(String title, String content, String filePath){
+    public void updateResume(String title, String content, ResumeFile resumeFile){
         this.title = title;
         this.content = content;
-        this.filePath = filePath;
+        this.resumeFile = resumeFile;
         this.modifyYn = TFCode.TRUE;
         this.modifyTime = LocalDateTime.now();
     }

@@ -9,6 +9,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @ConfigurationPropertiesScan("com.hckst.respal.config")
 @EnableAsync
 public class RespalApplication {
+	static {
+		System.setProperty("com.amazonaws.sdk.disableEc2Metadata", "true");
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(RespalApplication.class, args);

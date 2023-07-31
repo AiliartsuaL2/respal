@@ -30,6 +30,7 @@ public class ResumeDetailResponseDto {
     private String content;
     // 이력서 파일 경로
     private String filePath;
+    private String fileName;
     // 조회수
     private int views;
     // 작성자 id
@@ -53,11 +54,10 @@ public class ResumeDetailResponseDto {
     private List<CommentsResponseDto> commentList;
 
     @QueryProjection
-    public ResumeDetailResponseDto(Long resumeId, String title, String content, String filePath, int views, Long membersId, String membersNickname, String membersPicture, TFCode mainYn, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime, long commentCount) {
+    public ResumeDetailResponseDto(Long resumeId, String title, String content, int views, Long membersId, String membersNickname, String membersPicture, TFCode mainYn, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime, long commentCount) {
         this.resumeId = resumeId;
         this.title = title;
         this.content = content;
-        this.filePath = filePath;
         this.views = views;
         this.membersId = membersId;
         this.membersNickname = membersNickname;
@@ -74,7 +74,8 @@ public class ResumeDetailResponseDto {
         this.resumeId = resume.getId();
         this.title = resume.getTitle();
         this.content = resume.getContent();
-        this.filePath = resume.getFilePath();
+        this.filePath = resume.getResumeFile().getAccessUrl();
+        this.fileName = resume.getResumeFile().getOriginName();
         this.views = resume.getViews();
         this.membersId = resume.getMembers().getId();
         this.membersNickname = resume.getMembers().getNickname();

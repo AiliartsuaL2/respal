@@ -29,6 +29,8 @@ public enum ErrorMessage {
 
     // 202번대 Resume 관련 오류
     NOT_EXIST_RESUME_ID_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 이력서가 존재하지 않아요","R202"),
+    NOT_EXIST_RESUME_FILE_ID_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 이력서 파일이 존재하지 않아요","R202"),
+    FAILED_FILE_UPLOAD_TO_S3_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR,"파일 업로드 중 문제가 발생했어요","R202"),
 
     // 203번대 Comment 관련 오류
     NOT_EXIST_COMMENT_EXCEPTION(HttpStatus.BAD_REQUEST,"존재하지 않는 댓글이에요","R203");

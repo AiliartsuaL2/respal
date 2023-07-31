@@ -30,8 +30,6 @@ public class QResume extends EntityPathBase<Resume> {
 
     public final EnumPath<com.hckst.respal.converter.TFCode> deleteYn = createEnum("deleteYn", com.hckst.respal.converter.TFCode.class);
 
-    public final StringPath filePath = createString("filePath");
-
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final EnumPath<com.hckst.respal.converter.TFCode> mainYn = createEnum("mainYn", com.hckst.respal.converter.TFCode.class);
@@ -43,6 +41,8 @@ public class QResume extends EntityPathBase<Resume> {
     public final EnumPath<com.hckst.respal.converter.TFCode> modifyYn = createEnum("modifyYn", com.hckst.respal.converter.TFCode.class);
 
     public final DateTimePath<java.time.LocalDateTime> regTime = createDateTime("regTime", java.time.LocalDateTime.class);
+
+    public final QResumeFile resumeFile;
 
     public final StringPath title = createString("title");
 
@@ -67,6 +67,7 @@ public class QResume extends EntityPathBase<Resume> {
     public QResume(Class<? extends Resume> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.members = inits.isInitialized("members") ? new com.hckst.respal.members.domain.QMembers(forProperty("members"), inits.get("members")) : null;
+        this.resumeFile = inits.isInitialized("resumeFile") ? new QResumeFile(forProperty("resumeFile")) : null;
     }
 
 }

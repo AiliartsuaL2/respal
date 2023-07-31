@@ -1,37 +1,45 @@
 package com.hckst.respal.resume.application;
 
-import com.hckst.respal.comment.domain.Comment;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.hckst.respal.comment.domain.repository.CommentRepository;
 import com.hckst.respal.comment.presentation.dto.response.CommentsResponseDto;
-import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.resume.domain.Resume;
+import com.hckst.respal.resume.domain.ResumeFile;
+import com.hckst.respal.resume.domain.repository.ResumeFileRepository;
 import com.hckst.respal.resume.domain.repository.ResumeRepository;
 import com.hckst.respal.resume.presentation.dto.request.CreateResumeRequestDto;
 import com.hckst.respal.resume.presentation.dto.request.ResumeListRequestDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeListResponseDto;
+import com.hckst.respal.resume.presentation.dto.response.CreateResumeFileResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
 public class ResumeService {
+    private static String bucketName = "respal-resume";
+
     private final ResumeRepository resumeRepository;
     private final MembersRepository membersRepository;
     private final CommentRepository commentRepository;
+    private final ResumeFileRepository resumeFileRepository;
+    private final AmazonS3Client amazonS3Client;
+
 
     /**
      * 이력서 추가 메서드
@@ -39,10 +47,13 @@ public class ResumeService {
      */
     @Transactional
     public ResumeDetailResponseDto createResume(CreateResumeRequestDto createResumeRequestDto, Members members){
+        ResumeFile resumeFile = resumeFileRepository.findById(createResumeRequestDto.getResumeFileId()).orElseThrow(
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_FILE_ID_EXCEPTION));
+
         Resume resume = Resume.builder()
                 .title(createResumeRequestDto.getTitle())
                 .content(createResumeRequestDto.getContent())
-                .filePath(createResumeRequestDto.getFilePath())
+                .resumeFile(resumeFile)
                 .members(members)
                 .build();
         resumeRepository.save(resume);
@@ -84,4 +95,31 @@ public class ResumeService {
         ResumeListResponseDto resumeList = resumeRepository.findResumeListByConditions(requestDto);
         return resumeList;
     }
+
+    @Transactional
+    public CreateResumeFileResponseDto createResumeFile(MultipartFile multipartFile) {
+        String originalName = multipartFile.getOriginalFilename();
+        ResumeFile resumeFile = ResumeFile.builder().originName(originalName).build();
+        String filename = resumeFile.getStoredName();
+
+        try {
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentType(multipartFile.getContentType());
+            objectMetadata.setContentLength(multipartFile.getInputStream().available());
+
+            amazonS3Client.putObject(bucketName, filename, multipartFile.getInputStream(), objectMetadata);
+
+            String accessUrl = amazonS3Client.getUrl(bucketName, filename).toString();
+            resumeFile.setAccessUrl(accessUrl);
+        } catch(IOException e) {
+            throw new ApplicationException(ErrorMessage.FAILED_FILE_UPLOAD_TO_S3_EXCEPTION);
+        }
+        resumeFileRepository.save(resumeFile);
+        return CreateResumeFileResponseDto.builder()
+                .resumeFileId(resumeFile.getId())
+                .originalName(resumeFile.getOriginName())
+                .accessUrl(resumeFile.getAccessUrl())
+                .build();
+    }
+
 }
