@@ -57,6 +57,7 @@ public class OAuthController {
         ProviderConverter providerConverter = new ProviderConverter();
         Provider providerType = providerConverter.convertToEntityAttribute(provider);
         String serverName = request.getRequestURL().toString();
+        log.info("serverName = "+serverName);
         OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, serverName);
         UserInfo userInfo = oAuthService.getUserInfo(providerType, oAuthToken.getAccessToken());
         Token token = oAuthService.checkUser(providerType, userInfo);
