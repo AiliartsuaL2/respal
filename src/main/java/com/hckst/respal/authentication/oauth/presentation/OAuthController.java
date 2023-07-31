@@ -56,9 +56,10 @@ public class OAuthController {
     public ResponseEntity<ApiCommonResponse<Token>> oAuthLogin(HttpServletRequest request, @PathVariable String client, @PathVariable String provider, String code){
         ProviderConverter providerConverter = new ProviderConverter();
         Provider providerType = providerConverter.convertToEntityAttribute(provider);
-        String serverName = request.getRequestURL().toString();
-        log.info("serverName = "+serverName);
-        OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, serverName);
+        String clientDomain = request.getHeader("Origin");
+        String clientRedirectUrl = clientDomain+"/oauth/"+client+"/login/"+provider;
+        log.info("redirectUrl = "+clientRedirectUrl);
+        OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, clientRedirectUrl);
         UserInfo userInfo = oAuthService.getUserInfo(providerType, oAuthToken.getAccessToken());
         Token token = oAuthService.checkUser(providerType, userInfo);
         String uid = oAuthService.login(providerType, userInfo, token, client);
