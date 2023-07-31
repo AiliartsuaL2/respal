@@ -56,10 +56,13 @@ public class OAuthController {
     public ResponseEntity<ApiCommonResponse<Token>> oAuthLogin(HttpServletRequest request, @PathVariable String client, @PathVariable String provider, String code){
         ProviderConverter providerConverter = new ProviderConverter();
         Provider providerType = providerConverter.convertToEntityAttribute(provider);
-        String clientDomain = request.getHeader("Origin");
-        String clientRedirectUrl = clientDomain+"/oauth/"+client+"/login/"+provider;
-        log.info("redirectUrl = "+clientRedirectUrl);
-        OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, clientRedirectUrl);
+        String oauthRedirectUrl = request.getRequestURL().toString();
+        // 웹 요청인경우, Redirect url을 web 도메인으로 설정
+        if(Client.WEB.getValue().equals(client)){
+            String clientDomain = request.getHeader("Origin");
+            oauthRedirectUrl = clientDomain+"/oauth/"+client+"/login/"+provider;
+        }
+        OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, oauthRedirectUrl);
         UserInfo userInfo = oAuthService.getUserInfo(providerType, oAuthToken.getAccessToken());
         Token token = oAuthService.checkUser(providerType, userInfo);
         String uid = oAuthService.login(providerType, userInfo, token, client);
@@ -69,6 +72,7 @@ public class OAuthController {
             URI redirectUrl = URI.create(OAUTH_LOGIN_APP_SCHEME+uid);
             return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
         }
+
         // 웹 요청이면 token return
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
