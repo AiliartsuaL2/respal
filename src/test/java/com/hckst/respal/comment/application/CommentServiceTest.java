@@ -32,13 +32,13 @@ class CommentServiceTest {
                 .yLocation(123)
                 .content("댓글 테스트1")
                 .build();
-        long existMembersId = 6L;
-        long existResumeId = 4L;
+        long existMembersId = 2L;
+        long existResumeId = 3L;
         //when
         commentService.createComment(comment,existMembersId,existResumeId);
 
         //then
-        int size = resumeService.getResumeDetailByResumeId(4L).getCommentList().size();
+        int size = resumeService.getResumeDetailByResumeId(3L).getCommentList().size();
         assertThat(size).isEqualTo(1);
 
     }
