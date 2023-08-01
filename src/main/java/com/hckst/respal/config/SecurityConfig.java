@@ -5,6 +5,7 @@ import com.hckst.respal.authentication.jwt.handler.JwtExceptionFilter;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,6 +31,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.httpBasic().disable()
                 .authorizeRequests() // 요청에 대한 사용 권한 체크
                 .antMatchers("/test").authenticated() // authenticated : andMatchers의 URL로 요청이 오면 인증이 필요하다고 설정
+                .antMatchers(HttpMethod.POST,"/resume").authenticated()
+                .antMatchers(HttpMethod.DELETE,"/resume").authenticated()
                 .antMatchers("/admin/**").hasRole("ADMIN") // antMatchers : 해당 URL 요청시 설정해줌
                 .antMatchers("/user/**").hasRole("USER")// hasRole : antPatterns URL로 요청이 들어오면 권한을 확인한다.
 //                .antMatchers(HttpMethod.POST,"/api/v1/board").authenticated() //  antPatterns 에 대한 HTTP POST 요청이 인증되어야 함을 말해 준다.

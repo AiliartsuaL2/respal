@@ -23,6 +23,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -64,7 +65,7 @@ public class ResumeController {
             @ApiResponse(responseCode = "401", description = "이력서 생성 권한이 없는경우 발생합니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/resume")
-    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> createResume(@RequestBody CreateResumeRequestDto requestDto, @AuthenticationPrincipal Members members){
+    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> createResume(@Valid @RequestBody CreateResumeRequestDto requestDto, @AuthenticationPrincipal Members members){
         ResumeDetailResponseDto savedResume = resumeService.createResume(requestDto, members);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(201)
@@ -73,6 +74,21 @@ public class ResumeController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "이력서 삭제 API", description = "이력서를 삭제하는 API 입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "이력서 삭제에 성공 할 경우 발생하는 응답입니다. ", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "이력서가 존재하지 않는 경우 발생하는 응답입니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "이력서 삭제 권한이 없는경우 발생하는 응답입니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @DeleteMapping("/resume/{resumeId}")
+    public ResponseEntity<ApiCommonResponse<?>> removeResume(@PathVariable long resumeId, @AuthenticationPrincipal Members members){
+        resumeService.removeResume(resumeId, members);
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(204)
+                .result(null)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
+    }
     @Operation(summary = "이력서 파일 저장 API", description = "이력서 파일을 저장하는 API 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "이력서의 파일 저장에 성공하는경우 응답입니다. ", useReturnTypeSchema = true),
@@ -86,5 +102,20 @@ public class ResumeController {
                 .result(resumeFile)
                 .build();
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+    @Operation(summary = "이력서 파일 삭제 API", description = "이력서 파일을 삭제하는 API 입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "이력서의 파일 삭제에 성공하는경우 응답입니다. "),
+            @ApiResponse(responseCode = "400", description = "이력서 파일이 존재하지 않는경우 발생하는 응답입니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "S3 파일 삭제 에러가 발생하는경우 발생하는 응답입니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @DeleteMapping("/resume/file")
+    public ResponseEntity<ApiCommonResponse<?>> removeResumeFile(@RequestParam Long resumeFileId){
+        resumeService.removeResumeFile(resumeFileId);
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(204)
+                .result(null)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
 }

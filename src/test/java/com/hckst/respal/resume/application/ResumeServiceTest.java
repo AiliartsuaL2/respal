@@ -4,6 +4,7 @@ import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.repository.MembersRepository;
+import com.hckst.respal.resume.domain.repository.ResumeRepository;
 import com.hckst.respal.resume.presentation.dto.request.CreateResumeRequestDto;
 import com.hckst.respal.resume.presentation.dto.request.ResumeListRequestDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto;
@@ -21,13 +22,15 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@Commit
+@Transactional
 //@Transactional
 class ResumeServiceTest {
     @Autowired
     ResumeService resumeService;
     @Autowired
     MembersRepository membersRepository;
+    @Autowired
+    ResumeRepository resumeRepository;
     @Test
     void createResume() {
         //given
@@ -83,7 +86,17 @@ class ResumeServiceTest {
         for (ResumeDetailResponseDto resumeDetailResponseDto : result.getResumeList()) {
             System.out.println("resumeDetailResponseDto = " + resumeDetailResponseDto.getTitle());
         }
-
-
+    }
+    @Test
+    void deleteResume(){
+        //given
+        long resumeId = 3L;
+        long membersId = 2L;
+        Members members = membersRepository.findById(membersId).get();
+        //when
+        resumeService.removeResume(resumeId,members);
+        boolean empty = resumeRepository.findById(resumeId).isEmpty();
+        //then
+        assertThat(empty).isTrue();
     }
 }

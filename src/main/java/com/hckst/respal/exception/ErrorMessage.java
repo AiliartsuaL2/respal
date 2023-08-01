@@ -25,12 +25,13 @@ public enum ErrorMessage {
     INCORRECT_MAIL_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST,"메일 발송 조건이 충족되지 않았어요.","R201"),
     NOT_EXIST_PROVIDER_TYPE_EXCEPTION(HttpStatus.BAD_REQUEST,"Provider 타입이 존재하지 않아요.","R201"),
     NOT_EXIST_MEMBER_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 회원이 존재하지 않아요.","R201"),
-    PERMITION_DENIED_TO_DELETE_EXCEPTION(HttpStatus.BAD_REQUEST,"삭제 권한이 없습니다.","R201"),
+    PERMITION_DENIED_TO_DELETE_EXCEPTION(HttpStatus.BAD_REQUEST,"삭제 권한이 없어요.","R201"),
 
     // 202번대 Resume 관련 오류
     NOT_EXIST_RESUME_ID_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 이력서가 존재하지 않아요","R202"),
     NOT_EXIST_RESUME_FILE_ID_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 이력서 파일이 존재하지 않아요","R202"),
     FAILED_FILE_UPLOAD_TO_S3_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR,"파일 업로드 중 문제가 발생했어요","R202"),
+    FAILED_FILE_DELETE_TO_S3_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR,"파일 삭제 중 문제가 발생했어요","R202"),
 
     // 203번대 Comment 관련 오류
     NOT_EXIST_COMMENT_EXCEPTION(HttpStatus.BAD_REQUEST,"존재하지 않는 댓글이에요","R203");

@@ -51,6 +51,7 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                 .innerJoin(resume.resumeFile, resumeFile)
                 .leftJoin(resume.commentList, comment)
                 .where(resume.deleteYn.eq(TFCode.FALSE)
+                        .and(resumeFile.deleteYn.eq(TFCode.FALSE))
                         .and(jobIdContains(requestDto.getJobId())))
                 .groupBy(resume.id)
                 .limit(requestDto.getLimit())
@@ -81,7 +82,8 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                 .innerJoin(resume.resumeFile, resumeFile).fetchJoin()
                 .innerJoin(resume.members, members).fetchJoin()
                 .where(resumeIdCondition(id)
-                    .and(resume.deleteYn.eq(TFCode.FALSE))
+                        .and(resume.deleteYn.eq(TFCode.FALSE))
+                        .and(resumeFile.deleteYn.eq(TFCode.FALSE))
                 )
                 .fetchOne();
         return Optional.ofNullable(result);

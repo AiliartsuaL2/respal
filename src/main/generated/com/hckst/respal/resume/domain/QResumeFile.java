@@ -21,9 +21,15 @@ public class QResumeFile extends EntityPathBase<ResumeFile> {
 
     public final StringPath accessUrl = createString("accessUrl");
 
+    public final DateTimePath<java.time.LocalDateTime> deleteTime = createDateTime("deleteTime", java.time.LocalDateTime.class);
+
+    public final EnumPath<com.hckst.respal.converter.TFCode> deleteYn = createEnum("deleteYn", com.hckst.respal.converter.TFCode.class);
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final StringPath originName = createString("originName");
+
+    public final DateTimePath<java.time.LocalDateTime> regTime = createDateTime("regTime", java.time.LocalDateTime.class);
 
     public final StringPath storedName = createString("storedName");
 
