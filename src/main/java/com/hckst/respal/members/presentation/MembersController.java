@@ -10,14 +10,12 @@ import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.members.domain.Job;
 import com.hckst.respal.members.domain.repository.JobRepository;
-import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
-import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
+import com.hckst.respal.members.presentation.dto.request.*;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.members.application.MembersService;
-import com.hckst.respal.members.presentation.dto.request.PasswordPatchRequestDto;
-import com.hckst.respal.members.presentation.dto.request.SendEmailRequestDto;
 import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
+import com.hckst.respal.members.presentation.dto.response.SearchMembersRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -200,4 +198,21 @@ public class MembersController {
         oAuthService.logout(refreshToken);
         return ResponseEntity.noContent().build();
     }
+
+    // 닉네임을 이용한 사용자 검색용 메서드
+    @Operation(summary = "멘션시 필요한 사용자 검색용 메서드", description = "사용자 검색용 메서드 입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "멘션에 필요한 사용자 정보들을 포함한 리스트를 응답합니다.", useReturnTypeSchema = true)
+    })
+    @GetMapping("/members")
+    @ResponseBody
+    public ResponseEntity<ApiCommonResponse<SearchMembersResponseDto>> searchMembers(@RequestBody SearchMembersRequestDto searchMembersRequestDto){
+        List<SearchMembersResponseDto> searchMembers = membersService.searchMembers(searchMembersRequestDto);
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(200)
+                .result(searchMembers)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
 }
