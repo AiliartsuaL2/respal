@@ -6,13 +6,11 @@ import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.Role;
 import com.hckst.respal.members.domain.repository.JobRepository;
-import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
+import com.hckst.respal.members.presentation.dto.request.*;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.members.domain.repository.MembersRepository;
-import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
-import com.hckst.respal.members.presentation.dto.request.PasswordPatchRequestDto;
-import com.hckst.respal.members.presentation.dto.request.SendEmailRequestDto;
+import com.hckst.respal.members.presentation.dto.response.SearchMembersRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
@@ -23,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -159,5 +158,10 @@ public class MembersService {
         String result = tfCodeConverter.convertToDatabaseColumn(passwordTmpYn);
         members.tmpPasswordToFalse();
         return result;
+    }
+
+    // 닉네임을 통해 회원을 조회하는 메서드
+    public List<SearchMembersResponseDto> searchMembers(SearchMembersRequestDto searchMembersRequestDto){
+        return membersRepository.findMembersByNickname(searchMembersRequestDto);
     }
 }

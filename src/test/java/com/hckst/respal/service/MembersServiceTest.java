@@ -7,17 +7,16 @@ import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.presentation.dto.request.MembersLoginRequestDto;
+import com.hckst.respal.members.presentation.dto.request.SearchMembersResponseDto;
 import com.hckst.respal.members.presentation.dto.request.SendEmailRequestDto;
+import com.hckst.respal.members.presentation.dto.response.SearchMembersRequestDto;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -145,6 +144,30 @@ class MembersServiceTest {
         String tmpStatus = membersService.checkTmpPasswordStatus(build);
         //then
         Assertions.assertThat(tmpStatus).isEqualTo("N");
-
     }
+    @Test
+    void searchMembers(){
+        //given
+        for (int i = 0; i <10; i++) {
+            MembersJoinRequestDto membersJoinRequestDto = MembersJoinRequestDto.builder()
+                    .email("test"+i+"@naver.com")
+                    .password("1234")
+                    .nickname("test"+i)
+                    .jobId(5)
+                    .picture("asdfsaf")
+                    .provider("common")
+                    .build();
+            membersService.joinMembers(membersJoinRequestDto);
+        }
+        //when
+        SearchMembersRequestDto searchMembersRequestDto = SearchMembersRequestDto.builder()
+                .searchWord("tes")
+                .limit(5)
+                .build();
+        List<SearchMembersResponseDto> searchMembersResponseDtos = membersService.searchMembers(searchMembersRequestDto);
+        //then
+        Assertions.assertThat(searchMembersResponseDtos.size()).isEqualTo(5);
+    }
+
+
 }

@@ -4,6 +4,9 @@ import com.hckst.respal.converter.Provider;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.repository.dto.MembersOAuthDto;
 import com.hckst.respal.members.domain.repository.dto.QMembersOAuthDto;
+import com.hckst.respal.members.presentation.dto.request.QSearchMembersResponseDto;
+import com.hckst.respal.members.presentation.dto.request.SearchMembersResponseDto;
+import com.hckst.respal.members.presentation.dto.response.SearchMembersRequestDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -74,5 +77,18 @@ public class MembersRepositoryImpl implements MembersRepositoryCustom {
         return Optional.ofNullable(member);
     }
 
-
+    @Override
+    public List<SearchMembersResponseDto> findMembersByNickname(SearchMembersRequestDto searchMembersRequestDto) {
+        return queryFactory.select(new QSearchMembersResponseDto(
+                members.id,
+                members.nickname,
+                members.picture,
+                members.email
+                )).from(members)
+                // queryDSL 의 like 메서드는 파라미터 내부의 스트링 자체가 나가기 때문에 %를 붙여줘야함
+                .where(members.nickname.like(searchMembersRequestDto.getSearchWord()+"%"))
+                .limit(searchMembersRequestDto.getLimit())
+                .offset(0)
+                .fetch();
+    }
 }
