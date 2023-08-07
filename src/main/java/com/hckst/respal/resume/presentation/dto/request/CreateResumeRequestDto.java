@@ -20,4 +20,6 @@ public class CreateResumeRequestDto {
     private String content;
     @NotNull
     private Long resumeFileId;
+    @NotNull
+    private String resumeType;
 }

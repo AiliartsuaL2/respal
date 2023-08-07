@@ -46,6 +46,8 @@ public class QResume extends EntityPathBase<Resume> {
 
     public final QResumeFile resumeFile;
 
+    public final EnumPath<com.hckst.respal.converter.ResumeType> resumeType = createEnum("resumeType", com.hckst.respal.converter.ResumeType.class);
+
     public final StringPath title = createString("title");
 
     public final NumberPath<Integer> views = createNumber("views", Integer.class);

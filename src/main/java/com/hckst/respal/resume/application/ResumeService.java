@@ -4,15 +4,15 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.hckst.respal.comment.domain.repository.CommentRepository;
 import com.hckst.respal.comment.presentation.dto.response.CommentsResponseDto;
+import com.hckst.respal.converter.ResumeType;
+import com.hckst.respal.converter.ResumeTypeConverter;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
-import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.resume.domain.Resume;
 import com.hckst.respal.resume.domain.ResumeFile;
 import com.hckst.respal.resume.domain.repository.ResumeFileRepository;
 import com.hckst.respal.resume.domain.repository.ResumeRepository;
-import com.hckst.respal.resume.presentation.dto.request.AddMentionRequestDto;
 import com.hckst.respal.resume.presentation.dto.request.CreateResumeRequestDto;
 import com.hckst.respal.resume.presentation.dto.request.ResumeListRequestDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto;
@@ -50,12 +50,20 @@ public class ResumeService {
         ResumeFile resumeFile = resumeFileRepository.findById(createResumeRequestDto.getResumeFileId()).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_FILE_ID_EXCEPTION));
 
+        ResumeTypeConverter resumeTypeConverter = new ResumeTypeConverter();
+        ResumeType resumeType = resumeTypeConverter.convertToEntityAttribute(createResumeRequestDto.getResumeType());
+        if(resumeType == null){
+            throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_TYPE);
+        }
+
         Resume resume = Resume.builder()
                 .title(createResumeRequestDto.getTitle())
                 .content(createResumeRequestDto.getContent())
                 .resumeFile(resumeFile)
                 .members(members)
+                .resumeType(resumeType)
                 .build();
+
         resumeRepository.save(resume);
         ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
                 .resume(resume)

@@ -1,6 +1,8 @@
 package com.hckst.respal.resume.domain;
 
 import com.hckst.respal.comment.domain.Comment;
+import com.hckst.respal.converter.ResumeType;
+import com.hckst.respal.converter.ResumeTypeConverter;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
 import com.hckst.respal.members.domain.Members;
@@ -14,6 +16,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -48,11 +51,9 @@ public class Resume {
     @Column(columnDefinition = "char")
     private TFCode deleteYn;
 
-    // Todo 공개 여부 설정하기
-//    @Convert(converter = TFCodeConverter.class)
-//    @Column(columnDefinition = "char")
-//    private TFCode publicYn;
-
+    @Convert(converter = ResumeTypeConverter.class)
+    @Column(columnDefinition = "varchar(10)", nullable=false)
+    private ResumeType resumeType;
 
     // 등록일시
     private LocalDateTime regTime;
@@ -105,9 +106,10 @@ public class Resume {
 
 
     @Builder
-    public Resume(String title, String content ,ResumeFile resumeFile , Members members){
+    public Resume(String title, String content ,ResumeFile resumeFile , Members members, ResumeType resumeType){
         this.title = title;
         this.content = content;
+        this.resumeType = resumeType;
         this.mainYn = TFCode.FALSE;
         this.modifyYn = TFCode.FALSE;
         this.deleteYn = TFCode.FALSE;
@@ -131,6 +133,20 @@ public class Resume {
     // 조회수 증가
     public void viewsCountUp(){
         this.views++;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if(!(o instanceof Resume)){
+            return false;
+        }
+        Resume resume = (Resume) o;
+        return Objects.equals(id,resume.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }

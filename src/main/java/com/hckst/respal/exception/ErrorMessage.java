@@ -28,16 +28,20 @@ public enum ErrorMessage {
     PERMITION_DENIED_TO_DELETE_EXCEPTION(HttpStatus.BAD_REQUEST,"삭제 권한이 없어요.","R201"),
 
     // 202번대 Resume 관련 오류
-    NOT_EXIST_RESUME_ID_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 이력서가 존재하지 않아요","R202"),
-    NOT_EXIST_RESUME_FILE_ID_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 이력서 파일이 존재하지 않아요","R202"),
-    FAILED_FILE_UPLOAD_TO_S3_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR,"파일 업로드 중 문제가 발생했어요","R202"),
-    FAILED_FILE_DELETE_TO_S3_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR,"파일 삭제 중 문제가 발생했어요","R202"),
+    NOT_EXIST_RESUME_ID_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 이력서가 존재하지 않아요.","R202"),
+    NOT_EXIST_RESUME_FILE_ID_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 이력서 파일이 존재하지 않아요.","R202"),
+    FAILED_FILE_UPLOAD_TO_S3_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR,"파일 업로드 중 문제가 발생했어요.","R202"),
+    FAILED_FILE_DELETE_TO_S3_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR,"파일 삭제 중 문제가 발생했어요.","R202"),
+    NOT_EXIST_RESUME_TYPE(HttpStatus.BAD_REQUEST,"이력서 공개 설정이 지정되지 않았어요.","R202"),
 
     // 203번대 Comment 관련 오류
-    NOT_EXIST_COMMENT_EXCEPTION(HttpStatus.BAD_REQUEST,"존재하지 않는 댓글이에요","R203"),
+    NOT_EXIST_COMMENT_EXCEPTION(HttpStatus.BAD_REQUEST,"존재하지 않는 댓글이에요.","R203"),
 
     // 204번대 Mention 관련 오류
-    CAN_NOT_MENTION_ONESELF(HttpStatus.BAD_REQUEST,"자기 자신은 언급 할 수 없어요","R204");
+    PERMITION_DENIED_TO_MENTION_EXCEPTION(HttpStatus.BAD_REQUEST,"멘션 권한이 없어요", "R204"),
+    CAN_NOT_MENTION_PUBLIC_RESUME_EXCEPTION(HttpStatus.BAD_REQUEST,"공개된 이력서에서는 멘션을 할 수 없어요","R204"),
+    CAN_NOT_MENTION_ONESELF_EXCEPTION(HttpStatus.BAD_REQUEST,"자기 자신은 언급 할 수 없어요.","R204"),
+    NOT_EXIST_MENTION_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 멘션이 존재하지 않아요.","R204");
 
 
     private final String msg;
