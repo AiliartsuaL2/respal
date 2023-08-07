@@ -4,6 +4,7 @@ import com.hckst.respal.comment.domain.Comment;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
 import com.hckst.respal.members.domain.Members;
+import com.hckst.respal.mention.domain.Mention;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,6 +48,12 @@ public class Resume {
     @Column(columnDefinition = "char")
     private TFCode deleteYn;
 
+    // Todo 공개 여부 설정하기
+//    @Convert(converter = TFCodeConverter.class)
+//    @Column(columnDefinition = "char")
+//    private TFCode publicYn;
+
+
     // 등록일시
     private LocalDateTime regTime;
     // 수정일시
@@ -59,11 +66,19 @@ public class Resume {
      * 양방향
      * Members
      * Many to One
+     * 이력서의 주인
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBERS_ID")
     private Members members;
 
+    /**
+     * 연관관계 매핑
+     * 단방향
+     * ResumeFile
+     * One to One
+     * 이력서의 파일
+     */
     @OneToOne
     private ResumeFile resumeFile;
 
@@ -73,9 +88,20 @@ public class Resume {
      * 양방향
      * Comment
      * One to Many
+     * 이력서에 달린 댓글들
      */
     @OneToMany(mappedBy = "resume")
     private List<Comment> commentList;
+
+    /**
+     * 연관관계 매핑
+     * 양방향
+     * Mention
+     * One to Many (다대다 중간테이블)
+     * 이력서에 언급한 언급 리스트
+     */
+    @OneToMany(mappedBy = "resume")
+    private List<Mention> mentionList;
 
 
     @Builder

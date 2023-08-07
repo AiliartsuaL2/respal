@@ -30,6 +30,8 @@ public class QMembers extends EntityPathBase<Members> {
 
     public final QJob job;
 
+    public final ListPath<com.hckst.respal.mention.domain.Mention, com.hckst.respal.mention.domain.QMention> mentionedList = this.<com.hckst.respal.mention.domain.Mention, com.hckst.respal.mention.domain.QMention>createList("mentionedList", com.hckst.respal.mention.domain.Mention.class, com.hckst.respal.mention.domain.QMention.class, PathInits.DIRECT2);
+
     public final StringPath nickname = createString("nickname");
 
     public final ListPath<com.hckst.respal.authentication.oauth.domain.Oauth, com.hckst.respal.authentication.oauth.domain.QOauth> oauthList = this.<com.hckst.respal.authentication.oauth.domain.Oauth, com.hckst.respal.authentication.oauth.domain.QOauth>createList("oauthList", com.hckst.respal.authentication.oauth.domain.Oauth.class, com.hckst.respal.authentication.oauth.domain.QOauth.class, PathInits.DIRECT2);

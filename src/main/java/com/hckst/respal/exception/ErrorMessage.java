@@ -34,7 +34,10 @@ public enum ErrorMessage {
     FAILED_FILE_DELETE_TO_S3_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR,"파일 삭제 중 문제가 발생했어요","R202"),
 
     // 203번대 Comment 관련 오류
-    NOT_EXIST_COMMENT_EXCEPTION(HttpStatus.BAD_REQUEST,"존재하지 않는 댓글이에요","R203");
+    NOT_EXIST_COMMENT_EXCEPTION(HttpStatus.BAD_REQUEST,"존재하지 않는 댓글이에요","R203"),
+
+    // 204번대 Mention 관련 오류
+    CAN_NOT_MENTION_ONESELF(HttpStatus.BAD_REQUEST,"자기 자신은 언급 할 수 없어요","R204");
 
 
     private final String msg;

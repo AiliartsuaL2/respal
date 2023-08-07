@@ -12,6 +12,7 @@ import com.hckst.respal.resume.domain.Resume;
 import com.hckst.respal.resume.domain.ResumeFile;
 import com.hckst.respal.resume.domain.repository.ResumeFileRepository;
 import com.hckst.respal.resume.domain.repository.ResumeRepository;
+import com.hckst.respal.resume.presentation.dto.request.AddMentionRequestDto;
 import com.hckst.respal.resume.presentation.dto.request.CreateResumeRequestDto;
 import com.hckst.respal.resume.presentation.dto.request.ResumeListRequestDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto;
@@ -90,6 +91,10 @@ public class ResumeService {
         return resumeDetailResponseDto;
     }
 
+    /**
+     * 이력서 조회 메서드
+     * Todo 조회하는 이력서 카테고리가 Hub인지 Mentioned인지 분기처리 로직 필요
+     */
     public ResumeListResponseDto getResumeList(ResumeListRequestDto requestDto) {
         ResumeListResponseDto resumeList = resumeRepository.findResumeListByConditions(requestDto);
         return resumeList;

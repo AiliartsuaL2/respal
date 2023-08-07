@@ -4,6 +4,7 @@ import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.comment.domain.Comment;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
+import com.hckst.respal.mention.domain.Mention;
 import com.hckst.respal.resume.domain.Resume;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -66,6 +67,7 @@ public class Members implements UserDetails {
      * 양방향
      * Resume
      * One to Many
+     * 작성한 이력서 리스트
      */
     @OneToMany(mappedBy = "members")
     private List<Resume> resumeList;
@@ -75,9 +77,20 @@ public class Members implements UserDetails {
      * 양방향
      * Comment
      * One to Many
+     * 작성한 댓글 리스트
      */
     @OneToMany(mappedBy = "members")
     private List<Comment> commentList;
+
+    /**
+     * 연관관계 매핑
+     * 양방향
+     * Mention
+     * One to Many (다대다 중간테이블)
+     * 언급당한 멘션 리스트
+     */
+    @OneToMany(mappedBy = "members")
+    private List<Mention> mentionedList;
 
     //권한
     @ManyToMany(cascade=CascadeType.ALL)
