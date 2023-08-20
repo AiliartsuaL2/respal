@@ -36,8 +36,6 @@ public class QResume extends EntityPathBase<Resume> {
 
     public final com.hckst.respal.members.domain.QMembers members;
 
-    public final ListPath<com.hckst.respal.mention.domain.Mention, com.hckst.respal.mention.domain.QMention> mentionList = this.<com.hckst.respal.mention.domain.Mention, com.hckst.respal.mention.domain.QMention>createList("mentionList", com.hckst.respal.mention.domain.Mention.class, com.hckst.respal.mention.domain.QMention.class, PathInits.DIRECT2);
-
     public final DateTimePath<java.time.LocalDateTime> modifyTime = createDateTime("modifyTime", java.time.LocalDateTime.class);
 
     public final EnumPath<com.hckst.respal.converter.TFCode> modifyYn = createEnum("modifyYn", com.hckst.respal.converter.TFCode.class);
@@ -47,6 +45,8 @@ public class QResume extends EntityPathBase<Resume> {
     public final QResumeFile resumeFile;
 
     public final EnumPath<com.hckst.respal.converter.ResumeType> resumeType = createEnum("resumeType", com.hckst.respal.converter.ResumeType.class);
+
+    public final ListPath<com.hckst.respal.tag.domain.Tag, com.hckst.respal.tag.domain.QTag> tagList = this.<com.hckst.respal.tag.domain.Tag, com.hckst.respal.tag.domain.QTag>createList("tagList", com.hckst.respal.tag.domain.Tag.class, com.hckst.respal.tag.domain.QTag.class, PathInits.DIRECT2);
 
     public final StringPath title = createString("title");
 

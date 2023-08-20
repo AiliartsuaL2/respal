@@ -30,7 +30,7 @@ public class QMembers extends EntityPathBase<Members> {
 
     public final QJob job;
 
-    public final ListPath<com.hckst.respal.mention.domain.Mention, com.hckst.respal.mention.domain.QMention> mentionedList = this.<com.hckst.respal.mention.domain.Mention, com.hckst.respal.mention.domain.QMention>createList("mentionedList", com.hckst.respal.mention.domain.Mention.class, com.hckst.respal.mention.domain.QMention.class, PathInits.DIRECT2);
+    public final ListPath<com.hckst.respal.tag.domain.Tag, com.hckst.respal.tag.domain.QTag> mentionedList = this.<com.hckst.respal.tag.domain.Tag, com.hckst.respal.tag.domain.QTag>createList("mentionedList", com.hckst.respal.tag.domain.Tag.class, com.hckst.respal.tag.domain.QTag.class, PathInits.DIRECT2);
 
     public final StringPath nickname = createString("nickname");
 

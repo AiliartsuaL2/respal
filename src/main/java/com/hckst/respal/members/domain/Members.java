@@ -4,7 +4,7 @@ import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.comment.domain.Comment;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
-import com.hckst.respal.mention.domain.Mention;
+import com.hckst.respal.tag.domain.Tag;
 import com.hckst.respal.resume.domain.Resume;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -86,12 +86,12 @@ public class Members implements UserDetails {
     /**
      * 연관관계 매핑
      * 양방향
-     * Mention
+     * Tag
      * One to Many (다대다 중간테이블)
      * 언급당한 멘션 리스트
      */
     @OneToMany(mappedBy = "members")
-    private List<Mention> mentionedList;
+    private List<Tag> mentionedList;
 
     //권한
     @ManyToMany(cascade=CascadeType.ALL)

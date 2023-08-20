@@ -37,11 +37,11 @@ public enum ErrorMessage {
     // 203번대 Comment 관련 오류
     NOT_EXIST_COMMENT_EXCEPTION(HttpStatus.BAD_REQUEST,"존재하지 않는 댓글이에요.","R203"),
 
-    // 204번대 Mention 관련 오류
-    PERMITION_DENIED_TO_MENTION_EXCEPTION(HttpStatus.BAD_REQUEST,"멘션 권한이 없어요", "R204"),
-    CAN_NOT_MENTION_PUBLIC_RESUME_EXCEPTION(HttpStatus.BAD_REQUEST,"공개된 이력서에서는 멘션을 할 수 없어요","R204"),
-    CAN_NOT_MENTION_ONESELF_EXCEPTION(HttpStatus.BAD_REQUEST,"자기 자신은 언급 할 수 없어요.","R204"),
-    NOT_EXIST_MENTION_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 멘션이 존재하지 않아요.","R204");
+    // 204번대 Tag 관련 오류
+    PERMITION_DENIED_TO_TAG_EXCEPTION(HttpStatus.BAD_REQUEST,"태그 권한이 없어요", "R204"),
+    CAN_NOT_TAG_PUBLIC_RESUME_EXCEPTION(HttpStatus.BAD_REQUEST,"공개된 이력서에서는 태그를 할 수 없어요","R204"),
+    CAN_NOT_TAG_ONESELF_EXCEPTION(HttpStatus.BAD_REQUEST,"자기 자신은 태그 할 수 없어요.","R204"),
+    NOT_EXIST_TAG_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 태그가 존재하지 않아요.","R204");
 
 
     private final String msg;

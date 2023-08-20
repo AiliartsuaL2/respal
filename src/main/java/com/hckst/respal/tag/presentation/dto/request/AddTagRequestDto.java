@@ -1,4 +1,4 @@
-package com.hckst.respal.mention.presentation.dto.request;
+package com.hckst.respal.tag.presentation.dto.request;
 
 import com.hckst.respal.members.domain.Members;
 import lombok.*;
@@ -10,11 +10,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AddMentionRequestDto {
-    // 멘션하려는 이력서의 주인
+public class AddTagRequestDto {
+    // 태그하려는 이력서의 주인
     private Members members;
-    // 멘션하려는 이력서의 id
+    // 태그하려는 이력서의 id
     private Long resumeId;
-    // 멘션당하는 회원의 id
+    // 태그당하는 회원의 id
     private List<Long> membersIdList;
 }

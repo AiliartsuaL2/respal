@@ -1,4 +1,4 @@
-package com.hckst.respal.mention.domain;
+package com.hckst.respal.tag.domain;
 
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.resume.domain.Resume;
@@ -15,10 +15,10 @@ import java.util.Objects;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Mention {
+public class Tag {
     // 멘션 ID
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "MENTION_ID")
+    @Column(name = "TAG_ID")
     private Long id;
     // 언급된 이력서
     @ManyToOne
@@ -32,22 +32,22 @@ public class Mention {
     private LocalDateTime regTime;
 
     @Builder
-    public Mention(Resume resume, Members members){
+    public Tag(Resume resume, Members members){
         this.resume = resume;
         this.members = members;
         this.regTime = LocalDateTime.now();
-        this.resume.getMentionList().add(this);
+        this.resume.getTagList().add(this);
         this.members.getMentionedList().add(this);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if(!(o instanceof Mention)){
+        if(!(o instanceof Tag)){
             return false;
         }
-        Mention mention = (Mention) o;
-        return Objects.equals(id,mention.getId());
+        Tag tag = (Tag) o;
+        return Objects.equals(id, tag.getId());
     }
 
     @Override

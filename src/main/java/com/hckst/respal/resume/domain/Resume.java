@@ -6,7 +6,7 @@ import com.hckst.respal.converter.ResumeTypeConverter;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
 import com.hckst.respal.members.domain.Members;
-import com.hckst.respal.mention.domain.Mention;
+import com.hckst.respal.tag.domain.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -97,12 +97,12 @@ public class Resume {
     /**
      * 연관관계 매핑
      * 양방향
-     * Mention
+     * Tag
      * One to Many (다대다 중간테이블)
      * 이력서에 언급한 언급 리스트
      */
     @OneToMany(mappedBy = "resume")
-    private List<Mention> mentionList;
+    private List<Tag> tagList;
 
 
     @Builder

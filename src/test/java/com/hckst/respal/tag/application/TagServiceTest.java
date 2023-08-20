@@ -1,12 +1,12 @@
-package com.hckst.respal.mention.application;
+package com.hckst.respal.tag.application;
 
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.repository.MembersRepository;
-import com.hckst.respal.mention.domain.Mention;
-import com.hckst.respal.mention.domain.repository.MentionRepository;
-import com.hckst.respal.mention.presentation.dto.request.AddMentionRequestDto;
-import com.hckst.respal.mention.presentation.dto.request.RemoveMentionRequestDto;
+import com.hckst.respal.tag.domain.Tag;
+import com.hckst.respal.tag.domain.repository.TagRepository;
+import com.hckst.respal.tag.presentation.dto.request.AddTagRequestDto;
+import com.hckst.respal.tag.presentation.dto.request.RemoveTagRequestDto;
 import com.hckst.respal.resume.domain.Resume;
 import com.hckst.respal.resume.domain.repository.ResumeRepository;
 import org.assertj.core.api.Assertions;
@@ -22,13 +22,13 @@ import java.util.Optional;
 
 @SpringBootTest
 @Transactional
-class MentionServiceTest {
+class TagServiceTest {
     @Autowired
-    MentionService mentionService;
+    TagService mentionService;
     @Autowired
     MembersRepository membersRepository;
     @Autowired
-    MentionRepository mentionRepository;
+    TagRepository tagRepository;
     @Autowired
     ResumeRepository resumeRepository;
 
@@ -61,13 +61,13 @@ class MentionServiceTest {
     @Test
     void addMentionSuccess() {
         //given
-        AddMentionRequestDto dto = AddMentionRequestDto.builder()
+        AddTagRequestDto dto = AddTagRequestDto.builder()
                 .members(resumeOwner)
                 .resumeId(existResumeId)
                 .membersIdList(membersIdList)
                 .build();
         //when
-        mentionService.addMention(dto);
+        mentionService.addTag(dto);
         //then
 //        Assertions.assertThat(mentionRepository.findMentionByResume(resume).size()).isEqualTo(4);
     }
@@ -77,14 +77,14 @@ class MentionServiceTest {
     void addMentionFail1() {
         //given
         long notExistResumeId = 4L;
-        AddMentionRequestDto dto = AddMentionRequestDto.builder()
+        AddTagRequestDto dto = AddTagRequestDto.builder()
                 .members(resumeOwner)
                 .resumeId(notExistResumeId)
                 .membersIdList(membersIdList)
                 .build();
         //when
         //then
-        Assertions.assertThatThrownBy(() -> mentionService.addMention(dto))
+        Assertions.assertThatThrownBy(() -> mentionService.addTag(dto))
                 .isInstanceOf(ApplicationException.class);
     }
 
@@ -94,14 +94,14 @@ class MentionServiceTest {
         //given
         membersIdList.add(resumeOwnerId);
 
-        AddMentionRequestDto dto = AddMentionRequestDto.builder()
+        AddTagRequestDto dto = AddTagRequestDto.builder()
                 .members(resumeOwner)
                 .resumeId(existResumeId)
                 .membersIdList(membersIdList)
                 .build();
         //when
         //then
-        Assertions.assertThatThrownBy(() -> mentionService.addMention(dto))
+        Assertions.assertThatThrownBy(() -> mentionService.addTag(dto))
                 .isInstanceOf(ApplicationException.class);
     }
 
@@ -109,14 +109,14 @@ class MentionServiceTest {
     @Test
     void addMentionFail3() {
         //given
-        AddMentionRequestDto dto = AddMentionRequestDto.builder()
+        AddTagRequestDto dto = AddTagRequestDto.builder()
                 .members(resumeOwner)
                 .resumeId(publicResumeId)
                 .membersIdList(membersIdList)
                 .build();
         //when
         //then
-        Assertions.assertThatThrownBy(() -> mentionService.addMention(dto))
+        Assertions.assertThatThrownBy(() -> mentionService.addTag(dto))
                 .isInstanceOf(ApplicationException.class);
     }
 
@@ -124,14 +124,14 @@ class MentionServiceTest {
     @Test
     void addMentionFail4() {
         //given
-        AddMentionRequestDto dto = AddMentionRequestDto.builder()
+        AddTagRequestDto dto = AddTagRequestDto.builder()
                 .members(otherMember)
                 .resumeId(existResumeId)
                 .membersIdList(membersIdList)
                 .build();
         //when
         //then
-        Assertions.assertThatThrownBy(() -> mentionService.addMention(dto))
+        Assertions.assertThatThrownBy(() -> mentionService.addTag(dto))
                 .isInstanceOf(ApplicationException.class);
     }
 
@@ -139,14 +139,14 @@ class MentionServiceTest {
     void removeMentionSuccess(){
         //given
         long existMentionId = 11L;
-        RemoveMentionRequestDto removeMentionRequestDto = RemoveMentionRequestDto.builder()
-                .mentionId(existMentionId)
+        RemoveTagRequestDto removeMentionRequestDto = RemoveTagRequestDto.builder()
+                .tagId(existMentionId)
                 .members(resumeOwner)
                 .build();
         //when
-        mentionService.removeMention(removeMentionRequestDto);
+        mentionService.removeTag(removeMentionRequestDto);
         //then
-        Optional<Mention> findedMention = mentionRepository.findById(11L);
+        Optional<Tag> findedMention = tagRepository.findById(11L);
         Assertions.assertThat(findedMention).isEqualTo(Optional.empty());
     }
     // 아무 관련 없는 사람이 멘션을 삭제하려는 경우
@@ -155,13 +155,13 @@ class MentionServiceTest {
         long existMentionId = 11L;
         Members thirdMembers = membersRepository.findById(exist3rdMembersId).get();
 
-        RemoveMentionRequestDto removeMentionRequestDto = RemoveMentionRequestDto.builder()
-                .mentionId(existMentionId)
+        RemoveTagRequestDto removeMentionRequestDto = RemoveTagRequestDto.builder()
+                .tagId(existMentionId)
                 .members(thirdMembers)
                 .build();
         //when
         //then
-        Assertions.assertThatThrownBy(() -> mentionService.removeMention(removeMentionRequestDto))
+        Assertions.assertThatThrownBy(() -> mentionService.removeTag(removeMentionRequestDto))
                 .isInstanceOf(ApplicationException.class);
     }
 }
