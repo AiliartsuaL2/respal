@@ -33,11 +33,13 @@ public class TagService {
     // 이력서에 멘션을 추가하는 메서드 , 선행 조건으로 resume이 있어야함
     @Transactional
     public void addTag(AddTagRequestDto addTagRequestDto){
+        if(addTagRequestDto.getMembersIdList().size() == 0){
+            return;
+        }
         Resume resume = resumeRepository.findById(addTagRequestDto.getResumeId()).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID_EXCEPTION));
 
         // 공개 이력서인데 언급을 시도하는경우
-        // TODO 목요일 회의시 이야기해보기
         if(ResumeType.PUBLIC.equals(resume.getResumeType())){
             throw new ApplicationException(ErrorMessage.CAN_NOT_TAG_PUBLIC_RESUME_EXCEPTION);
         }

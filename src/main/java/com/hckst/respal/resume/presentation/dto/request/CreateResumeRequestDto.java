@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Builder
@@ -22,4 +23,6 @@ public class CreateResumeRequestDto {
     private Long resumeFileId;
     @NotNull
     private String resumeType;
+    // 태그 할 회원 Id List
+    private List<Long> tagIdList;
 }

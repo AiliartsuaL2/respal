@@ -18,6 +18,8 @@ import com.hckst.respal.resume.presentation.dto.request.ResumeListRequestDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeListResponseDto;
 import com.hckst.respal.resume.presentation.dto.response.CreateResumeFileResponseDto;
+import com.hckst.respal.tag.application.TagService;
+import com.hckst.respal.tag.presentation.dto.request.AddTagRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,7 @@ public class ResumeService {
     private final CommentRepository commentRepository;
     private final ResumeFileRepository resumeFileRepository;
     private final AmazonS3Client amazonS3Client;
+    private final TagService tagService;
 
 
     /**
@@ -65,6 +68,16 @@ public class ResumeService {
                 .build();
 
         resumeRepository.save(resume);
+
+        // 태그 추가
+        AddTagRequestDto tagRequestDto = AddTagRequestDto.builder()
+                .members(members)
+                .resumeId(resume.getId())
+                .membersIdList(createResumeRequestDto.getTagIdList())
+                .build();
+        tagService.addTag(tagRequestDto);
+
+
         ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
                 .resume(resume)
                 .commentList(new ArrayList<>())
