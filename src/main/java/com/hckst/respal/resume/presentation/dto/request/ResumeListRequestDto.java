@@ -25,6 +25,7 @@ public class ResumeListRequestDto {
     private int jobId;
     // 정렬 조건
     private ResumeSort sort;
+
     private ResumeType resumeType;
     // 조회하는 회원, tagged 에서만 필요.
     private Members viewer;
