@@ -1,5 +1,6 @@
 package com.hckst.respal.resume.application;
 
+import com.hckst.respal.converter.ResumeType;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
@@ -81,7 +82,7 @@ class ResumeServiceTest {
         //given
         ResumeListRequestDto resumeListRequestDto = new ResumeListRequestDto(1, 20, 2, "recent", "desc");
         //when
-        ResumeListResponseDto result = resumeService.getResumeList(resumeListRequestDto);
+        ResumeListResponseDto result = resumeService.getResumeList(resumeListRequestDto, ResumeType.PUBLIC);
         //then
         for (ResumeDetailResponseDto resumeDetailResponseDto : result.getResumeList()) {
             System.out.println("resumeDetailResponseDto = " + resumeDetailResponseDto.getTitle());

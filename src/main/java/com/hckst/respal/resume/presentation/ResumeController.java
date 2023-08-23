@@ -1,5 +1,6 @@
 package com.hckst.respal.resume.presentation;
 
+import com.hckst.respal.converter.ResumeType;
 import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import com.hckst.respal.members.domain.Members;
@@ -46,13 +47,13 @@ public class ResumeController {
                 .build();
         return ResponseEntity.ok(response);
     }
-    @Operation(summary = "이력서 리스트 조회 API", description = "이력서 리스트를 조회하는 API입니다. 정렬조건, 검색 조건을 통해서 조회 할 수 있습니다.")
+    @Operation(summary = "허브 조회 API", description = "허브 (공개 이력서 리스트)를 조회하는 API입니다. 정렬조건, 검색 조건을 통해서 조회 할 수 있습니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이력서 ", useReturnTypeSchema = true)
     })
-    @GetMapping("/resume")
-    public ResponseEntity<ApiCommonResponse<List<ResumeDetailResponseDto>>> getResumeList(@RequestBody ResumeListRequestDto requestDto){
-        ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto);
+    @GetMapping("/hub")
+    public ResponseEntity<ApiCommonResponse<ResumeListResponseDto>> getHub(@RequestBody ResumeListRequestDto requestDto){
+        ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto, ResumeType.PUBLIC);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .result(resumeList)

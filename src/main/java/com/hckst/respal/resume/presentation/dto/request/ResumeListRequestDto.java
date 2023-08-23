@@ -1,7 +1,9 @@
 package com.hckst.respal.resume.presentation.dto.request;
 
 import com.hckst.respal.converter.ResumeSort;
+import com.hckst.respal.converter.ResumeType;
 import com.hckst.respal.members.domain.Job;
+import com.hckst.respal.members.domain.Members;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -23,7 +25,19 @@ public class ResumeListRequestDto {
     private int jobId;
     // 정렬 조건
     private ResumeSort sort;
+    private ResumeType resumeType;
+    // 조회하는 회원
+    private Members viewer;
 
+    public void setViewer(Members viewer){
+        this.viewer = viewer;
+    }
+    public void setHubCondition(){
+        this.resumeType = ResumeType.PUBLIC;
+    }
+    public void setTaggedCondition(){
+        this.resumeType = ResumeType.PRIVATE;
+    }
     /**
      * 매핑 조건
      * sort (정렬 기준)
@@ -35,6 +49,7 @@ public class ResumeListRequestDto {
      *   - asc
      *   - desc
      */
+    @Builder
     public ResumeListRequestDto(int page, long limit, int jobId, String sort, String direction) {
         this.page = page == 0 ? 1 : page;
         this.limit = limit == 0 ? 20 : limit;

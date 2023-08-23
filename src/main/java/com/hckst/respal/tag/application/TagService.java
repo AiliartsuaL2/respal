@@ -30,9 +30,14 @@ public class TagService {
     private final ResumeRepository resumeRepository;
     private final TagJdbcRepository tagJdbcRepository;
 
-    // 이력서에 멘션을 추가하는 메서드 , 선행 조건으로 resume이 있어야함
+    /**
+     * 이력서에 태그를 추가하는 메서드
+     * 신규 생성시에는 createResume에서 같이 처리
+     * 편집시에도 updateResume에서 같이 처리(저장 클릭시 한 번에)
+     */
+
     @Transactional
-    public void addTag(AddTagRequestDto addTagRequestDto){
+    public void addTags(AddTagRequestDto addTagRequestDto){
         if(addTagRequestDto.getMembersIdList().size() == 0){
             return;
         }

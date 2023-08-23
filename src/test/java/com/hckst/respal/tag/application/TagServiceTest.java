@@ -67,7 +67,7 @@ class TagServiceTest {
                 .membersIdList(membersIdList)
                 .build();
         //when
-        mentionService.addTag(dto);
+        mentionService.addTags(dto);
         //then
 //        Assertions.assertThat(mentionRepository.findMentionByResume(resume).size()).isEqualTo(4);
     }
@@ -84,7 +84,7 @@ class TagServiceTest {
                 .build();
         //when
         //then
-        Assertions.assertThatThrownBy(() -> mentionService.addTag(dto))
+        Assertions.assertThatThrownBy(() -> mentionService.addTags(dto))
                 .isInstanceOf(ApplicationException.class);
     }
 
@@ -101,7 +101,7 @@ class TagServiceTest {
                 .build();
         //when
         //then
-        Assertions.assertThatThrownBy(() -> mentionService.addTag(dto))
+        Assertions.assertThatThrownBy(() -> mentionService.addTags(dto))
                 .isInstanceOf(ApplicationException.class);
     }
 
@@ -116,7 +116,7 @@ class TagServiceTest {
                 .build();
         //when
         //then
-        Assertions.assertThatThrownBy(() -> mentionService.addTag(dto))
+        Assertions.assertThatThrownBy(() -> mentionService.addTags(dto))
                 .isInstanceOf(ApplicationException.class);
     }
 
@@ -131,7 +131,7 @@ class TagServiceTest {
                 .build();
         //when
         //then
-        Assertions.assertThatThrownBy(() -> mentionService.addTag(dto))
+        Assertions.assertThatThrownBy(() -> mentionService.addTags(dto))
                 .isInstanceOf(ApplicationException.class);
     }
 

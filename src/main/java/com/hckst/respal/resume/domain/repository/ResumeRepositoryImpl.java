@@ -1,15 +1,20 @@
 package com.hckst.respal.resume.domain.repository;
 
 import com.hckst.respal.converter.ResumeSort;
+import com.hckst.respal.converter.ResumeType;
 import com.hckst.respal.converter.TFCode;
+import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.resume.domain.Resume;
 import com.hckst.respal.resume.presentation.dto.request.ResumeListRequestDto;
 import com.hckst.respal.resume.presentation.dto.response.QResumeDetailResponseDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeListResponseDto;
+import com.hckst.respal.tag.domain.QTag;
+import com.hckst.respal.tag.domain.Tag;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.ListPath;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +28,18 @@ import static com.hckst.respal.members.domain.QJob.job;
 import static com.hckst.respal.members.domain.QMembers.members;
 import static com.hckst.respal.resume.domain.QResume.resume;
 import static com.hckst.respal.resume.domain.QResumeFile.resumeFile;
+import static com.hckst.respal.tag.domain.QTag.tag;
 
 @Repository
 @RequiredArgsConstructor
 public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
+    /**
+     * 이력서 조회 query
+     * 조회하는곳이 Hub인경우 public한 resume List만 조회
+     * 조회하는곳이 Tagged인경우 private한 resume중, tagList에 조회하는 member가 있는 경우에만 조회
+     */
     @Override
     public ResumeListResponseDto findResumeListByConditions(ResumeListRequestDto requestDto) {
         List<ResumeDetailResponseDto> result = queryFactory
@@ -50,7 +61,9 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                 .innerJoin(members.job, job)
                 .innerJoin(resume.resumeFile, resumeFile)
                 .leftJoin(resume.commentList, comment)
+                .leftJoin(resume.tagList, tag).on(checkResumeType(requestDto.getResumeType(),requestDto.getViewer()))
                 .where(resume.deleteYn.eq(TFCode.FALSE)
+                        .and(resume.resumeType.eq(requestDto.getResumeType()))
                         .and(resumeFile.deleteYn.eq(TFCode.FALSE))
                         .and(jobIdContains(requestDto.getJobId())))
                 .groupBy(resume.id)
@@ -58,11 +71,13 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                 .offset(requestDto.getOffset())
                 .orderBy(resumeSort(requestDto.getSort()))
                 .fetch();
+
         long count = queryFactory.select(resume.count())
                 .from(resume)
                 .innerJoin(resume.members, members)
                 .innerJoin(members.job, job)
                 .where(resume.deleteYn.eq(TFCode.FALSE)
+                        .and(resume.resumeType.eq(requestDto.getResumeType()))
                         .and(jobIdContains(requestDto.getJobId()))
                 ).fetchOne();
 
@@ -99,7 +114,9 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
         NumberExpression<?> sortCondition = resumeSort.getSortCondition();
         return new OrderSpecifier(direction, sortCondition);
     }
-
+    private BooleanExpression checkResumeType(ResumeType resumeType, Members viewer){
+        return ResumeType.PRIVATE.equals(resumeType) ? tag.members.eq(viewer) : tag.isNull();
+    }
     private BooleanExpression jobIdContains(int jobId) {
         return jobId != 0 ? job.id.eq(jobId) : null;
     }

@@ -69,13 +69,15 @@ public class ResumeService {
 
         resumeRepository.save(resume);
 
-        // 태그 추가
-        AddTagRequestDto tagRequestDto = AddTagRequestDto.builder()
-                .members(members)
-                .resumeId(resume.getId())
-                .membersIdList(createResumeRequestDto.getTagIdList())
-                .build();
-        tagService.addTag(tagRequestDto);
+        // private 이력서인경우 태그 추가
+        if(resumeType.equals(ResumeType.PRIVATE)){
+            AddTagRequestDto tagRequestDto = AddTagRequestDto.builder()
+                    .members(members)
+                    .resumeId(resume.getId())
+                    .membersIdList(createResumeRequestDto.getTagIdList())
+                    .build();
+            tagService.addTags(tagRequestDto);
+        }
 
 
         ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
@@ -116,7 +118,11 @@ public class ResumeService {
      * 이력서 조회 메서드
      * Todo 조회하는 이력서 카테고리가 Hub인지 Mentioned인지 분기처리 로직 필요
      */
-    public ResumeListResponseDto getResumeList(ResumeListRequestDto requestDto) {
+    public ResumeListResponseDto getResumeList(ResumeListRequestDto requestDto,ResumeType resumeType) {
+        if(ResumeType.PUBLIC.equals(resumeType))
+            requestDto.setHubCondition();
+        else
+            requestDto.setTaggedCondition();
         ResumeListResponseDto resumeList = resumeRepository.findResumeListByConditions(requestDto);
         return resumeList;
     }
