@@ -88,10 +88,10 @@ public class Members implements UserDetails {
      * 양방향
      * Tag
      * One to Many (다대다 중간테이블)
-     * 언급당한 멘션 리스트
+     * 언급당한 Tag 리스트
      */
     @OneToMany(mappedBy = "members")
-    private List<Tag> mentionedList;
+    private List<Tag> taggedList;
 
     //권한
     @ManyToMany(cascade=CascadeType.ALL)
@@ -119,6 +119,7 @@ public class Members implements UserDetails {
         this.passwordTmpYn = TFCode.FALSE;
         this.commentList = new ArrayList<>();
         this.resumeList = new ArrayList<>();
+        this.taggedList = new ArrayList<>();
     }
 
     //회원정보 수정

@@ -37,7 +37,7 @@ public class Tag {
         this.members = members;
         this.regTime = LocalDateTime.now();
         this.resume.getTagList().add(this);
-        this.members.getMentionedList().add(this);
+        this.members.getTaggedList().add(this);
     }
 
     @Override

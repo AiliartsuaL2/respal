@@ -17,6 +17,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -33,20 +36,25 @@ class ResumeServiceTest {
     @Autowired
     ResumeRepository resumeRepository;
     @Test
+    @Commit
     void createResume() {
         //given
-        long existMembersId = 6L;
-        CreateResumeRequestDto resumeRequestDto = CreateResumeRequestDto.builder()
-                    .title("제목 테스트")
-                    .content("내용 테스트")
+        long writerId = 2L;
+        long tagMember1 = 6L;
+        long tagMember2 = 59L;
+        List<Long> tagMembers = Arrays.asList(tagMember2);
+
+        Members writer = membersRepository.findById(writerId).orElseThrow(()-> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
+        for (int i = 0; i < 4; i++) {
+            CreateResumeRequestDto resumeRequestDto = CreateResumeRequestDto.builder()
+                    .title("비밀 이력서 "+i)
+                    .content("비밀 이력서 내용"+i)
                     .resumeFileId(1L)
+                    .tagIdList(tagMembers)
+                    .resumeType("private")
                     .build();
-        Members members = membersRepository.findById(existMembersId).orElseThrow(()-> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
-        resumeService.createResume(resumeRequestDto, members);
-        //when
-        ResumeDetailResponseDto resumeDetail = resumeService.getResumeDetailByResumeId(1L);
-        //then
-        assertThat(resumeDetail.getMembersId()).isEqualTo(existMembersId);
+            resumeService.createResume(resumeRequestDto, writer);
+        }
     }
 
     @Test
@@ -78,15 +86,25 @@ class ResumeServiceTest {
         assertThat(foundResume.getViews()).isEqualTo(1);
     }
     @Test
-    void getResumeList(){
+    void getHubList(){
         //given
         ResumeListRequestDto resumeListRequestDto = new ResumeListRequestDto(1, 20, 2, "recent", "desc");
         //when
         ResumeListResponseDto result = resumeService.getResumeList(resumeListRequestDto, ResumeType.PUBLIC);
         //then
-        for (ResumeDetailResponseDto resumeDetailResponseDto : result.getResumeList()) {
-            System.out.println("resumeDetailResponseDto = " + resumeDetailResponseDto.getTitle());
-        }
+        assertThat(result.getResumeListCount()).isEqualTo(24);
+    }
+    @Test
+    void getTaggedListSuccess(){
+        //given
+        ResumeListRequestDto resumeListRequestDto = new ResumeListRequestDto(1, 20, 2, "recent", "desc");
+        long viewerId = 6L;
+        Members viewer = membersRepository.findById(viewerId).get();
+        resumeListRequestDto.setViewer(viewer);
+        //when
+        ResumeListResponseDto result = resumeService.getResumeList(resumeListRequestDto, ResumeType.PRIVATE);
+        //then
+        assertThat(result.getResumeListCount()).isEqualTo(17);
     }
     @Test
     void deleteResume(){

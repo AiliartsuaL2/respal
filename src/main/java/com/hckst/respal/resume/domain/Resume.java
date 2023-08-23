@@ -117,6 +117,7 @@ public class Resume {
         this.members = members;
         this.commentList = new ArrayList<>();
         this.resumeFile = resumeFile;
+        this.tagList = new ArrayList<>();
     }
 
     public void updateResume(String title, String content, ResumeFile resumeFile){

@@ -61,11 +61,12 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                 .innerJoin(members.job, job)
                 .innerJoin(resume.resumeFile, resumeFile)
                 .leftJoin(resume.commentList, comment)
-                .leftJoin(resume.tagList, tag).on(checkResumeType(requestDto.getResumeType(),requestDto.getViewer()))
+                .leftJoin(resume.tagList, tag).on(addJoinConditionByResumeType(requestDto.getResumeType(),requestDto.getViewer()))
                 .where(resume.deleteYn.eq(TFCode.FALSE)
                         .and(resume.resumeType.eq(requestDto.getResumeType()))
                         .and(resumeFile.deleteYn.eq(TFCode.FALSE))
-                        .and(jobIdContains(requestDto.getJobId())))
+                        .and(jobIdContains(requestDto.getJobId()))
+                        .and(addWhereConditionByResumeType(requestDto.getResumeType())))
                 .groupBy(resume.id)
                 .limit(requestDto.getLimit())
                 .offset(requestDto.getOffset())
@@ -76,9 +77,11 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                 .from(resume)
                 .innerJoin(resume.members, members)
                 .innerJoin(members.job, job)
+                .leftJoin(resume.tagList, tag).on(addJoinConditionByResumeType(requestDto.getResumeType(),requestDto.getViewer()))
                 .where(resume.deleteYn.eq(TFCode.FALSE)
                         .and(resume.resumeType.eq(requestDto.getResumeType()))
-                        .and(jobIdContains(requestDto.getJobId()))
+                        .and(jobIdContains(requestDto.getJobId())
+                        .and(addWhereConditionByResumeType(requestDto.getResumeType())))
                 ).fetchOne();
 
         ResumeListResponseDto resumeList = ResumeListResponseDto.builder()
@@ -114,8 +117,11 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
         NumberExpression<?> sortCondition = resumeSort.getSortCondition();
         return new OrderSpecifier(direction, sortCondition);
     }
-    private BooleanExpression checkResumeType(ResumeType resumeType, Members viewer){
+    private BooleanExpression addJoinConditionByResumeType(ResumeType resumeType, Members viewer){
         return ResumeType.PRIVATE.equals(resumeType) ? tag.members.eq(viewer) : tag.isNull();
+    }
+    private BooleanExpression addWhereConditionByResumeType(ResumeType resumeType){
+        return ResumeType.PRIVATE.equals(resumeType) ? tag.isNotNull() : null;
     }
     private BooleanExpression jobIdContains(int jobId) {
         return jobId != 0 ? job.id.eq(jobId) : null;
