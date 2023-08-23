@@ -26,7 +26,7 @@ public class ResumeListRequestDto {
     // 정렬 조건
     private ResumeSort sort;
     private ResumeType resumeType;
-    // 조회하는 회원
+    // 조회하는 회원, tagged 에서만 필요.
     private Members viewer;
 
     public void setViewer(Members viewer){

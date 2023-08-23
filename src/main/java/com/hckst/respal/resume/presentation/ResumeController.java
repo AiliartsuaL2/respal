@@ -49,11 +49,26 @@ public class ResumeController {
     }
     @Operation(summary = "허브 조회 API", description = "허브 (공개 이력서 리스트)를 조회하는 API입니다. 정렬조건, 검색 조건을 통해서 조회 할 수 있습니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "이력서 ", useReturnTypeSchema = true)
+            @ApiResponse(responseCode = "200", description = "HubList를 반환합니다.", useReturnTypeSchema = true)
     })
     @GetMapping("/hub")
     public ResponseEntity<ApiCommonResponse<ResumeListResponseDto>> getHub(@RequestBody ResumeListRequestDto requestDto){
         ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto, ResumeType.PUBLIC);
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(200)
+                .result(resumeList)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+    @Operation(summary = "Tagged 조회 API", description = "Tagged (태그된 이력서 리스트)를 조회하는 API입니다. 로그인을 해야 조회 할 수 있습니다.정렬조건, 검색 조건을 통해서 조회 할 수 있습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "TaggedList를 반환합니다. ", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "401", description = "로그인하지 않은경우 반환되는 에러입니다.",content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @GetMapping("/tagged")
+    public ResponseEntity<ApiCommonResponse<ResumeListResponseDto>> getTagged(@RequestBody ResumeListRequestDto requestDto, @AuthenticationPrincipal Members viewer){
+        requestDto.setViewer(viewer);
+        ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto, ResumeType.PRIVATE);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .result(resumeList)
