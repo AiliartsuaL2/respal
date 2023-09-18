@@ -15,13 +15,13 @@ import java.util.List;
 @Setter
 @Schema(description = "이력서 작성 요청 DTO")
 public class CreateResumeRequestDto {
-    @NotNull
+    @NotNull(message = "제목은 필수 입력값이에요")
     private String title;
-    @NotNull
+    @NotNull(message = "내용은 필수 입력값이에요")
     private String content;
-    @NotNull
+    @NotNull(message = "파일 ID는 필수 입력값이에요")
     private Long resumeFileId;
-    @NotNull
+    @NotNull(message = "이력서 타입은 필수 입력값이에요 (public , private)")
     private String resumeType;
     // 태그 할 회원 Id List
     private List<Long> tagIdList;

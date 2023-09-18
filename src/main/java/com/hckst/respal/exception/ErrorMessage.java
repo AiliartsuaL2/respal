@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorMessage {
+    REQUEST_VALIDATION_EXCEPTION(HttpStatus.BAD_REQUEST,"요청 형식이 잘못 되었어요.","R000"),
     // 0번대 JWT 관련 오류
     EXPIRED_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"만료된 토큰 정보에요.","R001"),
     INCORRECT_REFRESH_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"일치하지 않는 Refresh Token 이에요.","R002"),
@@ -41,6 +42,8 @@ public enum ErrorMessage {
     PERMITION_DENIED_TO_TAG_EXCEPTION(HttpStatus.BAD_REQUEST,"태그 권한이 없어요", "R204"),
     CAN_NOT_TAG_PUBLIC_RESUME_EXCEPTION(HttpStatus.BAD_REQUEST,"공개된 이력서에서는 태그를 할 수 없어요","R204"),
     CAN_NOT_TAG_ONESELF_EXCEPTION(HttpStatus.BAD_REQUEST,"자기 자신은 태그 할 수 없어요.","R204"),
+    NOT_EXIST_MEMBER_LIST_FOR_TAG_EXCEPTION(HttpStatus.BAD_REQUEST,"태그하려는 회원 리스트가 존재하지 않아요.","R204"),
+
     NOT_EXIST_TAG_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 태그가 존재하지 않아요.","R204");
 
 

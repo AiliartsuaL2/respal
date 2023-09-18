@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
         ApiErrorResponse response = ApiErrorResponse.builder()
                 .statusCode(400)
                 .result(ApiErrorMessageAndCode.builder()
-                                .errorCode("R201")
+                                .errorCode("R000")
                                 .message(message)
                                 .build())
                 .build();

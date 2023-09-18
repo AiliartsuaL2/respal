@@ -13,10 +13,10 @@ import javax.validation.constraints.NotNull;
 @Schema(description = "이력서 리스트 요청 DTO")
 public class ResumeListRequestDto {
     // 페이지 넘버
-    @NotNull
+    @NotNull(message = "페이지 번호는 필수 입력값이에요.")
     private int page;
     // 요청당 페이지 수
-    @NotNull
+    @NotNull(message = "한 페이지당 게시물 수는 필수 입력값이에요")
     private long limit;
     // 쿼리에 사용될 offset / (page-1) * limit
     private long offset;
