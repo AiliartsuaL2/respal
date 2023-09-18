@@ -79,7 +79,6 @@ public class ResumeService {
             tagService.addTags(tagRequestDto);
         }
 
-
         ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
                 .resume(resume)
                 .commentList(new ArrayList<>())
