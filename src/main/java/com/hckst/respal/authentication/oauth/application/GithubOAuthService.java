@@ -4,14 +4,12 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
-import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
-import com.hckst.respal.converter.RoleType;
+import com.hckst.respal.members.domain.RoleType;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.authentication.oauth.domain.Oauth;
-import com.hckst.respal.members.domain.Role;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.authentication.oauth.presentation.dto.request.info.github.GithubUserInfo;
@@ -51,7 +49,7 @@ public class GithubOAuthService implements OAuthService{
         Optional<MembersOAuthDto> membersOauth = membersRepository.findMembersOauthForLogin(email, Provider.GITHUB);
         if(membersOauth.isPresent()){
             Members members = membersRepository.findById(membersOauth.get().getId()).get();
-            return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
+            return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
         }
         return null;
     }
@@ -119,7 +117,7 @@ public class GithubOAuthService implements OAuthService{
         Members members = Members.builder()
                 .email(membersJoinRequestDto.getEmail())
                 .nickname(membersJoinRequestDto.getNickname())
-                .role(new Role(RoleType.ROLE_USER))
+                .roleType(RoleType.ROLE_USER)
                 .picture(membersJoinRequestDto.getPicture())
                 .password(UUID.randomUUID().toString().replace("-", ""))
                 .job(jobRepository.getReferenceById(membersJoinRequestDto.getJobId()))
@@ -132,7 +130,7 @@ public class GithubOAuthService implements OAuthService{
         membersRepository.save(members);
         oauthRepository.save(oauth);
 
-        return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
+        return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
     }
 
     @Override

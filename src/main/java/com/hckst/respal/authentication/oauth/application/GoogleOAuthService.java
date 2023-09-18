@@ -8,14 +8,12 @@ import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.oauth.presentation.dto.request.info.google.GoogleUserInfo;
 import com.hckst.respal.config.OAuthConfig;
-import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
-import com.hckst.respal.converter.RoleType;
+import com.hckst.respal.members.domain.RoleType;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.authentication.oauth.domain.Oauth;
-import com.hckst.respal.members.domain.Role;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.members.domain.repository.JobRepository;
@@ -49,7 +47,7 @@ public class GoogleOAuthService implements OAuthService {
         Optional<MembersOAuthDto> membersOauth = membersRepository.findMembersOauthForLogin(email, Provider.GOOGLE);
         if(membersOauth.isPresent()){
             Members members = membersRepository.findById(membersOauth.get().getId()).get();
-            return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
+            return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
         }
         return null;
     }
@@ -122,7 +120,7 @@ public class GoogleOAuthService implements OAuthService {
         Members members = Members.builder()
                 .email(membersJoinRequestDto.getEmail())
                 .nickname(membersJoinRequestDto.getNickname())
-                .role(new Role(RoleType.ROLE_USER))
+                .roleType(RoleType.ROLE_USER)
                 .picture(membersJoinRequestDto.getPicture())
                 .password(UUID.randomUUID().toString().replace("-", ""))
                 .job(jobRepository.getReferenceById(membersJoinRequestDto.getJobId()))
@@ -135,7 +133,7 @@ public class GoogleOAuthService implements OAuthService {
         membersRepository.save(members);
         oauthRepository.save(oauth);
 
-        return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
+        return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
     }
 
     @Override

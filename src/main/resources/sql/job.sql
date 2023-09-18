@@ -1,4 +1,4 @@
-INSERT INTO boosdb.job (job_name)
+INSERT INTO job (job_name)
 VALUES
 ('서버 백엔드 개발자'),
 ('프론트엔드 개발자'),

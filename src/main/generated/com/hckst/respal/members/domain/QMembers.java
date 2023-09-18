@@ -44,7 +44,7 @@ public class QMembers extends EntityPathBase<Members> {
 
     public final ListPath<com.hckst.respal.resume.domain.Resume, com.hckst.respal.resume.domain.QResume> resumeList = this.<com.hckst.respal.resume.domain.Resume, com.hckst.respal.resume.domain.QResume>createList("resumeList", com.hckst.respal.resume.domain.Resume.class, com.hckst.respal.resume.domain.QResume.class, PathInits.DIRECT2);
 
-    public final ListPath<Role, QRole> roles = this.<Role, QRole>createList("roles", Role.class, QRole.class, PathInits.DIRECT2);
+    public final EnumPath<RoleType> roleType = createEnum("roleType", RoleType.class);
 
     public final ListPath<com.hckst.respal.tag.domain.Tag, com.hckst.respal.tag.domain.QTag> taggedList = this.<com.hckst.respal.tag.domain.Tag, com.hckst.respal.tag.domain.QTag>createList("taggedList", com.hckst.respal.tag.domain.Tag.class, com.hckst.respal.tag.domain.QTag.class, PathInits.DIRECT2);
 

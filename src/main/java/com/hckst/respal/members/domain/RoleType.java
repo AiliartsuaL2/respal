@@ -1,4 +1,4 @@
-package com.hckst.respal.converter;
+package com.hckst.respal.members.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

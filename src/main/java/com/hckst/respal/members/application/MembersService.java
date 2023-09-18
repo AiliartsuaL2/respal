@@ -4,7 +4,7 @@ import com.hckst.respal.converter.*;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
-import com.hckst.respal.members.domain.Role;
+import com.hckst.respal.members.domain.RoleType;
 import com.hckst.respal.members.domain.repository.JobRepository;
 import com.hckst.respal.members.presentation.dto.request.*;
 import com.hckst.respal.authentication.jwt.dto.Token;
@@ -49,7 +49,7 @@ public class MembersService {
         if (!matchPassword(membersLoginRequestDto.getPassword(), members.getPassword())) { // 비밀번호가 일치하지 않을경우
             throw new ApplicationException(ErrorMessage.INVALID_MEMBER_EXCEPTION);
         }
-        return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
+        return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
     }
 
     // email 중복체크 ,, 중복이면 true 없으면 false
@@ -63,18 +63,17 @@ public class MembersService {
         if (duplicationCheckEmail(membersJoinRequestDto.getEmail())) {
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
-        Role role = new Role(RoleType.ROLE_USER);
         Members members = Members.builder()
                 .email(membersJoinRequestDto.getEmail())
                 .password(Optional.ofNullable(membersJoinRequestDto.getPassword()).orElseThrow( () -> new ApplicationException(ErrorMessage.NOT_EXIST_PASSWORD_EXCEPTION)))
                 .picture(membersJoinRequestDto.getPicture())
                 .nickname(membersJoinRequestDto.getNickname())
                 .job(jobRepository.getReferenceById(membersJoinRequestDto.getJobId()))
-                .role(role)
+                .roleType(RoleType.ROLE_USER)
                 .build();
         membersRepository.save(members);
 
-        return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoles());
+        return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
     }
 
     // 암호화된 비밀번호가 일치하는지 확인하는 메서드

@@ -8,7 +8,6 @@ import com.hckst.respal.tag.domain.Tag;
 import com.hckst.respal.resume.domain.Resume;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -92,28 +91,24 @@ public class Members implements UserDetails {
     private List<Tag> taggedList;
 
     //권한
-    @ManyToMany(cascade=CascadeType.ALL)
-    @JoinTable(
-            name="members_role",
-            joinColumns={@JoinColumn(name="MEMBERS_ID", referencedColumnName="MEMBERS_ID")},
-            inverseJoinColumns={@JoinColumn(name="ROLE_ID", referencedColumnName="ROLE_ID")})
-    private List<Role> roles;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20,nullable=false)
+    private RoleType roleType;
 
     //oauth
     @OneToMany(mappedBy = "membersId")
     private List<Oauth> oauthList;
 
     @Builder
-    public Members(String password, String nickname, String email, String picture, Role role, Job job){
+    public Members(String password, String nickname, String email, String picture, RoleType roleType, Job job){
         this.password = encryptPassword(password);
         this.picture = picture;
         this.nickname = nickname;
-        this.roles = new ArrayList<>();
+        this.roleType = roleType;
         this.regTime = LocalDateTime.now();
         this.email = email;
         this.oauthList = new ArrayList<>();
         this.job = job;
-        this.roles.add(role);
         this.passwordTmpYn = TFCode.FALSE;
         this.commentList = new ArrayList<>();
         this.resumeList = new ArrayList<>();
@@ -152,13 +147,7 @@ public class Members implements UserDetails {
     // 시큐리티 설정
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-
-        for (Role role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role.getRoles().getAuthority()));
-        }
-
-        return authorities;
+        return Arrays.asList(this.roleType);
     }
 
     @Override
