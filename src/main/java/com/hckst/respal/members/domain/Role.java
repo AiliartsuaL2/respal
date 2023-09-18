@@ -1,7 +1,6 @@
 package com.hckst.respal.members.domain;
 
 import com.hckst.respal.converter.RoleType;
-import com.hckst.respal.converter.RoleTypeConverter;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,8 +19,9 @@ public class Role {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer id;
 
-    @Convert(converter = RoleTypeConverter.class)
-    @Column(columnDefinition = "varchar(20)", nullable=false)
+    //권한
+    @Enumerated(EnumType.STRING)
+    @Column(nullable=false)
     private RoleType roles;
 
     @ManyToMany(mappedBy="roles")

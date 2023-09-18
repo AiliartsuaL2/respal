@@ -8,15 +8,13 @@ import com.hckst.respal.tag.domain.Tag;
 import com.hckst.respal.resume.domain.Resume;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -154,8 +152,15 @@ public class Members implements UserDetails {
     // 시큐리티 설정
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.getRoles().getAuthority()));
+        }
+
+        return authorities;
     }
+
     @Override
     public String getUsername() {
         return email;

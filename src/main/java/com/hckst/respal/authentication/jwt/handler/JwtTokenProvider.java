@@ -52,7 +52,7 @@ public class JwtTokenProvider {
 
         // claims String 처리를 위해 생성
         List<String> roleStrList = roles.stream()
-                .map(r -> r.getRoles().getValue())
+                .map(r -> r.getRoles().getAuthority())
                 .collect(Collectors.toList());
 
         claims.put("roles", roleStrList); // 정보는 key / value 쌍으로 저장된다.
