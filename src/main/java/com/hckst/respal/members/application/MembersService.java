@@ -122,8 +122,8 @@ public class MembersService {
         }
     }
     //회원임을 확인하는 로직 이메일 send는 Async 처리로 controller에서 해당 로직으로 확인 후 메일 전송
-    public boolean checkMembers(SendEmailRequestDto sendEmailRequestDto){
-        return membersRepository.findCommonMembersByEmail(sendEmailRequestDto.getEmail()).isPresent();
+    public boolean checkMembers(String email){
+        return membersRepository.findCommonMembersByEmail(email).isPresent();
     }
 
     // 비밀번호 변경

@@ -80,8 +80,8 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                 .leftJoin(resume.tagList, tag).on(addJoinConditionByResumeType(requestDto.getResumeType(),requestDto.getViewer()))
                 .where(resume.deleteYn.eq(TFCode.FALSE)
                         .and(resume.resumeType.eq(requestDto.getResumeType()))
-                        .and(jobIdContains(requestDto.getJobId())
-                        .and(addWhereConditionByResumeType(requestDto.getResumeType())))
+                        .and(jobIdContains(requestDto.getJobId()))
+                        .and(addWhereConditionByResumeType(requestDto.getResumeType()))
                 ).fetchOne();
 
         ResumeListResponseDto resumeList = ResumeListResponseDto.builder()
@@ -123,8 +123,8 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
     private BooleanExpression addWhereConditionByResumeType(ResumeType resumeType){
         return ResumeType.PRIVATE.equals(resumeType) ? tag.isNotNull() : null;
     }
-    private BooleanExpression jobIdContains(int jobId) {
-        return jobId != 0 ? job.id.eq(jobId) : null;
+    private BooleanExpression jobIdContains(Integer jobId) {
+        return jobId != null ? job.id.eq(jobId) : null;
     }
 
     private BooleanExpression resumeIdCondition(Long id) {

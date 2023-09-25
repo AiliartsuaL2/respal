@@ -38,9 +38,6 @@ public class TagService {
 
     @Transactional
     public void addTags(AddTagRequestDto addTagRequestDto){
-        if(addTagRequestDto.getMembersIdList() == null || addTagRequestDto.getMembersIdList().isEmpty()){
-            throw new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_LIST_FOR_TAG_EXCEPTION);
-        }
         Resume resume = resumeRepository.findById(addTagRequestDto.getResumeId()).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID_EXCEPTION));
 

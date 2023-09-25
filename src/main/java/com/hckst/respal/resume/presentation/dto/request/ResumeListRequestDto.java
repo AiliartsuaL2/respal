@@ -22,7 +22,7 @@ public class ResumeListRequestDto {
     private long offset;
 
     // 필터( 직업)
-    private int jobId;
+    private Integer jobId;
     // 정렬 조건
     private ResumeSort sort;
 
@@ -51,7 +51,7 @@ public class ResumeListRequestDto {
      *   - desc
      */
     @Builder
-    public ResumeListRequestDto(int page, long limit, int jobId, String sort, String direction) {
+    public ResumeListRequestDto(int page, long limit, Integer jobId, String sort, String direction) {
         this.page = page == 0 ? 1 : page;
         this.limit = limit == 0 ? 20 : limit;
         this.jobId = jobId;

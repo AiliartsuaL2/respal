@@ -55,9 +55,6 @@ public class ResumeService {
 
         ResumeTypeConverter resumeTypeConverter = new ResumeTypeConverter();
         ResumeType resumeType = resumeTypeConverter.convertToEntityAttribute(createResumeRequestDto.getResumeType());
-        if(resumeType == null){
-            throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_TYPE);
-        }
 
         Resume resume = Resume.builder()
                 .title(createResumeRequestDto.getTitle())
@@ -66,17 +63,19 @@ public class ResumeService {
                 .members(members)
                 .resumeType(resumeType)
                 .build();
-
         resumeRepository.save(resume);
 
         // private 이력서인경우 태그 추가
         if(resumeType.equals(ResumeType.PRIVATE)){
-            AddTagRequestDto tagRequestDto = AddTagRequestDto.builder()
-                    .members(members)
-                    .resumeId(resume.getId())
-                    .membersIdList(createResumeRequestDto.getTagIdList())
-                    .build();
-            tagService.addTags(tagRequestDto);
+            // 태그 할 사람이 있는경우에만
+            if(!createResumeRequestDto.getTagIdList().isEmpty()){
+                AddTagRequestDto tagRequestDto = AddTagRequestDto.builder()
+                        .members(members)
+                        .resumeId(resume.getId())
+                        .membersIdList(createResumeRequestDto.getTagIdList())
+                        .build();
+                tagService.addTags(tagRequestDto);
+            }
         }
 
         ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
@@ -127,6 +126,9 @@ public class ResumeService {
     }
 
     @Transactional
+    /**
+     * 이력서 파일 생성 메서드
+     */
     public CreateResumeFileResponseDto createResumeFile(MultipartFile multipartFile) {
         String originalName = multipartFile.getOriginalFilename();
         ResumeFile resumeFile = ResumeFile.builder().originName(originalName).build();

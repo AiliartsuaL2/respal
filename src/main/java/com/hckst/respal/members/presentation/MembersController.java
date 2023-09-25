@@ -120,15 +120,15 @@ public class MembersController {
     }
 
 
-    @Operation(summary = "이메일 확인 메서드", description = "")
+    @Operation(summary = "회원가입시 이메일 인증 메서드", description = "")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "access 토큰 재발급", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "401", description = "access 토큰 재발급 실패(올바르지 않은 refresh token)", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    @GetMapping("/member/join")
+    @GetMapping("/member/email")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<String>> sendEmailForJoin(SendEmailRequestDto sendEmailRequestDto){
-        if(membersService.checkMembers(sendEmailRequestDto)){
+    public ResponseEntity<ApiCommonResponse<String>> sendEmailForJoin(@RequestParam String email){
+        if(membersService.checkMembers(email)){
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
         ApiCommonResponse response = ApiCommonResponse.builder()
@@ -160,7 +160,7 @@ public class MembersController {
             @ApiResponse(responseCode = "200", description = "이메일 전송 성공", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "이메일 전송 실패", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    @GetMapping("/password")
+    @PostMapping("/password")
     @ResponseBody
     // 이메일로 비밀번호 재설정 다이렉션 전송
     public ResponseEntity<ApiCommonResponse<String>> findPassword(@RequestBody SendEmailRequestDto sendEmailRequestDto){
@@ -206,8 +206,14 @@ public class MembersController {
     })
     @GetMapping("/members")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<SearchMembersResponseDto>> searchMembers(@RequestBody SearchMembersRequestDto searchMembersRequestDto){
+    public ResponseEntity<ApiCommonResponse<SearchMembersResponseDto>> searchMembers(@RequestParam String searchWord, @RequestParam int limit){
+        SearchMembersRequestDto searchMembersRequestDto = SearchMembersRequestDto.builder()
+                .limit(limit)
+                .searchWord(searchWord)
+                .build();
+
         List<SearchMembersResponseDto> searchMembers = membersService.searchMembers(searchMembersRequestDto);
+
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .result(searchMembers)
