@@ -48,18 +48,6 @@ public class Members implements UserDetails {
     // 가입일시
     private LocalDateTime regTime;
 
-
-    /**
-     * 연관관계 설정
-     * Job
-     * Many To One 단방향
-     */
-    // 직업 id, 단방향 매핑
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name= "JOB_ID")
-    private Job job;
-
-
     /**
      * 연관관계 매핑
      * 양방향
@@ -100,7 +88,7 @@ public class Members implements UserDetails {
     private List<Oauth> oauthList;
 
     @Builder
-    public Members(String password, String nickname, String email, String picture, RoleType roleType, Job job){
+    public Members(String password, String nickname, String email, String picture, RoleType roleType){
         this.password = encryptPassword(password);
         this.picture = picture;
         this.nickname = nickname;
@@ -108,7 +96,6 @@ public class Members implements UserDetails {
         this.regTime = LocalDateTime.now();
         this.email = email;
         this.oauthList = new ArrayList<>();
-        this.job = job;
         this.passwordTmpYn = TFCode.FALSE;
         this.commentList = new ArrayList<>();
         this.resumeList = new ArrayList<>();

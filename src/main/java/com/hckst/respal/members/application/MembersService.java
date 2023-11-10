@@ -5,7 +5,6 @@ import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.RoleType;
-import com.hckst.respal.members.domain.repository.JobRepository;
 import com.hckst.respal.members.presentation.dto.request.*;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
@@ -33,7 +32,6 @@ import java.util.UUID;
 public class MembersService {
     private final MembersRepository membersRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final JobRepository jobRepository;
     private final JavaMailSender mailSender;
 
     private static final String RESET_PASSWORD_MAIL_TITLE = "[Respal] 변경된 임시 비밀번호입니다.";
@@ -68,7 +66,6 @@ public class MembersService {
                 .password(Optional.ofNullable(membersJoinRequestDto.getPassword()).orElseThrow( () -> new ApplicationException(ErrorMessage.NOT_EXIST_PASSWORD_EXCEPTION)))
                 .picture(membersJoinRequestDto.getPicture())
                 .nickname(membersJoinRequestDto.getNickname())
-                .job(jobRepository.getReferenceById(membersJoinRequestDto.getJobId()))
                 .roleType(RoleType.ROLE_USER)
                 .build();
         membersRepository.save(members);

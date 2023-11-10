@@ -32,9 +32,9 @@ public class MembersJoinRequestDto {
     private String nickname;
     @Schema(description = "사진")
     private String picture;
-    @Schema(description = "직업 id", nullable = false)
-    @NotNull(message = "직업 ID는 필수 입력 항목이에요")
-    private Integer jobId;
+//    @Schema(description = "직업 id", nullable = false)
+//    @NotNull(message = "직업 ID는 필수 입력 항목이에요")
+//    private Integer jobId;
     @Schema(description = "provider", nullable = false, allowableValues = {"common","kakao","google","github"})
     @NotNull(message = "Provider는 필수 입력 항목이에요")
     private String provider;

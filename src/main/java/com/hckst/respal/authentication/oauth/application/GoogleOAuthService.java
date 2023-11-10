@@ -16,7 +16,6 @@ import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
-import com.hckst.respal.members.domain.repository.JobRepository;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.domain.repository.dto.MembersOAuthDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
@@ -38,7 +37,6 @@ public class GoogleOAuthService implements OAuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final OAuthConfig oAuthConfig;
     private final OauthRepository oauthRepository;
-    private final JobRepository jobRepository;
 
     @Override
     public Token checkUser(UserInfo userInfo) {
@@ -123,7 +121,6 @@ public class GoogleOAuthService implements OAuthService {
                 .roleType(RoleType.ROLE_USER)
                 .picture(membersJoinRequestDto.getPicture())
                 .password(UUID.randomUUID().toString().replace("-", ""))
-                .job(jobRepository.getReferenceById(membersJoinRequestDto.getJobId()))
                 .build();
         Oauth oauth = Oauth.builder()
                 .membersId(members)

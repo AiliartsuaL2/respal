@@ -70,7 +70,7 @@ public class QResume extends EntityPathBase<Resume> {
 
     public QResume(Class<? extends Resume> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.members = inits.isInitialized("members") ? new com.hckst.respal.members.domain.QMembers(forProperty("members"), inits.get("members")) : null;
+        this.members = inits.isInitialized("members") ? new com.hckst.respal.members.domain.QMembers(forProperty("members")) : null;
         this.resumeFile = inits.isInitialized("resumeFile") ? new QResumeFile(forProperty("resumeFile")) : null;
     }
 

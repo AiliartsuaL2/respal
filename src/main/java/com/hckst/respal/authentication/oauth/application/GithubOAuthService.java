@@ -16,7 +16,6 @@ import com.hckst.respal.authentication.oauth.presentation.dto.request.info.githu
 import com.hckst.respal.config.OAuthConfig;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
-import com.hckst.respal.members.domain.repository.JobRepository;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.domain.repository.dto.MembersOAuthDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
@@ -39,7 +38,6 @@ public class GithubOAuthService implements OAuthService{
     private final MembersRepository membersRepository;
     private final OauthRepository oauthRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final JobRepository jobRepository;
     private final OAuthConfig oAuthConfig;
 
     @Override
@@ -120,7 +118,6 @@ public class GithubOAuthService implements OAuthService{
                 .roleType(RoleType.ROLE_USER)
                 .picture(membersJoinRequestDto.getPicture())
                 .password(UUID.randomUUID().toString().replace("-", ""))
-                .job(jobRepository.getReferenceById(membersJoinRequestDto.getJobId()))
                 .build();
         Oauth oauth = Oauth.builder()
                 .membersId(members)

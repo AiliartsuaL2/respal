@@ -9,7 +9,6 @@ import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.members.domain.Job;
-import com.hckst.respal.members.domain.repository.JobRepository;
 import com.hckst.respal.members.presentation.dto.request.*;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import com.hckst.respal.authentication.jwt.dto.Token;
@@ -40,7 +39,6 @@ public class MembersController {
     private final MembersService membersService;
     private final OAuthServiceImpl oAuthService;
     private final JwtService jwtService;
-    private final JobRepository jobRepository;
 
     @GetMapping("/member/login")
     public String loginPage(){
@@ -73,20 +71,20 @@ public class MembersController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "직업 목록 조회 API", description = "직업 목록 조회 API 입니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "직업 목록 조회 성공", useReturnTypeSchema = true)
-    })
-    @GetMapping("/job")
-    @ResponseBody
-    public ResponseEntity<ApiCommonResponse<List<Job>>> jobs(){
-        List<Job> jobs = jobRepository.findAll();
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
-                .result(jobs)
-                .build();
-        return ResponseEntity.ok(response);
-    }
+//    @Operation(summary = "직업 목록 조회 API", description = "직업 목록 조회 API 입니다.")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "직업 목록 조회 성공", useReturnTypeSchema = true)
+//    })
+//    @GetMapping("/job")
+//    @ResponseBody
+//    public ResponseEntity<ApiCommonResponse<List<Job>>> jobs(){
+//        List<Job> jobs = jobRepository.findAll();
+//        ApiCommonResponse response = ApiCommonResponse.builder()
+//                .statusCode(200)
+//                .result(jobs)
+//                .build();
+//        return ResponseEntity.ok(response);
+//    }
 
     @Operation(summary = "회원가입 메서드", description = "일반 이메일 회원가입 메서드입니다.")
     @ApiResponses(value = {

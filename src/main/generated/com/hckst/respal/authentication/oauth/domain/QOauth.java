@@ -46,7 +46,7 @@ public class QOauth extends EntityPathBase<Oauth> {
 
     public QOauth(Class<? extends Oauth> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.membersId = inits.isInitialized("membersId") ? new com.hckst.respal.members.domain.QMembers(forProperty("membersId"), inits.get("membersId")) : null;
+        this.membersId = inits.isInitialized("membersId") ? new com.hckst.respal.members.domain.QMembers(forProperty("membersId")) : null;
     }
 
 }

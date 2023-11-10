@@ -18,8 +18,6 @@ public class QMembers extends EntityPathBase<Members> {
 
     private static final long serialVersionUID = -1087310675L;
 
-    private static final PathInits INITS = PathInits.DIRECT2;
-
     public static final QMembers members = new QMembers("members");
 
     public final ListPath<com.hckst.respal.comment.domain.Comment, com.hckst.respal.comment.domain.QComment> commentList = this.<com.hckst.respal.comment.domain.Comment, com.hckst.respal.comment.domain.QComment>createList("commentList", com.hckst.respal.comment.domain.Comment.class, com.hckst.respal.comment.domain.QComment.class, PathInits.DIRECT2);
@@ -27,8 +25,6 @@ public class QMembers extends EntityPathBase<Members> {
     public final StringPath email = createString("email");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
-
-    public final QJob job;
 
     public final StringPath nickname = createString("nickname");
 
@@ -49,24 +45,15 @@ public class QMembers extends EntityPathBase<Members> {
     public final ListPath<com.hckst.respal.tag.domain.Tag, com.hckst.respal.tag.domain.QTag> taggedList = this.<com.hckst.respal.tag.domain.Tag, com.hckst.respal.tag.domain.QTag>createList("taggedList", com.hckst.respal.tag.domain.Tag.class, com.hckst.respal.tag.domain.QTag.class, PathInits.DIRECT2);
 
     public QMembers(String variable) {
-        this(Members.class, forVariable(variable), INITS);
+        super(Members.class, forVariable(variable));
     }
 
     public QMembers(Path<? extends Members> path) {
-        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
+        super(path.getType(), path.getMetadata());
     }
 
     public QMembers(PathMetadata metadata) {
-        this(metadata, PathInits.getFor(metadata, INITS));
-    }
-
-    public QMembers(PathMetadata metadata, PathInits inits) {
-        this(Members.class, metadata, inits);
-    }
-
-    public QMembers(Class<? extends Members> type, PathMetadata metadata, PathInits inits) {
-        super(type, metadata, inits);
-        this.job = inits.isInitialized("job") ? new QJob(forProperty("job")) : null;
+        super(Members.class, metadata);
     }
 
 }
