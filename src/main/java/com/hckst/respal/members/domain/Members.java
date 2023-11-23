@@ -21,6 +21,8 @@ import java.util.*;
 @Table(name="MEMBERS")
 @AllArgsConstructor
 public class Members implements UserDetails {
+    private static String RANDOM_PICTURE_URL = "https://www.gravatar.com/avatar/";
+    private static String PICTURE_TYPE_PARAM = "?d=identicon";
 
     // 회원 ID
     @Id  @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -90,7 +92,7 @@ public class Members implements UserDetails {
     @Builder
     public Members(String password, String nickname, String email, String picture, RoleType roleType){
         this.password = encryptPassword(password);
-        this.picture = picture;
+        this.picture = checkPicture(picture);
         this.nickname = nickname;
         this.roleType = roleType;
         this.regTime = LocalDateTime.now();
@@ -100,6 +102,15 @@ public class Members implements UserDetails {
         this.commentList = new ArrayList<>();
         this.resumeList = new ArrayList<>();
         this.taggedList = new ArrayList<>();
+    }
+
+    private String checkPicture(String picture) {
+        if(picture != null) {
+            return picture;
+        }
+        return RANDOM_PICTURE_URL
+                +UUID.randomUUID().toString().replace("-","")
+                +PICTURE_TYPE_PARAM;
     }
 
     //회원정보 수정
