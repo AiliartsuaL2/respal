@@ -9,4 +9,7 @@ public class ClientConverter extends AbstractBaseEnumConverter<Client, String> {
     protected Client[] getValueList() {
         return Client.values();
     }
+    public static ClientConverter create() {
+        return new ClientConverter();
+    }
 }

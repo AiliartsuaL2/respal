@@ -74,46 +74,55 @@ public class OAuthServiceImpl {
     public Token join(Provider provider, MembersJoinRequestDto membersJoinRequestDto) {
         if(Provider.COMMON.equals(provider)){ // 일반 로그인
             return membersService.joinMembers(membersJoinRequestDto);
-        }else if(Provider.KAKAO.equals(provider)){
+        }
+        if(Provider.KAKAO.equals(provider)){
             return kakaoOAuthService.join(membersJoinRequestDto);
-        }else if(Provider.GOOGLE.equals(provider)){
+        }
+        if(Provider.GOOGLE.equals(provider)){
             return googleOAuthService.join(membersJoinRequestDto);
-        }else if(Provider.GITHUB.equals(provider)){
+        }
+        if(Provider.GITHUB.equals(provider)){
             return githubOAuthService.join(membersJoinRequestDto);
         }
         return null;
     }
 
-    public String login(Provider providerType, UserInfo userInfo, Token token, String client) {
+    public String login(Provider providerType, UserInfo userInfo, Token token, Client client) {
         // 신규 회원인경우, email, nickname, image oauth_tmp에 저장 후 redirect
         String uid = UUID.randomUUID().toString().replace("-", "");
-
-        OauthTmp.OauthTmpBuilder oauthbuilder = OauthTmp.builder()
+        OauthTmp.OauthTmpBuilder oauthTmpBuilder = OauthTmp.builder()
                 .uid(uid)
                 .provider(providerType)
                 .userInfo(userInfo);
 
-        // 토큰값이 없으면
-        if(token == null) {
-            OauthTmp oauthTmpData = oauthbuilder.build();
-            oauthTmpRepository.save(oauthTmpData);
-            // 앱 요청인경우
-            if(Client.APP.getValue().equals(client)){
-                URI redirectUrl = URI.create(OAUTH_SIGNUP_APP_SCHEME+uid);
-                throw new OAuthAppLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION,uid,redirectUrl);
-            }else{ // 웹 요청인경우
-                throw new OAuthWebLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION,uid);
-            }
-        }
+        // 신규유저 확인
+        checkNewUser(token, client, oauthTmpBuilder);
+
         // 기존 회원인 경우
         jwtService.login(token); // refresh 토큰 초기화
+
         // 로그인 성공시 응답
-        OauthTmp oauthTmpData = oauthbuilder
+        OauthTmp oauthTmpData = oauthTmpBuilder
                 .accessToken(token.getAccessToken())
                 .refreshToken(token.getRefreshToken())
                 .build();
         oauthTmpRepository.save(oauthTmpData);
         return uid;
+    }
+
+    private void checkNewUser(Token token, Client client, OauthTmp.OauthTmpBuilder oauthTmpBuilder) {
+        if(token != null) {
+            return;
+        }
+        OauthTmp oauthTmp = oauthTmpBuilder.build();
+        oauthTmpRepository.save(oauthTmp);
+        // 앱 요청인경우
+        if(Client.APP.equals(client)) {
+            URI redirectUrl = URI.create(OAUTH_SIGNUP_APP_SCHEME+oauthTmp.getUid());
+            throw new OAuthAppLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION, oauthTmp.getUid(),redirectUrl);
+        }
+        // 웹 요청인경우
+        throw new OAuthWebLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION, oauthTmp.getUid());
     }
 
     public void logout(String refreshToken) {

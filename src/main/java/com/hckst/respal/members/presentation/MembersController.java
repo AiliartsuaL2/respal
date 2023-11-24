@@ -8,7 +8,6 @@ import com.hckst.respal.converter.ProviderConverter;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.global.dto.ApiCommonResponse;
-import com.hckst.respal.members.domain.Job;
 import com.hckst.respal.members.presentation.dto.request.*;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import com.hckst.respal.authentication.jwt.dto.Token;

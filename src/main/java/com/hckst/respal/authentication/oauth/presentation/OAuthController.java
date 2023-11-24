@@ -7,6 +7,7 @@ import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectResponse;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.converter.Client;
+import com.hckst.respal.converter.ClientConverter;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
 import com.hckst.respal.global.dto.ApiCommonResponse;
@@ -54,21 +55,23 @@ public class OAuthController {
     @GetMapping("/{client}/login/{provider}")
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<Token>> oAuthLogin(HttpServletRequest request, @PathVariable String client, @PathVariable String provider, String code){
-        ProviderConverter providerConverter = new ProviderConverter();
-        Provider providerType = providerConverter.convertToEntityAttribute(provider);
+        Client convertedClient = ClientConverter.create().convertToEntityAttribute(client);
+        Provider convertedProvider = ProviderConverter.create().convertToEntityAttribute(provider);
+
         String oauthRedirectUrl = request.getRequestURL().toString();
         // 웹 요청인경우, Redirect url을 web 도메인으로 설정
-        if(Client.WEB.getValue().equals(client)){
+        if(Client.WEB.equals(convertedClient)){
             String clientDomain = request.getHeader("Origin");
             oauthRedirectUrl = clientDomain+"/oauth/"+client+"/login/"+provider;
         }
-        OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, oauthRedirectUrl);
-        UserInfo userInfo = oAuthService.getUserInfo(providerType, oAuthToken.getAccessToken());
-        Token token = oAuthService.checkUser(providerType, userInfo);
-        String uid = oAuthService.login(providerType, userInfo, token, client);
+
+        OAuthToken oAuthToken = oAuthService.getAccessToken(convertedProvider, code, oauthRedirectUrl);
+        UserInfo userInfo = oAuthService.getUserInfo(convertedProvider, oAuthToken.getAccessToken());
+        Token token = oAuthService.checkUser(convertedProvider, userInfo);
+        String uid = oAuthService.login(convertedProvider, userInfo, token, convertedClient);
 
         // 앱인경우 커스텀스킴 url로 redirect
-        if(Client.APP.getValue().equals(client)){
+        if(Client.APP.equals(convertedClient)){
             URI redirectUrl = URI.create(OAUTH_LOGIN_APP_SCHEME+uid);
             return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
         }
@@ -95,21 +98,23 @@ public class OAuthController {
     @GetMapping("/{client}/login/{provider}/{code}")
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<Token>> oAuthLoginByPath(HttpServletRequest request, @PathVariable String client, @PathVariable String provider, @PathVariable String code){
-        ProviderConverter providerConverter = new ProviderConverter();
-        Provider providerType = providerConverter.convertToEntityAttribute(provider);
+        Client convertedClient = ClientConverter.create().convertToEntityAttribute(client);
+        Provider convertedProvider = ProviderConverter.create().convertToEntityAttribute(provider);
+
         String oauthRedirectUrl = request.getRequestURL().toString();
         // 웹 요청인경우, Redirect url을 web 도메인으로 설정
-        if(Client.WEB.getValue().equals(client)){
+        if(Client.WEB.equals(convertedClient)){
             String clientDomain = request.getHeader("Origin");
             oauthRedirectUrl = clientDomain+"/oauth/"+client+"/login/"+provider;
         }
-        OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, oauthRedirectUrl);
-        UserInfo userInfo = oAuthService.getUserInfo(providerType, oAuthToken.getAccessToken());
-        Token token = oAuthService.checkUser(providerType, userInfo);
-        String uid = oAuthService.login(providerType, userInfo, token, client);
+
+        OAuthToken oAuthToken = oAuthService.getAccessToken(convertedProvider, code, oauthRedirectUrl);
+        UserInfo userInfo = oAuthService.getUserInfo(convertedProvider, oAuthToken.getAccessToken());
+        Token token = oAuthService.checkUser(convertedProvider, userInfo);
+        String uid = oAuthService.login(convertedProvider, userInfo, token, convertedClient);
 
         // 앱인경우 커스텀스킴 url로 redirect
-        if(Client.APP.getValue().equals(client)){
+        if(Client.APP.equals(convertedClient)){
             URI redirectUrl = URI.create(OAUTH_LOGIN_APP_SCHEME+uid);
             return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
         }

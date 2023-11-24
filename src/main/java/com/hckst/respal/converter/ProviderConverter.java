@@ -9,4 +9,8 @@ public class ProviderConverter extends AbstractBaseEnumConverter<Provider, Strin
     protected Provider[] getValueList() {
         return Provider.values();
     }
+
+    public static ProviderConverter create() {
+        return new ProviderConverter();
+    }
 }
