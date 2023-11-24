@@ -35,7 +35,7 @@ public class OAuthServiceImpl {
 
     private static final String OAUTH_SIGNUP_APP_SCHEME = "app://signup?uid=";
 
-    public Token checkUser(Provider provider, UserInfo userInfo) {
+    private Token checkUser(Provider provider, UserInfo userInfo) {
         if(Provider.KAKAO.equals(provider)){
             return kakaoOAuthService.checkUser(userInfo);
         }else if(Provider.GOOGLE.equals(provider)){
@@ -46,7 +46,7 @@ public class OAuthServiceImpl {
         return null;
     }
 
-    public OAuthToken getAccessToken(Provider provider, String code, String redirectUrl) {
+    private OAuthToken getAccessToken(Provider provider, String code, String redirectUrl) {
         if(code == null){
             throw new ApplicationException(ErrorMessage.NO_SUCH_OAUTH_CODE_EXCEPTION);
         }
@@ -60,7 +60,7 @@ public class OAuthServiceImpl {
         return null;
     }
 
-    public UserInfo getUserInfo(Provider provider, String accessToken) {
+    private UserInfo getUserInfo(Provider provider, String accessToken) {
         if(Provider.KAKAO.equals(provider)){
             return kakaoOAuthService.getUserInfo(accessToken);
         }else if(Provider.GOOGLE.equals(provider)){
@@ -87,12 +87,15 @@ public class OAuthServiceImpl {
         return null;
     }
 
-    public String login(Provider providerType, UserInfo userInfo, Token token, Client client) {
+    public Token login(Provider provider, Client client, String code, String redirectUri, String uid) {
+        OAuthToken oAuthToken = getAccessToken(provider, code, redirectUri);
+        UserInfo userInfo = getUserInfo(provider, oAuthToken.getAccessToken());
+        Token token = checkUser(provider, userInfo);
+
         // 신규 회원인경우, email, nickname, image oauth_tmp에 저장 후 redirect
-        String uid = UUID.randomUUID().toString().replace("-", "");
         OauthTmp.OauthTmpBuilder oauthTmpBuilder = OauthTmp.builder()
                 .uid(uid)
-                .provider(providerType)
+                .provider(provider)
                 .userInfo(userInfo);
 
         // 신규유저 확인
@@ -107,7 +110,8 @@ public class OAuthServiceImpl {
                 .refreshToken(token.getRefreshToken())
                 .build();
         oauthTmpRepository.save(oauthTmpData);
-        return uid;
+
+        return token;
     }
 
     private void checkNewUser(Token token, Client client, OauthTmp.OauthTmpBuilder oauthTmpBuilder) {
