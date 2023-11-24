@@ -11,7 +11,7 @@ public enum ErrorMessage {
     INCORRECT_REFRESH_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"일치하지 않는 Refresh Token 이에요.","R002"),
     MALFORMED_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"지원하지 않는 토큰이에요.","R003"),
     NOT_EXIST_REFRESH_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"존재하지 않는 Refresh Token 이에요","R004"),
-    NOT_EXIST_TOKEN_INFO_EXCEPTION(HttpStatus.UNAUTHORIZED,"토큰 정보가 존재하지 않아요.","R005"),
+    NOT_EXIST_TOKEN_INFO_EXCEPTION(HttpStatus.FORBIDDEN,"토큰 정보가 존재하지 않아요.","R005"),
     SIGNATURE_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"잘못된 토큰 정보에요.","R006"),
 
     // 100번대 OAuth 관련 오류

@@ -81,6 +81,47 @@ public class OAuthController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * 클라이언트 : 로그인 후 oauth 서버로부터 받은 code를 queryParam으로 전송
+     * 서버 : code값으로 로그인 여부 확인하여 OAuth TMP 테이블에 uid를 기준으로 사용자 정보를 저장 후 return
+     * - 앱인경우 커스텀 스킴으로 redicrect 한다.
+     */
+    @Operation(summary = "OAuth 로그인 메서드", description = "OAuth 로그인 메서드입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그인 성공", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "304", description = "앱 요청시 리다이렉트(커스텀 스킴 호출)",content = @Content(schema = @Schema(implementation = Void.class))),
+            @ApiResponse(responseCode = "400", description = "OAuth code값 없음", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @GetMapping("/{client}/login/{provider}/{code}")
+    @ResponseBody
+    public ResponseEntity<ApiCommonResponse<Token>> oAuthLoginByPath(HttpServletRequest request, @PathVariable String client, @PathVariable String provider, @PathVariable String code){
+        ProviderConverter providerConverter = new ProviderConverter();
+        Provider providerType = providerConverter.convertToEntityAttribute(provider);
+        String oauthRedirectUrl = request.getRequestURL().toString();
+        // 웹 요청인경우, Redirect url을 web 도메인으로 설정
+        if(Client.WEB.getValue().equals(client)){
+            String clientDomain = request.getHeader("Origin");
+            oauthRedirectUrl = clientDomain+"/oauth/"+client+"/login/"+provider;
+        }
+        OAuthToken oAuthToken = oAuthService.getAccessToken(providerType, code, oauthRedirectUrl);
+        UserInfo userInfo = oAuthService.getUserInfo(providerType, oAuthToken.getAccessToken());
+        Token token = oAuthService.checkUser(providerType, userInfo);
+        String uid = oAuthService.login(providerType, userInfo, token, client);
+
+        // 앱인경우 커스텀스킴 url로 redirect
+        if(Client.APP.getValue().equals(client)){
+            URI redirectUrl = URI.create(OAUTH_LOGIN_APP_SCHEME+uid);
+            return ResponseEntity.status(HttpStatus.FOUND).location(redirectUrl).build();
+        }
+
+        // 웹 요청이면 token return
+        ApiCommonResponse response = ApiCommonResponse.builder()
+                .statusCode(200)
+                .result(token)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "OAuth 정보 요청 메서드", description = "리다이렉트 되며 저장된 OAuth 로그인 및 회원가입 정보를 반환해주는 url 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "기존 회원, 신규회원에 accessToken, refreshToken 추가", useReturnTypeSchema = true),
