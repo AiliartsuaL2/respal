@@ -13,4 +13,12 @@ public enum Provider implements BaseEnumCode<String>  {
     NULL("");
     private final String value;
 
+    public static Provider findByValue(String value) {
+        for(Provider provider : Provider.values()) {
+            if(provider.value.equals(value)) {
+                return provider;
+            }
+        }
+        return NULL;
+    }
 }

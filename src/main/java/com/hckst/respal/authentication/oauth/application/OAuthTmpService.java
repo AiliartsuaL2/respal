@@ -4,8 +4,7 @@ import com.hckst.respal.authentication.oauth.domain.OauthTmp;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepository;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectCallBackResponse;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectResponse;
-import com.hckst.respal.converter.ConverterUtil;
-import com.hckst.respal.converter.ProviderConverter;
+import com.hckst.respal.converter.Provider;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,10 @@ public class OAuthTmpService {
         }
         OauthTmp oauthTmp = oauthTmpRepository.findOauthTmpByUid(uid).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NO_SUCH_OAUTH_TMP_UID_EXCEPTION));
-        String provider = ConverterUtil.PROVIDER_CONVERTER.convertToDatabaseColumn(oauthTmp.getProvider());
+
+        //todo npe 체크
+        String provider = oauthTmp.getProvider().getValue();
+
         if("callback".equals(type)){
             if(oauthTmp.getRefreshToken() == null){
                 throw new ApplicationException(ErrorMessage.INCORRECT_OAUTH_TYPE_EXCEPTION);

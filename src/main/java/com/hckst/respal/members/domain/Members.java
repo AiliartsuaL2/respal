@@ -2,7 +2,6 @@ package com.hckst.respal.members.domain;
 
 import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.comment.domain.Comment;
-import com.hckst.respal.converter.ConverterUtil;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
 import com.hckst.respal.exception.ApplicationException;
@@ -140,7 +139,8 @@ public class Members implements UserDetails {
 
     public String getTmpPasswordStatus() {
         // 최초 1회만 사용자에게 알림 후 변경
-        String result = ConverterUtil.TF_CODE_CONVERTER.convertToDatabaseColumn(this.passwordTmpYn);
+        // npe 체크
+        String result = this.passwordTmpYn.getValue();
         tmpPasswordToFalse();
         return result;
     }

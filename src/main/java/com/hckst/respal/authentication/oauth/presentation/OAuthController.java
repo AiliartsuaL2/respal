@@ -2,19 +2,13 @@ package com.hckst.respal.authentication.oauth.presentation;
 
 import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
 import com.hckst.respal.authentication.oauth.application.OAuthTmpService;
-import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectResponse;
-import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.converter.Client;
-import com.hckst.respal.converter.ClientConverter;
-import com.hckst.respal.converter.ConverterUtil;
 import com.hckst.respal.converter.Provider;
-import com.hckst.respal.converter.ProviderConverter;
 import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.links.Link;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -57,8 +51,8 @@ public class OAuthController {
     @GetMapping("/{client}/login/{provider}")
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<Token>> oAuthLogin(HttpServletRequest request, @PathVariable String client, @PathVariable String provider, String code){
-        Client convertedClient = ConverterUtil.CLIENT_CONVERTER.convertToEntityAttribute(client);
-        Provider convertedProvider = ConverterUtil.PROVIDER_CONVERTER.convertToEntityAttribute(provider);
+        Client convertedClient = Client.findByValue(client);
+        Provider convertedProvider = Provider.findByValue(provider);
 
         String oauthRedirectUrl = getRedirectUrl(request, convertedClient, convertedProvider);
 
@@ -107,8 +101,8 @@ public class OAuthController {
     @GetMapping("/{client}/login/{provider}/{code}")
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<Token>> oAuthLoginByPath(HttpServletRequest request, @PathVariable String client, @PathVariable String provider, @PathVariable String code){
-        Client convertedClient = ConverterUtil.CLIENT_CONVERTER.convertToEntityAttribute(client);
-        Provider convertedProvider = ConverterUtil.PROVIDER_CONVERTER.convertToEntityAttribute(provider);
+        Client convertedClient = Client.findByValue(client);
+        Provider convertedProvider = Provider.findByValue(provider);
 
         String oauthRedirectUrl = getRedirectUrl(request, convertedClient, convertedProvider);
 

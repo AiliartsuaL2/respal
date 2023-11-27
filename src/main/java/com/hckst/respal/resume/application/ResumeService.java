@@ -4,9 +4,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.hckst.respal.comment.domain.repository.CommentRepository;
 import com.hckst.respal.comment.presentation.dto.response.CommentsResponseDto;
-import com.hckst.respal.converter.ConverterUtil;
 import com.hckst.respal.converter.ResumeType;
-import com.hckst.respal.converter.ResumeTypeConverter;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
@@ -54,7 +52,7 @@ public class ResumeService {
         ResumeFile resumeFile = resumeFileRepository.findById(createResumeRequestDto.getResumeFileId()).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_FILE_ID_EXCEPTION));
 
-        ResumeType resumeType = ConverterUtil.RESUME_TYPE_CONVERTER.convertToEntityAttribute(
+        ResumeType resumeType = ResumeType.findByValue(
                 createResumeRequestDto.getResumeType());
 
         Resume resume = Resume.builder()

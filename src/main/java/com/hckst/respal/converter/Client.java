@@ -8,7 +8,17 @@ import lombok.Getter;
 public enum Client implements BaseEnumCode<String> {
 
     WEB("web"),
-    APP("app");
+    APP("app"),
+    NULL("");
 
     private final String value;
+
+    public static Client findByValue(String value) {
+        for(Client client : Client.values()) {
+            if(client.value.equals(value)) {
+                return client;
+            }
+        }
+        return NULL;
+    }
 }

@@ -3,9 +3,7 @@ package com.hckst.respal.members.presentation;
 import com.hckst.respal.authentication.jwt.dto.response.RefreshAccessTokenResponseDto;
 import com.hckst.respal.authentication.jwt.application.JwtService;
 import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
-import com.hckst.respal.converter.ConverterUtil;
 import com.hckst.respal.converter.Provider;
-import com.hckst.respal.converter.ProviderConverter;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.global.dto.ApiCommonResponse;
@@ -90,8 +88,7 @@ public class MembersController {
         if(membersJoinRequestDto.getProvider() == null){
             throw new ApplicationException(ErrorMessage.NOT_EXIST_PROVIDER_TYPE_EXCEPTION);
         }
-        Provider provider = ConverterUtil.PROVIDER_CONVERTER.convertToEntityAttribute(
-                membersJoinRequestDto.getProvider());
+        Provider provider = Provider.findByValue(membersJoinRequestDto.getProvider());
         Token token = oAuthService.join(provider, membersJoinRequestDto);
 
         jwtService.login(token); // refresh 토큰 초기화
