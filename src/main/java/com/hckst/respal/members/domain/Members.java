@@ -4,6 +4,8 @@ import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.comment.domain.Comment;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.tag.domain.Tag;
 import com.hckst.respal.resume.domain.Resume;
 import lombok.*;
@@ -23,6 +25,8 @@ import java.util.*;
 public class Members implements UserDetails {
     private static String RANDOM_PICTURE_URL = "https://www.gravatar.com/avatar/";
     private static String PICTURE_TYPE_PARAM = "?d=identicon";
+    private static final TFCodeConverter YES_OR_NO_CONVERTER = new TFCodeConverter();
+    private static final BCryptPasswordEncoder B_CRYPT_PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
     // 회원 ID
     @Id  @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -134,13 +138,29 @@ public class Members implements UserDetails {
         this.passwordTmpYn = TFCode.FALSE;
     }
 
+    public String getTmpPasswordStatus() {
+        // 최초 1회만 사용자에게 알림 후 변경
+        String result = YES_OR_NO_CONVERTER.convertToDatabaseColumn(this.passwordTmpYn);
+        tmpPasswordToFalse();
+        return result;
+    }
+
+    public void checkPassword(String password) {
+        if (!matchPassword(password, this.password)) { // 비밀번호가 일치하지 않을경우
+            throw new ApplicationException(ErrorMessage.INVALID_MEMBER_EXCEPTION);
+        }
+    }
+
     // 비밀번호를 암호화하는 메서드
-    public String encryptPassword(String password) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String encryptedPassword = encoder.encode(password);
+    private String encryptPassword(String password) {
+        String encryptedPassword = B_CRYPT_PASSWORD_ENCODER.encode(password);
         return encryptedPassword;
     }
 
+    // 암호화된 비밀번호가 일치하는지 확인하는 메서드
+    private boolean matchPassword(String rawPassword, String encodedPassword) {
+        return B_CRYPT_PASSWORD_ENCODER.matches(rawPassword, encodedPassword);
+    }
 
     // 시큐리티 설정
     @Override

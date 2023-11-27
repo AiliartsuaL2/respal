@@ -9,4 +9,7 @@ public class TFCodeConverter extends AbstractBaseEnumConverter<TFCode, String> {
     protected TFCode[] getValueList() {
         return TFCode.values();
     }
+    public static TFCodeConverter create() {
+        return new TFCodeConverter();
+    }
 }

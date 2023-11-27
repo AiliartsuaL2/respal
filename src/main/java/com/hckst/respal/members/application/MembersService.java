@@ -1,6 +1,6 @@
 package com.hckst.respal.members.application;
 
-import com.hckst.respal.converter.*;
+import com.hckst.respal.authentication.jwt.application.JwtService;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
@@ -9,6 +9,7 @@ import com.hckst.respal.members.presentation.dto.request.*;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.members.domain.repository.MembersRepository;
+import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
 import com.hckst.respal.members.presentation.dto.response.SearchMembersRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,6 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,21 +33,31 @@ public class MembersService {
     private final MembersRepository membersRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final JavaMailSender mailSender;
+    private final JwtService jwtService;
 
     private static final String RESET_PASSWORD_MAIL_TITLE = "[Respal] 변경된 임시 비밀번호입니다.";
     private static final String JOIN_MAIL_TITLE = "[Respal] 비밀번호 재설정 링크입니다.";
     private static final String MAIL_MESSAGE = "변경된 임시 비밀번호는 아래와 같습니다. \n";
 
-    // 로그인 체크
-    public Token loginMembers(MembersLoginRequestDto membersLoginRequestDto) {
-        // 이메일이 존재하지 않는경우
-        Members members = membersRepository.findMembersByEmail(membersLoginRequestDto.getEmail()).orElseThrow(
-                () -> new ApplicationException(ErrorMessage.INVALID_MEMBER_EXCEPTION)
-        );
-        if (!matchPassword(membersLoginRequestDto.getPassword(), members.getPassword())) { // 비밀번호가 일치하지 않을경우
-            throw new ApplicationException(ErrorMessage.INVALID_MEMBER_EXCEPTION);
-        }
-        return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
+    public MembersLoginResponseDto loginMembers(MembersLoginRequestDto membersLoginRequestDto) {
+        Members members = findCommonMemberByEmail(membersLoginRequestDto.getEmail());
+        members.checkPassword(membersLoginRequestDto.getPassword());
+        String tmpPasswordStatus = members.getTmpPasswordStatus();
+        Token token = jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
+        jwtService.login(token);
+
+        return MembersLoginResponseDto.builder()
+                .membersEmail(token.getMembersEmail())
+                .refreshToken(token.getRefreshToken())
+                .accessToken(token.getAccessToken())
+                .grantType(token.getGrantType())
+                .tmpPasswordStatus(tmpPasswordStatus)
+                .build();
+    }
+
+    public Members findCommonMemberByEmail(String email) {
+        return membersRepository.findCommonMembersByEmail(email).orElseThrow(
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
     }
 
     // email 중복체크 ,, 중복이면 true 없으면 false
@@ -61,6 +71,7 @@ public class MembersService {
         if (duplicationCheckEmail(membersJoinRequestDto.getEmail())) {
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
+
         Members members = Members.builder()
                 .email(membersJoinRequestDto.getEmail())
                 .password(Optional.ofNullable(membersJoinRequestDto.getPassword()).orElseThrow( () -> new ApplicationException(ErrorMessage.NOT_EXIST_PASSWORD_EXCEPTION)))
@@ -73,11 +84,6 @@ public class MembersService {
         return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
     }
 
-    // 암호화된 비밀번호가 일치하는지 확인하는 메서드
-    public boolean matchPassword(String rawPassword, String encodedPassword) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        return encoder.matches(rawPassword, encodedPassword);
-    }
 
     @Async
     public void sendJoinEmail(SendEmailRequestDto sendEmailRequestDto) {
@@ -118,6 +124,7 @@ public class MembersService {
             throw new ApplicationException(ErrorMessage.INCORRECT_MAIL_ARGUMENT_EXCEPTION);
         }
     }
+
     //회원임을 확인하는 로직 이메일 send는 Async 처리로 controller에서 해당 로직으로 확인 후 메일 전송
     public boolean checkMembers(String email){
         return membersRepository.findCommonMembersByEmail(email).isPresent();
@@ -129,11 +136,9 @@ public class MembersService {
         Members members = membersRepository.findCommonMembersByEmail(passwordPatchRequestDto.getEmail()).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
         // 비밀번호 검증
-        if (!matchPassword(passwordPatchRequestDto.getTmpPassword(), members.getPassword())) { // 비밀번호가 일치하지 않을경우
-            throw new ApplicationException(ErrorMessage.INVALID_MEMBER_EXCEPTION);
-        }
-        members.updatePassword(passwordPatchRequestDto.getNewPassword()); // 변경감지
-
+        members.checkPassword(passwordPatchRequestDto.getTmpPassword());
+        // 비밀번호 변경
+        members.updatePassword(passwordPatchRequestDto.getNewPassword());
     }
 
     // 비밀번호 재설정 메서드, UUID로 비밀번호를 설정 후 해당 이메일로 임시 비밀번호를 전송해줌.
@@ -144,16 +149,6 @@ public class MembersService {
         String password = UUID.randomUUID().toString();
         members.updateTmpPassword(password);
         return password;
-    }
-
-    // tmpPasswordStatus 확인 메서드 , 비밀번호 재설정 후 로그인시 tmpPasswordStatus 확인 후 False로 다시 처리
-    public String checkTmpPasswordStatus(MembersLoginRequestDto membersLoginRequestDto) {
-        TFCodeConverter tfCodeConverter = new TFCodeConverter();
-        Members members = membersRepository.findCommonMembersByEmail(membersLoginRequestDto.getEmail()).get();
-        TFCode passwordTmpYn = members.getPasswordTmpYn();
-        String result = tfCodeConverter.convertToDatabaseColumn(passwordTmpYn);
-        members.tmpPasswordToFalse();
-        return result;
     }
 
     // 닉네임을 통해 회원을 조회하는 메서드
