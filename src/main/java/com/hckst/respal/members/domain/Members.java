@@ -2,6 +2,7 @@ package com.hckst.respal.members.domain;
 
 import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.comment.domain.Comment;
+import com.hckst.respal.converter.ConverterUtil;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
 import com.hckst.respal.exception.ApplicationException;
@@ -25,7 +26,6 @@ import java.util.*;
 public class Members implements UserDetails {
     private static String RANDOM_PICTURE_URL = "https://www.gravatar.com/avatar/";
     private static String PICTURE_TYPE_PARAM = "?d=identicon";
-    private static final TFCodeConverter YES_OR_NO_CONVERTER = new TFCodeConverter();
     private static final BCryptPasswordEncoder B_CRYPT_PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
     // 회원 ID
@@ -140,7 +140,7 @@ public class Members implements UserDetails {
 
     public String getTmpPasswordStatus() {
         // 최초 1회만 사용자에게 알림 후 변경
-        String result = YES_OR_NO_CONVERTER.convertToDatabaseColumn(this.passwordTmpYn);
+        String result = ConverterUtil.TF_CODE_CONVERTER.convertToDatabaseColumn(this.passwordTmpYn);
         tmpPasswordToFalse();
         return result;
     }

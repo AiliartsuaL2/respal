@@ -8,6 +8,7 @@ import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectR
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.ClientConverter;
+import com.hckst.respal.converter.ConverterUtil;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
 import com.hckst.respal.global.dto.ApiCommonResponse;
@@ -56,8 +57,8 @@ public class OAuthController {
     @GetMapping("/{client}/login/{provider}")
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<Token>> oAuthLogin(HttpServletRequest request, @PathVariable String client, @PathVariable String provider, String code){
-        Client convertedClient = ClientConverter.create().convertToEntityAttribute(client);
-        Provider convertedProvider = ProviderConverter.create().convertToEntityAttribute(provider);
+        Client convertedClient = ConverterUtil.CLIENT_CONVERTER.convertToEntityAttribute(client);
+        Provider convertedProvider = ConverterUtil.PROVIDER_CONVERTER.convertToEntityAttribute(provider);
 
         String oauthRedirectUrl = getRedirectUrl(request, convertedClient, convertedProvider);
 
@@ -106,8 +107,8 @@ public class OAuthController {
     @GetMapping("/{client}/login/{provider}/{code}")
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<Token>> oAuthLoginByPath(HttpServletRequest request, @PathVariable String client, @PathVariable String provider, @PathVariable String code){
-        Client convertedClient = ClientConverter.create().convertToEntityAttribute(client);
-        Provider convertedProvider = ProviderConverter.create().convertToEntityAttribute(provider);
+        Client convertedClient = ConverterUtil.CLIENT_CONVERTER.convertToEntityAttribute(client);
+        Provider convertedProvider = ConverterUtil.PROVIDER_CONVERTER.convertToEntityAttribute(provider);
 
         String oauthRedirectUrl = getRedirectUrl(request, convertedClient, convertedProvider);
 

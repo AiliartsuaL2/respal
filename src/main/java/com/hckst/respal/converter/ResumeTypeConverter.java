@@ -8,4 +8,8 @@ public class ResumeTypeConverter extends AbstractBaseEnumConverter<ResumeType, S
     protected ResumeType[] getValueList() {
         return ResumeType.values();
     }
+
+    public static ResumeTypeConverter create() {
+        return new ResumeTypeConverter();
+    }
 }

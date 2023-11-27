@@ -3,6 +3,7 @@ package com.hckst.respal.members.presentation;
 import com.hckst.respal.authentication.jwt.dto.response.RefreshAccessTokenResponseDto;
 import com.hckst.respal.authentication.jwt.application.JwtService;
 import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
+import com.hckst.respal.converter.ConverterUtil;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
 import com.hckst.respal.exception.ApplicationException;
@@ -89,9 +90,10 @@ public class MembersController {
         if(membersJoinRequestDto.getProvider() == null){
             throw new ApplicationException(ErrorMessage.NOT_EXIST_PROVIDER_TYPE_EXCEPTION);
         }
-        ProviderConverter pc = new ProviderConverter();
-        Provider provider = pc.convertToEntityAttribute(membersJoinRequestDto.getProvider());
+        Provider provider = ConverterUtil.PROVIDER_CONVERTER.convertToEntityAttribute(
+                membersJoinRequestDto.getProvider());
         Token token = oAuthService.join(provider, membersJoinRequestDto);
+
         jwtService.login(token); // refresh 토큰 초기화
 
         MembersLoginResponseDto responseDto = MembersLoginResponseDto.builder()
@@ -107,7 +109,6 @@ public class MembersController {
                 .build();
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
 
     @Operation(summary = "회원가입시 이메일 인증 메서드", description = "")
     @ApiResponses(value = {
