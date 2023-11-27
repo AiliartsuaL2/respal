@@ -1,6 +1,6 @@
 package com.hckst.respal.resume.domain.repository;
 
-import com.hckst.respal.converter.ResumeSort;
+import com.hckst.respal.resume.domain.ResumeSort;
 import com.hckst.respal.converter.ResumeType;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.members.domain.Members;
@@ -9,12 +9,9 @@ import com.hckst.respal.resume.presentation.dto.request.ResumeListRequestDto;
 import com.hckst.respal.resume.presentation.dto.response.QResumeDetailResponseDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeListResponseDto;
-import com.hckst.respal.tag.domain.QTag;
-import com.hckst.respal.tag.domain.Tag;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.ListPath;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

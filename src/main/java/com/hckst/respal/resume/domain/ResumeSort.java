@@ -1,4 +1,4 @@
-package com.hckst.respal.converter;
+package com.hckst.respal.resume.domain;
 
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.dsl.NumberExpression;

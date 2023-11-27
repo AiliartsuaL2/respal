@@ -1,8 +1,7 @@
 package com.hckst.respal.resume.presentation.dto.request;
 
-import com.hckst.respal.converter.ResumeSort;
+import com.hckst.respal.resume.domain.ResumeSort;
 import com.hckst.respal.converter.ResumeType;
-import com.hckst.respal.members.domain.Job;
 import com.hckst.respal.members.domain.Members;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;

@@ -1,5 +1,6 @@
 package com.hckst.respal.authentication.oauth.presentation.dto.response;
 
+import com.hckst.respal.authentication.oauth.domain.RedirectType;
 import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -20,4 +21,13 @@ public class RedirectCallBackResponse extends RedirectResponse{
         this.refreshToken = refreshToken;
     }
 
+    public RedirectResponse of(RedirectType redirectType) {
+        // call back이면 토큰까지 반환
+        if(RedirectType.CALL_BACK.equals(redirectType)){
+            return this;
+        }
+
+        // 로그인이면 유저 정보랑 provider만 반환
+        return (RedirectResponse) this;
+    }
 }
