@@ -1,4 +1,4 @@
 [submodule "respal-private"]
 	path = respal-private
-	url = https://github.com/AiliartsuaL2/respal-private
+	url = https://github.com/AiliartsuaL2/respal-private.git
 	branch = main
