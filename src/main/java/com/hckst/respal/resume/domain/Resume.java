@@ -6,6 +6,7 @@ import com.hckst.respal.converter.ResumeTypeConverter;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
 import com.hckst.respal.members.domain.Members;
+import com.hckst.respal.resume.presentation.dto.request.CreateResumeRequestDto;
 import com.hckst.respal.tag.domain.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -106,7 +107,7 @@ public class Resume {
 
 
     @Builder
-    public Resume(String title, String content ,ResumeFile resumeFile , Members members, ResumeType resumeType){
+    private Resume(String title, String content ,ResumeFile resumeFile , Members members, ResumeType resumeType){
         this.title = title;
         this.content = content;
         this.resumeType = resumeType;
@@ -118,6 +119,16 @@ public class Resume {
         this.commentList = new ArrayList<>();
         this.resumeFile = resumeFile;
         this.tagList = new ArrayList<>();
+    }
+
+    public static Resume create(CreateResumeRequestDto requestDto, ResumeFile resumeFile, Members writer, ResumeType resumeType) {
+        return Resume.builder()
+                .title(requestDto.getTitle())
+                .content(requestDto.getTitle())
+                .resumeFile(resumeFile)
+                .members(writer)
+                .resumeType(resumeType)
+                .build();
     }
 
     public void updateResume(String title, String content, ResumeFile resumeFile){

@@ -34,7 +34,7 @@ import java.util.List;
 @Slf4j
 @Transactional(readOnly = true)
 public class ResumeService {
-    private static String bucketName = "respal-resume";
+    private static final String BUCKET_NAME = "respal-resume";
 
     private final ResumeRepository resumeRepository;
     private final CommentRepository commentRepository;
@@ -55,27 +55,10 @@ public class ResumeService {
         ResumeType resumeType = ResumeType.findByValue(
                 createResumeRequestDto.getResumeType());
 
-        Resume resume = Resume.builder()
-                .title(createResumeRequestDto.getTitle())
-                .content(createResumeRequestDto.getContent())
-                .resumeFile(resumeFile)
-                .members(members)
-                .resumeType(resumeType)
-                .build();
+        Resume resume = Resume.create(createResumeRequestDto, resumeFile, members, resumeType);
         resumeRepository.save(resume);
 
-        // private 이력서인경우 태그 추가
-        if(resumeType.equals(ResumeType.PRIVATE)){
-            // 태그 할 사람이 있는경우에만
-            if(!createResumeRequestDto.getTagIdList().isEmpty()){
-                AddTagRequestDto tagRequestDto = AddTagRequestDto.builder()
-                        .members(members)
-                        .resumeId(resume.getId())
-                        .membersIdList(createResumeRequestDto.getTagIdList())
-                        .build();
-                tagService.addTags(tagRequestDto);
-            }
-        }
+        tagService.addTags(members, resume.getId(), createResumeRequestDto.getTagIdList());
 
         ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
                 .resume(resume)
@@ -138,9 +121,9 @@ public class ResumeService {
             objectMetadata.setContentType(multipartFile.getContentType());
             objectMetadata.setContentLength(multipartFile.getInputStream().available());
 
-            amazonS3Client.putObject(bucketName, filename, multipartFile.getInputStream(), objectMetadata);
+            amazonS3Client.putObject(BUCKET_NAME, filename, multipartFile.getInputStream(), objectMetadata);
 
-            String accessUrl = amazonS3Client.getUrl(bucketName, filename).toString();
+            String accessUrl = amazonS3Client.getUrl(BUCKET_NAME, filename).toString();
             resumeFile.setAccessUrl(accessUrl);
         } catch(IOException e) {
             throw new ApplicationException(ErrorMessage.FAILED_FILE_UPLOAD_TO_S3_EXCEPTION);
@@ -158,9 +141,9 @@ public class ResumeService {
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_FILE_ID_EXCEPTION));
         try {
             // 파일이 s3 서버에 있는지 확인
-            boolean isObjectExist = amazonS3Client.doesObjectExist(bucketName, resumeFile.getStoredName());
+            boolean isObjectExist = amazonS3Client.doesObjectExist(BUCKET_NAME, resumeFile.getStoredName());
             if (isObjectExist) {
-                amazonS3Client.deleteObject(bucketName, resumeFile.getStoredName());
+                amazonS3Client.deleteObject(BUCKET_NAME, resumeFile.getStoredName());
             }else{
                 throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_FILE_ID_EXCEPTION);
             }

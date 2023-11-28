@@ -61,13 +61,8 @@ class TagServiceTest {
     @Test
     void addMentionSuccess() {
         //given
-        AddTagRequestDto dto = AddTagRequestDto.builder()
-                .members(resumeOwner)
-                .resumeId(existResumeId)
-                .membersIdList(membersIdList)
-                .build();
         //when
-        mentionService.addTags(dto);
+        mentionService.addTags(resumeOwner, existResumeId, membersIdList);
         //then
 //        Assertions.assertThat(mentionRepository.findMentionByResume(resume).size()).isEqualTo(4);
     }
@@ -77,14 +72,9 @@ class TagServiceTest {
     void addMentionFail1() {
         //given
         long notExistResumeId = 4L;
-        AddTagRequestDto dto = AddTagRequestDto.builder()
-                .members(resumeOwner)
-                .resumeId(notExistResumeId)
-                .membersIdList(membersIdList)
-                .build();
         //when
         //then
-        Assertions.assertThatThrownBy(() -> mentionService.addTags(dto))
+        Assertions.assertThatThrownBy(() -> mentionService.addTags(resumeOwner, notExistResumeId, membersIdList))
                 .isInstanceOf(ApplicationException.class);
     }
 
@@ -93,15 +83,9 @@ class TagServiceTest {
     void addMentionFail2() {
         //given
         membersIdList.add(resumeOwnerId);
-
-        AddTagRequestDto dto = AddTagRequestDto.builder()
-                .members(resumeOwner)
-                .resumeId(existResumeId)
-                .membersIdList(membersIdList)
-                .build();
         //when
         //then
-        Assertions.assertThatThrownBy(() -> mentionService.addTags(dto))
+        Assertions.assertThatThrownBy(() -> mentionService.addTags(resumeOwner, existResumeId, membersIdList))
                 .isInstanceOf(ApplicationException.class);
     }
 
@@ -109,14 +93,9 @@ class TagServiceTest {
     @Test
     void addMentionFail3() {
         //given
-        AddTagRequestDto dto = AddTagRequestDto.builder()
-                .members(resumeOwner)
-                .resumeId(publicResumeId)
-                .membersIdList(membersIdList)
-                .build();
         //when
         //then
-        Assertions.assertThatThrownBy(() -> mentionService.addTags(dto))
+        Assertions.assertThatThrownBy(() -> mentionService.addTags(resumeOwner, publicResumeId, membersIdList))
                 .isInstanceOf(ApplicationException.class);
     }
 
@@ -124,14 +103,9 @@ class TagServiceTest {
     @Test
     void addMentionFail4() {
         //given
-        AddTagRequestDto dto = AddTagRequestDto.builder()
-                .members(otherMember)
-                .resumeId(existResumeId)
-                .membersIdList(membersIdList)
-                .build();
         //when
         //then
-        Assertions.assertThatThrownBy(() -> mentionService.addTags(dto))
+        Assertions.assertThatThrownBy(() -> mentionService.addTags(resumeOwner, existResumeId, membersIdList))
                 .isInstanceOf(ApplicationException.class);
     }
 
