@@ -32,11 +32,11 @@ public class ResumeListRequestDto {
     public void setViewer(Members viewer){
         this.viewer = viewer;
     }
-    public void setHubCondition(){
-        this.resumeType = ResumeType.PUBLIC;
-    }
-    public void setTaggedCondition(){
-        this.resumeType = ResumeType.PRIVATE;
+
+    public void setResumeType(ResumeType resumeType) {
+        if(ResumeType.PUBLIC.equals(resumeType) || ResumeType.PRIVATE.equals(resumeType)) {
+            this.resumeType = resumeType;
+        }
     }
     /**
      * 매핑 조건

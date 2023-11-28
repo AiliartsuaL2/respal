@@ -35,13 +35,11 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ResumeService {
     private static final String BUCKET_NAME = "respal-resume";
-
     private final ResumeRepository resumeRepository;
     private final CommentRepository commentRepository;
     private final ResumeFileRepository resumeFileRepository;
     private final AmazonS3Client amazonS3Client;
     private final TagService tagService;
-
 
     /**
      * 이력서 추가 메서드
@@ -99,10 +97,7 @@ public class ResumeService {
      * Todo 조회하는 이력서 카테고리가 Hub인지 Mentioned인지 분기처리 로직 필요
      */
     public ResumeListResponseDto getResumeList(ResumeListRequestDto requestDto,ResumeType resumeType) {
-        if(ResumeType.PUBLIC.equals(resumeType))
-            requestDto.setHubCondition();
-        else
-            requestDto.setTaggedCondition();
+        requestDto.setResumeType(resumeType);
         ResumeListResponseDto resumeList = resumeRepository.findResumeListByConditions(requestDto);
         return resumeList;
     }
@@ -135,6 +130,7 @@ public class ResumeService {
                 .accessUrl(resumeFile.getAccessUrl())
                 .build();
     }
+
     @Transactional
     public void removeResumeFile(Long resumeFileId) {
         ResumeFile resumeFile = resumeFileRepository.findById(resumeFileId).orElseThrow(
@@ -142,11 +138,11 @@ public class ResumeService {
         try {
             // 파일이 s3 서버에 있는지 확인
             boolean isObjectExist = amazonS3Client.doesObjectExist(BUCKET_NAME, resumeFile.getStoredName());
-            if (isObjectExist) {
-                amazonS3Client.deleteObject(BUCKET_NAME, resumeFile.getStoredName());
-            }else{
+            if (!isObjectExist) {
                 throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_FILE_ID_EXCEPTION);
             }
+
+            amazonS3Client.deleteObject(BUCKET_NAME, resumeFile.getStoredName());
             // 삭제처리 (soft delete)
             resumeFile.deleteResumeFile();
         } catch (Exception e) {
@@ -167,7 +163,6 @@ public class ResumeService {
 
         // 삭제처리 (soft delete)
         resume.deleteResume();
-
         // 파일도 삭제, 이력서는 반드시 파일을 가지고 있어야 하기 때문에
         removeResumeFile(resume.getResumeFile().getId());
     }

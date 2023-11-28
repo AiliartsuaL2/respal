@@ -106,8 +106,6 @@ public class KakaoOAuthService implements OAuthService{
     @Override
     public Token join(MembersJoinRequestDto membersJoinRequestDto) {
         // 일반 이메일이 있는 경우도 exception 처리
-
-
         // 이미 이메일과 provider로 존재하는경우 exception
         if(membersRepository.existsMembersOauthForJoin(membersJoinRequestDto.getEmail(),Provider.KAKAO)){
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
