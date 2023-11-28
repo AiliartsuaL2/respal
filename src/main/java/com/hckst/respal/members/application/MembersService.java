@@ -67,14 +67,15 @@ public class MembersService {
 
     // 회원가입 서비스
     @Transactional // insert query,, read-only false
-    public Token joinMembers(MembersJoinRequestDto membersJoinRequestDto) {
+    public Token join(MembersJoinRequestDto membersJoinRequestDto) {
         if (duplicationCheckEmail(membersJoinRequestDto.getEmail())) {
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
 
         Members members = Members.builder()
                 .email(membersJoinRequestDto.getEmail())
-                .password(Optional.ofNullable(membersJoinRequestDto.getPassword()).orElseThrow( () -> new ApplicationException(ErrorMessage.NOT_EXIST_PASSWORD_EXCEPTION)))
+                .password(Optional.ofNullable(membersJoinRequestDto.getPassword()).orElseThrow(
+                        () -> new ApplicationException(ErrorMessage.NOT_EXIST_PASSWORD_EXCEPTION)))
                 .picture(membersJoinRequestDto.getPicture())
                 .nickname(membersJoinRequestDto.getNickname())
                 .roleType(RoleType.ROLE_USER)

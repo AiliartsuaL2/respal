@@ -41,9 +41,8 @@ public class GithubOAuthService implements OAuthService{
     private final OAuthConfig oAuthConfig;
 
     @Override
-    public Token checkUser(UserInfo userInfo) {
+    public Token checkUser(String email) {
         log.info("github login 진입");
-        String email = userInfo.getEmail();
         Optional<MembersOAuthDto> membersOauth = membersRepository.findMembersOauthForLogin(email, Provider.GITHUB);
         if(membersOauth.isPresent()){
             Members members = membersRepository.findById(membersOauth.get().getId()).get();

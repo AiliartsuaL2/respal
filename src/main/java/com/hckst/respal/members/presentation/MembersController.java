@@ -9,7 +9,6 @@ import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.members.presentation.dto.request.*;
 import com.hckst.respal.global.dto.ApiErrorResponse;
-import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
 import com.hckst.respal.members.presentation.dto.response.SearchMembersRequestDto;
@@ -89,20 +88,11 @@ public class MembersController {
             throw new ApplicationException(ErrorMessage.NOT_EXIST_PROVIDER_TYPE_EXCEPTION);
         }
         Provider provider = Provider.findByValue(membersJoinRequestDto.getProvider());
-        Token token = oAuthService.join(provider, membersJoinRequestDto);
-
-        jwtService.login(token); // refresh 토큰 초기화
-
-        MembersLoginResponseDto responseDto = MembersLoginResponseDto.builder()
-                .membersEmail(token.getMembersEmail())
-                .accessToken(token.getAccessToken())
-                .refreshToken(token.getRefreshToken())
-                .grantType(token.getGrantType())
-                .build();
+        MembersLoginResponseDto joinResponseDto = oAuthService.join(provider, membersJoinRequestDto);
 
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(201)
-                .result(responseDto)
+                .result(joinResponseDto)
                 .build();
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

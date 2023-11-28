@@ -39,9 +39,8 @@ public class KakaoOAuthService implements OAuthService{
     private final OAuthConfig oAuthConfig;
 
     @Override
-    public Token checkUser(UserInfo userInfo){
+    public Token checkUser(String email){
         log.info("kakao login 진입");
-        String email = userInfo.getEmail();
         Optional<MembersOAuthDto> membersOauth = membersRepository.findMembersOauthForLogin(email, Provider.KAKAO);
         if(membersOauth.isPresent()){
             Members members = membersRepository.findById(membersOauth.get().getId()).get();

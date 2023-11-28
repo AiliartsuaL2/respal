@@ -30,9 +30,6 @@ public class JwtService {
 
     @Transactional
     public void login(Token tokenDto){
-        if(tokenDto == null){
-            throw new ApplicationException(ErrorMessage.NOT_EXIST_TOKEN_INFO_EXCEPTION);
-        }
         RefreshToken refreshToken = RefreshToken.builder()
                 .keyId(tokenDto.getMembersId())
                 .refreshToken(tokenDto.getRefreshToken())

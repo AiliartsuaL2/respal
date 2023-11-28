@@ -39,9 +39,8 @@ public class GoogleOAuthService implements OAuthService {
     private final OauthRepository oauthRepository;
 
     @Override
-    public Token checkUser(UserInfo userInfo) {
+    public Token checkUser(String email) {
         log.info("google login 진입");
-        String email = userInfo.getEmail();
         Optional<MembersOAuthDto> membersOauth = membersRepository.findMembersOauthForLogin(email, Provider.GOOGLE);
         if(membersOauth.isPresent()){
             Members members = membersRepository.findById(membersOauth.get().getId()).get();

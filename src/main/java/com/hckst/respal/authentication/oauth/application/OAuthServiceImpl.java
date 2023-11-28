@@ -14,12 +14,13 @@ import com.hckst.respal.exception.oauth.OAuthAppLoginException;
 import com.hckst.respal.exception.oauth.OAuthWebLoginException;
 import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
+import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
-import java.util.UUID;
 
 
 @Service
@@ -35,62 +36,51 @@ public class OAuthServiceImpl {
 
     private static final String OAUTH_SIGNUP_APP_SCHEME = "app://signup?uid=";
 
-    private Token checkUser(Provider provider, UserInfo userInfo) {
-        if(Provider.KAKAO.equals(provider)){
-            return kakaoOAuthService.checkUser(userInfo);
-        }else if(Provider.GOOGLE.equals(provider)){
-            return googleOAuthService.checkUser(userInfo);
-        }else if(Provider.GITHUB.equals(provider)){
-            return githubOAuthService.checkUser(userInfo);
-        }
-        return null;
+    private Optional<Token> checkUser(Provider provider, String email) {
+        OAuthService oAuthService = getOAuthService(provider);
+        return Optional.ofNullable(oAuthService.checkUser(email));
     }
 
-    private OAuthToken getAccessToken(Provider provider, String code, String redirectUrl) {
+    private Optional<OAuthToken> getAccessToken(Provider provider, String code, String redirectUrl) {
         if(code == null){
             throw new ApplicationException(ErrorMessage.NO_SUCH_OAUTH_CODE_EXCEPTION);
         }
-        if(Provider.KAKAO.equals(provider)){
-            return kakaoOAuthService.getAccessToken(code, redirectUrl);
-        }else if(Provider.GOOGLE.equals(provider)){
-            return googleOAuthService.getAccessToken(code, redirectUrl);
-        }else if(Provider.GITHUB.equals(provider)){
-            return githubOAuthService.getAccessToken(code, redirectUrl);
-        }
-        return null;
+        OAuthService oAuthService = getOAuthService(provider);
+
+        return Optional.ofNullable(oAuthService.getAccessToken(code, redirectUrl));
     }
 
-    private UserInfo getUserInfo(Provider provider, String accessToken) {
-        if(Provider.KAKAO.equals(provider)){
-            return kakaoOAuthService.getUserInfo(accessToken);
-        }else if(Provider.GOOGLE.equals(provider)){
-            return googleOAuthService.getUserInfo(accessToken);
-        }else if(Provider.GITHUB.equals(provider)){
-            return githubOAuthService.getUserInfo(accessToken);
-        }
-        return null;
+    private Optional<UserInfo> getUserInfo(Provider provider, String accessToken) {
+        OAuthService oAuthService = getOAuthService(provider);
+        return Optional.ofNullable(oAuthService.getUserInfo(accessToken));
     }
 
-    public Token join(Provider provider, MembersJoinRequestDto membersJoinRequestDto) {
+    public MembersLoginResponseDto join(Provider provider, MembersJoinRequestDto membersJoinRequestDto) {
+        Token token = createByProvider(provider, membersJoinRequestDto);
+        jwtService.login(token); // refresh 토큰 초기화
+
+        return MembersLoginResponseDto.builder()
+                .membersEmail(token.getMembersEmail())
+                .accessToken(token.getAccessToken())
+                .refreshToken(token.getRefreshToken())
+                .grantType(token.getGrantType())
+                .build();
+    }
+    public Token createByProvider(Provider provider, MembersJoinRequestDto membersJoinRequestDto) {
         if(Provider.COMMON.equals(provider)){ // 일반 로그인
-            return membersService.joinMembers(membersJoinRequestDto);
+            return membersService.join(membersJoinRequestDto);
         }
-        if(Provider.KAKAO.equals(provider)){
-            return kakaoOAuthService.join(membersJoinRequestDto);
-        }
-        if(Provider.GOOGLE.equals(provider)){
-            return googleOAuthService.join(membersJoinRequestDto);
-        }
-        if(Provider.GITHUB.equals(provider)){
-            return githubOAuthService.join(membersJoinRequestDto);
-        }
-        return null;
+        OAuthService oAuthService = getOAuthService(provider);
+        return oAuthService.join(membersJoinRequestDto);
     }
 
     public Token login(Provider provider, Client client, String code, String redirectUri, String uid) {
-        OAuthToken oAuthToken = getAccessToken(provider, code, redirectUri);
-        UserInfo userInfo = getUserInfo(provider, oAuthToken.getAccessToken());
-        Token token = checkUser(provider, userInfo);
+        OAuthToken oAuthToken = getAccessToken(provider, code, redirectUri).orElseThrow(
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_TOKEN_INFO_EXCEPTION));
+        UserInfo userInfo = getUserInfo(provider, oAuthToken.getAccessToken()).orElseThrow(
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_TOKEN_INFO_EXCEPTION));
+        Token token = checkUser(provider, userInfo.getEmail()).orElseThrow(
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_TOKEN_INFO_EXCEPTION));
 
         // 신규 회원인경우, email, nickname, image oauth_tmp에 저장 후 redirect
         OauthTmp.OauthTmpBuilder oauthTmpBuilder = OauthTmp.builder()
@@ -99,7 +89,7 @@ public class OAuthServiceImpl {
                 .userInfo(userInfo);
 
         // 신규유저 확인
-        checkNewUser(token, client, oauthTmpBuilder);
+        checkNewUser(client, oauthTmpBuilder);
 
         // 기존 회원인 경우
         jwtService.login(token); // refresh 토큰 초기화
@@ -114,10 +104,20 @@ public class OAuthServiceImpl {
         return token;
     }
 
-    private void checkNewUser(Token token, Client client, OauthTmp.OauthTmpBuilder oauthTmpBuilder) {
-        if(token != null) {
-            return;
+    private OAuthService getOAuthService(Provider provider) {
+        if(Provider.KAKAO.equals(provider)) {
+            return kakaoOAuthService;
         }
+        if(Provider.GOOGLE.equals(provider)) {
+            return googleOAuthService;
+        }
+        if(Provider.GITHUB.equals(provider)) {
+            return githubOAuthService;
+        }
+        throw new ApplicationException(ErrorMessage.NOT_EXIST_PROVIDER_TYPE_EXCEPTION);
+    }
+
+    private void checkNewUser(Client client, OauthTmp.OauthTmpBuilder oauthTmpBuilder) {
         OauthTmp oauthTmp = oauthTmpBuilder.build();
         oauthTmpRepository.save(oauthTmp);
         // 앱 요청인경우
