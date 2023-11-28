@@ -81,7 +81,7 @@ public class OAuthController {
         if(Client.WEB.equals(client)){
             String clientDomain = request.getHeader("Origin");
             return String.join("/"
-                    ,clientDomain
+                    ,"http://localhost:8080"
                     , "oauth"
                     , client.getValue()
                     , "login"
