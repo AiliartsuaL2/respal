@@ -46,7 +46,6 @@ public class OAuthTmpService {
                 .accessToken(oauthTmp.getAccessToken())
                 .refreshToken(oauthTmp.getRefreshToken())
                 .build();
-
         return redirectResponse.of(redirectType);
     }
 }

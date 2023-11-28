@@ -28,6 +28,9 @@ public class RedirectCallBackResponse extends RedirectResponse{
         }
 
         // 로그인이면 유저 정보랑 provider만 반환
-        return (RedirectResponse) this;
+        return RedirectResponse.builder()
+                .provider(super.getProvider())
+                .userInfo(super.getUserInfo())
+                .build();
     }
 }

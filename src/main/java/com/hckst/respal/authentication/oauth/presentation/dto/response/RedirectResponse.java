@@ -15,5 +15,4 @@ public class RedirectResponse {
     private UserInfo userInfo;
     @Schema(description = "provider", nullable = false, allowableValues = {"common","kakao","google","github"})
     private String provider;
-
 }
