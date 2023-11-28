@@ -2,8 +2,10 @@ package com.hckst.respal.authentication.oauth.presentation;
 
 import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
 import com.hckst.respal.authentication.oauth.application.OAuthTmpService;
+import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectResponse;
+import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.global.dto.ApiCommonResponse;
@@ -55,6 +57,7 @@ public class OAuthController {
         Provider convertedProvider = Provider.findByValue(provider);
 
         String oauthRedirectUrl = getRedirectUrl(request, convertedClient, convertedProvider);
+        log.info(oauthRedirectUrl);
 
         String uid = UUID.randomUUID().toString();
         Token token = oAuthService.login(convertedProvider, convertedClient, code, oauthRedirectUrl, uid);
