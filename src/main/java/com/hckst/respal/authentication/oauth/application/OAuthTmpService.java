@@ -32,7 +32,11 @@ public class OAuthTmpService {
     private RedirectResponse getRedirectResponse(RedirectType redirectType, OauthTmp oauthTmp) {
         //todo npe 체크
         String provider = oauthTmp.getProvider().getValue();
-        if(oauthTmp.getRefreshToken() == null){
+        if(RedirectType.CALL_BACK.equals(redirectType) && oauthTmp.getRefreshToken() == null){
+            throw new ApplicationException(ErrorMessage.INCORRECT_OAUTH_TYPE_EXCEPTION);
+        }
+
+        if(RedirectType.SIGN_UP.equals(redirectType) && oauthTmp.getRefreshToken() != null){
             throw new ApplicationException(ErrorMessage.INCORRECT_OAUTH_TYPE_EXCEPTION);
         }
 
