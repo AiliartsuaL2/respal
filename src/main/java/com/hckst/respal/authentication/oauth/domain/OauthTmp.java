@@ -1,5 +1,6 @@
 package com.hckst.respal.authentication.oauth.domain;
 
+import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.converter.ProviderConverter;
@@ -54,5 +55,10 @@ public class OauthTmp {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.regTime = LocalDateTime.now();
+    }
+
+    public void addToken(Token token) {
+        this.accessToken = token.getAccessToken();
+        this.refreshToken = token.getRefreshToken();
     }
 }
