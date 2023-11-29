@@ -2,6 +2,7 @@ package com.hckst.respal.authentication.oauth.presentation;
 
 import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
 import com.hckst.respal.authentication.oauth.application.OAuthTmpService;
+import com.hckst.respal.authentication.oauth.domain.WebDomain;
 import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.RedirectResponse;
@@ -79,9 +80,9 @@ public class OAuthController {
     private String getRedirectUrl(HttpServletRequest request, Client client, Provider provider) {
         // 웹 요청인경우, Redirect url을 web 도메인으로 설정
         if(Client.WEB.equals(client)){
-            String clientDomain = request.getHeader("Origin");
+            String clientDomain = WebDomain.findDomainByServerName(request.getServerName());
             return String.join("/"
-                    ,"http://localhost:8080"
+                    ,clientDomain
                     , "oauth"
                     , client.getValue()
                     , "login"

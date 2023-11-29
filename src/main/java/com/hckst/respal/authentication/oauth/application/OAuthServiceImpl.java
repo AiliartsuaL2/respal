@@ -79,8 +79,6 @@ public class OAuthServiceImpl {
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_TOKEN_INFO_EXCEPTION));
         UserInfo userInfo = getUserInfo(provider, oAuthToken.getAccessToken()).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_TOKEN_INFO_EXCEPTION));
-        Token token = checkUser(provider, userInfo.getEmail()).orElseThrow(
-                () -> new ApplicationException(ErrorMessage.NOT_EXIST_TOKEN_INFO_EXCEPTION));
 
         // 신규 회원인경우, email, nickname, image oauth_tmp에 저장 후 redirect
         OauthTmp.OauthTmpBuilder oauthTmpBuilder = OauthTmp.builder()
@@ -89,7 +87,7 @@ public class OAuthServiceImpl {
                 .userInfo(userInfo);
 
         // 신규유저 확인
-        checkNewUser(client, oauthTmpBuilder);
+        Token token = checkNewUser(client, oauthTmpBuilder);
 
         // 기존 회원인 경우
         jwtService.login(token); // refresh 토큰 초기화
@@ -117,8 +115,15 @@ public class OAuthServiceImpl {
         throw new ApplicationException(ErrorMessage.NOT_EXIST_PROVIDER_TYPE_EXCEPTION);
     }
 
-    private void checkNewUser(Client client, OauthTmp.OauthTmpBuilder oauthTmpBuilder) {
+    private Token checkNewUser(Client client, OauthTmp.OauthTmpBuilder oauthTmpBuilder) {
         OauthTmp oauthTmp = oauthTmpBuilder.build();
+        // 기존 유저인 경우 토큰반환
+        Optional<Token> token = checkUser(oauthTmp.getProvider(), oauthTmp.getUserInfo().getEmail());
+        if(token.isPresent()) {
+            return token.get();
+        }
+
+        // 신규 유저인 경우 데이터 저장
         oauthTmpRepository.save(oauthTmp);
         // 앱 요청인경우
         if(Client.APP.equals(client)) {
