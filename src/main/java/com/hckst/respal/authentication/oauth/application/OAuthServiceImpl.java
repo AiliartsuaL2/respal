@@ -3,6 +3,7 @@ package com.hckst.respal.authentication.oauth.application;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.application.JwtService;
 import com.hckst.respal.authentication.oauth.domain.OauthTmp;
+import com.hckst.respal.authentication.oauth.domain.RedirectType;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepository;
 import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
@@ -11,7 +12,6 @@ import com.hckst.respal.converter.Provider;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.exception.oauth.OAuthAppLoginException;
-import com.hckst.respal.exception.oauth.OAuthWebLoginException;
 import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
@@ -34,7 +34,7 @@ public class OAuthServiceImpl {
     private final OauthTmpRepository oauthTmpRepository;
     private final JwtService jwtService;
 
-    private static final String OAUTH_SIGNUP_APP_SCHEME = "app://signup?uid=";
+    private static final String OAUTH_REDIRECT_URI_PREFIX = "http://api-respal.me";
 
     private Optional<Token> checkUser(Provider provider, String email) {
         OAuthService oAuthService = getOAuthService(provider);
@@ -74,7 +74,12 @@ public class OAuthServiceImpl {
         return oAuthService.join(membersJoinRequestDto);
     }
 
-    public Token login(Provider provider, Client client, String code, String redirectUri, String uid) {
+    public Token login(Provider provider, Client client, String code, String uid) {
+        String redirectUri = String.join("/", OAUTH_REDIRECT_URI_PREFIX
+                , "oauth"
+                , client.getEnvironment()
+                , "login"
+                , provider.getValue());
         OAuthToken oAuthToken = getAccessToken(provider, code, redirectUri).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_TOKEN_INFO_EXCEPTION));
         UserInfo userInfo = getUserInfo(provider, oAuthToken.getAccessToken()).orElseThrow(
@@ -122,13 +127,11 @@ public class OAuthServiceImpl {
 
         // 신규 유저인 경우 데이터 저장
         oauthTmpRepository.save(oauthTmp);
-        // 앱 요청인경우
-        if(Client.APP.equals(client)) {
-            URI redirectUrl = URI.create(OAUTH_SIGNUP_APP_SCHEME+oauthTmp.getUid());
-            throw new OAuthAppLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION, oauthTmp.getUid(),redirectUrl);
-        }
-        // 웹 요청인경우
-        throw new OAuthWebLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION, oauthTmp.getUid());
+
+        // redirect
+        String redirectUrl = client.getUidRedirectUrl(RedirectType.SIGN_UP, oauthTmp.getUid());
+        URI redirectUri = URI.create(redirectUrl);
+        throw new OAuthAppLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION, oauthTmp.getUid(),redirectUri);
     }
 
     public void logout(String refreshToken) {
