@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum WebDomain {
 
     LOCAL("localhost", "http://localhost:8080"),
-    DEV("dev", "http://respal-dev.com"),
+    DEV("api-respal.me", "http://api-respal.me"),
     STAGING("staging", "http://respal-staging.com"),
     PRODUCT("prod", "http://respal-prod.com"),
     NULL("", "");
