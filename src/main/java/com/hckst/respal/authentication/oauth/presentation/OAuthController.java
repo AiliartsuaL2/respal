@@ -81,6 +81,7 @@ public class OAuthController {
         // 웹 요청인경우, Redirect url을 web 도메인으로 설정
         if(Client.WEB.equals(client)){
             String clientDomain = WebDomain.findDomainByServerName(request.getServerName());
+            System.out.println(request.getServerName());
             return String.join("/"
                     ,clientDomain
                     , "oauth"
