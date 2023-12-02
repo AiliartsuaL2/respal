@@ -36,10 +36,10 @@ public enum Client implements BaseEnumCode<String> {
             return this.redirectUrlPrefix + redirectType.getValue() + UID_PREFIX + uid;
         }
         if(RedirectType.CALL_BACK.equals(redirectType)) {
-            return this.redirectUrlPrefix + WEB_LOGIN_PATH + UID_PREFIX + uid;
+            return this.redirectUrlPrefix + WEB_LOGIN_PATH;
         }
         if(RedirectType.SIGN_UP.equals(redirectType)) {
-            return this.redirectUrlPrefix + WEB_LOGIN_PATH + UID_PREFIX + uid;
+            return this.redirectUrlPrefix + WEB_SIGN_UP_PATH + UID_PREFIX + uid;
         }
         throw new ApplicationException(ErrorMessage.INCORRECT_OAUTH_TYPE_EXCEPTION);
     }
