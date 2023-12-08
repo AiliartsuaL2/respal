@@ -1,5 +1,8 @@
 package com.hckst.respal.authentication.jwt.dto;
 
+import com.google.gson.Gson;
+import java.util.Base64;
+import javax.servlet.http.Cookie;
 import lombok.*;
 
 @Getter
@@ -13,4 +16,12 @@ public class Token {
     private String refreshToken;
     private Long membersId;
     private String membersEmail;
+
+    public Cookie convert() {
+        String encodedToken = Base64.getEncoder().encodeToString(new Gson().toJson(this).getBytes());
+        Cookie cookie = new Cookie("token", encodedToken);
+        cookie.setMaxAge(3600);
+        cookie.setPath("/");
+        return cookie;
+    }
 }
