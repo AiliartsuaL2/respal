@@ -50,6 +50,10 @@ public enum Client implements BaseEnumCode<String> {
     }
 
     public String getCookiePath() {
-        return this.redirectUrlPrefix + WEB_LOGIN_PATH;
+        return WEB_LOGIN_PATH;
+    }
+
+    public String getCookieDomain() {
+        return this.redirectUrlPrefix.replace("http://",".");
     }
 }
