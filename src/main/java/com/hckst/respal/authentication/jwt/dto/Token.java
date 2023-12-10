@@ -18,11 +18,11 @@ public class Token {
     private Long membersId;
     private String membersEmail;
 
-    public Cookie convert() {
+    public Cookie convert(Client convertedClient) {
         String encodedToken = Base64.getEncoder().encodeToString(new Gson().toJson(this).getBytes());
         Cookie cookie = new Cookie("token", encodedToken);
         cookie.setMaxAge(3600);
-        cookie.setPath("/");
+        cookie.setPath(convertedClient.getCookiePath());
         return cookie;
     }
 }

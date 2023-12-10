@@ -48,4 +48,8 @@ public enum Client implements BaseEnumCode<String> {
     public String getValue() {
         return this.environment;
     }
+
+    public String getCookiePath() {
+        return this.redirectUrlPrefix + WEB_LOGIN_PATH;
+    }
 }

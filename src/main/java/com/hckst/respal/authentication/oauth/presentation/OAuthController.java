@@ -63,7 +63,7 @@ public class OAuthController {
         Token token = oAuthService.login(convertedProvider, convertedClient, code, uid);
         // 웹요청의경우 쿠키에 토큰 추가
         if(! Client.APP.equals(convertedClient)) {
-            response.addCookie(token.convert());
+            response.addCookie(token.convert(convertedClient));
         }
 
         String redirectUrl = convertedClient.getUidRedirectUrl(RedirectType.CALL_BACK, uid);
