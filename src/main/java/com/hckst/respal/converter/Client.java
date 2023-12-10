@@ -50,7 +50,7 @@ public enum Client implements BaseEnumCode<String> {
     }
 
     public String getCookiePath() {
-        return WEB_LOGIN_PATH;
+        return "/";
     }
 
     public String getCookieDomain() {
