@@ -22,7 +22,7 @@ public class Token {
         String encodedToken = Base64.getEncoder().encodeToString(new Gson().toJson(this).getBytes());
         Cookie cookie = new Cookie("token", encodedToken);
         cookie.setMaxAge(3600);
-        cookie.setPath(Client.WEB_LOGIN_PATH);
+        cookie.setPath("/");
         return cookie;
     }
 }
