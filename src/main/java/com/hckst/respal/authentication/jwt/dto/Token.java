@@ -21,7 +21,7 @@ public class Token {
     public Cookie convert(Client convertedClient) {
         String encodedToken = Base64.getEncoder().encodeToString(new Gson().toJson(this).getBytes());
         Cookie cookie = new Cookie("token", encodedToken);
-        cookie.setMaxAge(3600);
+//        cookie.setMaxAge(3600);
         cookie.setDomain(convertedClient.getCookieDomain());
         cookie.setPath(convertedClient.getCookiePath());
         return cookie;
