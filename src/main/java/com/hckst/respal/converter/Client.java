@@ -52,9 +52,4 @@ public enum Client implements BaseEnumCode<String> {
     public String getCookiePath() {
         return WEB_LOGIN_PATH;
     }
-
-    public String getCookieDomain() {
-        String domain = this.redirectUrlPrefix.replace("http://","");
-        return domain.replace(":3000","");
-    }
 }
