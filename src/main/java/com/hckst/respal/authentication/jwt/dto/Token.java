@@ -22,6 +22,7 @@ public class Token {
         String encodedToken = Base64.getEncoder().encodeToString(new Gson().toJson(this).getBytes());
         ResponseCookie cookie = ResponseCookie.from("token", encodedToken)
                 .path(convertedClient.getCookiePath())
+                .domain(convertedClient.getCookieDomain())
                 .sameSite("None")
                 .httpOnly(false)
                 .secure(true)
