@@ -3,8 +3,8 @@ package com.hckst.respal.authentication.jwt.dto;
 import com.google.gson.Gson;
 import com.hckst.respal.converter.Client;
 import java.util.Base64;
-import javax.servlet.http.Cookie;
 import lombok.*;
+import org.springframework.http.ResponseCookie;
 
 @Getter
 @Setter
@@ -18,12 +18,15 @@ public class Token {
     private Long membersId;
     private String membersEmail;
 
-    public Cookie convert(Client convertedClient) {
+    public ResponseCookie convert(Client convertedClient) {
         String encodedToken = Base64.getEncoder().encodeToString(new Gson().toJson(this).getBytes());
-        Cookie cookie = new Cookie("token", encodedToken);
-//        cookie.setMaxAge(3600);
-        cookie.setDomain(convertedClient.getCookieDomain());
-        cookie.setPath(convertedClient.getCookiePath());
+        ResponseCookie cookie = ResponseCookie.from("token", encodedToken)
+                .path(convertedClient.getCookiePath())
+                .sameSite("None")
+                .httpOnly(false)
+                .secure(true)
+                .maxAge(3600)
+                .build();
         return cookie;
     }
 }
