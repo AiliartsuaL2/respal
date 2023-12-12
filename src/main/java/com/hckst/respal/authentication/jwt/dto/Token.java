@@ -12,6 +12,8 @@ import org.springframework.http.ResponseCookie;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Token {
+    private static final String COOKIE_DOMAIN = ".respal.me";
+
     private String grantType;
     private String accessToken;
     private String refreshToken;
@@ -21,10 +23,9 @@ public class Token {
     public ResponseCookie convert(Client convertedClient) {
         String encodedToken = Base64.getEncoder().encodeToString(new Gson().toJson(this).getBytes());
         ResponseCookie cookie = ResponseCookie.from("token", encodedToken)
-                .path("/")
-                .sameSite("None")
-                .httpOnly(false)
-                .secure(true)
+                .path(convertedClient.getCookiePath())
+                .domain(COOKIE_DOMAIN)
+                .httpOnly(true)
                 .maxAge(3600)
                 .build();
         return cookie;
