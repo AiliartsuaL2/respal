@@ -24,7 +24,7 @@ public class Token {
                 .path(convertedClient.getCookiePath())
                 .domain(convertedClient.getCookieDomain())
                 .sameSite("None")
-                .httpOnly(true)
+                .httpOnly(false)
                 .secure(true)
                 .maxAge(3600)
                 .build();
