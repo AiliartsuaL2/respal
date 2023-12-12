@@ -23,9 +23,9 @@ public class Token {
         ResponseCookie cookie = ResponseCookie.from("token", encodedToken)
                 .path(convertedClient.getCookiePath())
                 .domain(convertedClient.getCookieDomain())
-                .sameSite("Lax")
-                .httpOnly(false)
-                .secure(false)
+                .sameSite("None")
+                .httpOnly(true)
+                .secure(true)
                 .maxAge(3600)
                 .build();
         return cookie;
