@@ -34,7 +34,7 @@ public class OAuthServiceImpl {
     private final OauthTmpRepository oauthTmpRepository;
     private final JwtService jwtService;
 
-    private static final String OAUTH_REDIRECT_URI_PREFIX = "https://api-respal.me";
+    private static final String OAUTH_REDIRECT_URI_PREFIX = "https://api.respal.me";
 
     private Optional<Token> checkUser(Provider provider, String email) {
         OAuthService oAuthService = getOAuthService(provider);
