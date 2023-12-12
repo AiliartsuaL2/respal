@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Client implements BaseEnumCode<String> {
-    WEB_DEV("web-dev", "https://localhost:3000"),
+    WEB_DEV("web-dev", "https://respal-client.vercel.app"),
     WEB_STAGING("web-staging", "https://localhost:3000"),
     WEB_PROD("web-prod", "https://localhost:3000"),
     APP("app", "app://"),

@@ -22,6 +22,7 @@ public class CorsConfig {
         config.setAllowCredentials(true);
 
         config.addAllowedOrigin("https://localhost:3000");           // 로컬
+        config.addAllowedOrigin("https://respal-client.vercel.app");           // 로컬
 //        config.addAllowedOrigin("http://respal.me");          // 개발
 
         config.setAllowedMethods(Arrays.asList("POST", "OPTIONS", "GET", "DELETE", "PUT", "PATCH"));
