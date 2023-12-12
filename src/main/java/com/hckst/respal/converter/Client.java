@@ -9,9 +9,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Client implements BaseEnumCode<String> {
-    WEB_DEV("web-dev", "http://localhost:3000"),
-    WEB_STAGING("web-staging", "http://localhost:3000"),
-    WEB_PROD("web-prod", "http://localhost:3000"),
+    WEB_DEV("web-dev", "https://localhost:3000"),
+    WEB_STAGING("web-staging", "https://localhost:3000"),
+    WEB_PROD("web-prod", "https://localhost:3000"),
     APP("app", "app://"),
     NULL("","");
 
@@ -54,7 +54,7 @@ public enum Client implements BaseEnumCode<String> {
     }
 
     public String getCookieDomain() {
-        String domain = this.redirectUrlPrefix.replace("http://","");
+        String domain = this.redirectUrlPrefix.replace("https://","");
         return domain.replace(":3000","");
     }
 }
