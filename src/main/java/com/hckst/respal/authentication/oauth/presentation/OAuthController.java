@@ -82,7 +82,7 @@ public class OAuthController {
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<RedirectResponse>> requestUserInfo(@PathVariable String uid, @RequestParam String type){
         RedirectResponse responseDto = oAuthTmpService.getOauthTmp(uid,type);
-
+        log.info("배포 테스트용 로그");
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .result(responseDto)
