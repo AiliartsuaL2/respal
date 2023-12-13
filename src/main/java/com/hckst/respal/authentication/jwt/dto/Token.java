@@ -2,6 +2,7 @@ package com.hckst.respal.authentication.jwt.dto;
 
 import com.google.gson.Gson;
 import com.hckst.respal.converter.Client;
+import java.net.URLEncoder;
 import java.util.Base64;
 import lombok.*;
 import org.springframework.http.ResponseCookie;
@@ -29,5 +30,21 @@ public class Token {
                 .maxAge(3600)
                 .build();
         return cookie;
+    }
+
+    @Override
+    public String toString() {
+        return "Token{" +
+                "grantType='" + grantType + '\'' +
+                ", accessToken='" + accessToken + '\'' +
+                ", refreshToken='" + refreshToken + '\'' +
+                ", membersId=" + membersId +
+                ", membersEmail='" + membersEmail + '\'' +
+                '}';
+    }
+
+    public String convertToQueryParameter() {
+        String encodedToken = URLEncoder.encode(this.toString());
+        return "?token="+encodedToken;
     }
 }

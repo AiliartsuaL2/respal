@@ -62,14 +62,18 @@ public class OAuthController {
 
         String uid = UUID.randomUUID().toString();
         Token token = oAuthService.login(convertedProvider, convertedClient, code, uid);
-        // 웹요청의경우 쿠키에 토큰 추가
-        if(! Client.APP.equals(convertedClient)) {
-            ResponseCookie cookie = token.convert(convertedClient);
-            response.addHeader("Set-Cookie", cookie.toString());
-        }
 
         String redirectUrl = convertedClient.getUidRedirectUrl(RedirectType.CALL_BACK, uid);
+
+        // 웹요청의경우 쿠키에 토큰 추가
+        // 개발 환경 관련 임시로 쿠키가 아닌, Parameter에 추가
+        if(! Client.APP.equals(convertedClient)) {
+//            ResponseCookie cookie = token.convert(convertedClient);
+//            response.addHeader("Set-Cookie", cookie.toString());
+            redirectUrl += token.convertToQueryParameter();
+        }
         URI redirectUri = URI.create(redirectUrl);
+
         return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
     }
 
@@ -82,7 +86,6 @@ public class OAuthController {
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<RedirectResponse>> requestUserInfo(@PathVariable String uid, @RequestParam String type){
         RedirectResponse responseDto = oAuthTmpService.getOauthTmp(uid,type);
-        log.info("배포 테스트용 로그");
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .result(responseDto)
