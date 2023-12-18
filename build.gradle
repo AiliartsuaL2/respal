@@ -78,6 +78,9 @@ dependencies {
 	// aws s3
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+	//r2dbc
+	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+	implementation 'io.asyncer:r2dbc-mysql:0.9.5'
 }
 
 tasks.named('test') {

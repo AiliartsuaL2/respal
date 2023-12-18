@@ -13,8 +13,6 @@ public interface MembersRepositoryCustom {
     Optional<MembersOAuthDto> findMembersOauthForLogin(String email, Provider provider);
     Boolean existsMembersOauthForJoin(String email, Provider provider);
     Optional<Members> findCommonMembersByEmail(String email);
-
-    Optional<Members> findMembersAndCommentById(long membersId);
     Optional<Members> findMembersAndResumeById(long membersId);
     List<SearchMembersResponseDto> findMembersByNickname(SearchMembersRequestDto searchMembersRequestDto);
 }

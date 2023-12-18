@@ -20,7 +20,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static com.hckst.respal.comment.domain.QComment.comment;
 import static com.hckst.respal.members.domain.QJob.job;
 import static com.hckst.respal.members.domain.QMembers.members;
 import static com.hckst.respal.resume.domain.QResume.resume;
@@ -51,12 +50,10 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                         resume.mainYn,
                         resume.modifyYn,
                         resume.regTime,
-                        resume.modifyTime,
-                        comment.id.count()))
+                        resume.modifyTime))
                 .from(resume)
                 .innerJoin(resume.members, members)
                 .innerJoin(resume.resumeFile, resumeFile)
-                .leftJoin(resume.commentList, comment)
                 .leftJoin(resume.tagList, tag).on(addJoinConditionByResumeType(requestDto.getResumeType(),requestDto.getViewer()))
                 .where(resume.deleteYn.eq(TFCode.FALSE)
                         .and(resume.resumeType.eq(requestDto.getResumeType()))

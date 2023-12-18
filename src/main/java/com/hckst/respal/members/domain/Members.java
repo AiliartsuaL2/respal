@@ -62,14 +62,9 @@ public class Members implements UserDetails {
     @OneToMany(mappedBy = "members")
     private List<Resume> resumeList;
 
-    /**
-     * 연관관계 매핑
-     * 양방향
-     * Comment
-     * One to Many
-     * 작성한 댓글 리스트
-     */
-    @OneToMany(mappedBy = "members")
+
+    // R2DBC 관련 연관관계 매핑 x
+    @Transient
     private List<Comment> commentList;
 
     /**

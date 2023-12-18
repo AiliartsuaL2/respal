@@ -1,12 +1,9 @@
 package com.hckst.respal.comment.domain.repository;
 
 import com.hckst.respal.comment.domain.Comment;
-import com.hckst.respal.converter.TFCode;
-import com.hckst.respal.resume.domain.Resume;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import reactor.core.publisher.Flux;
 
-import java.util.List;
-import java.util.Optional;
-
-public interface CommentRepository extends JpaRepository<Comment,Long> , CommentRepositoryCustom {
+public interface CommentRepository extends R2dbcRepository<Comment,Long> {
+    Flux<Comment> findByResumeId(Long resumeId);
 }

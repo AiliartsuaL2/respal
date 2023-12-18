@@ -10,11 +10,15 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan("com.hckst.respal.config")
 @EnableAsync
+@EnableJpaRepositories
+@EnableR2dbcRepositories
 public class RespalApplication {
 	static {
 		System.setProperty("com.amazonaws.sdk.disableEc2Metadata", "true");

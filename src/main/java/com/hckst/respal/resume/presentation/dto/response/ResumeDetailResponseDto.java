@@ -54,7 +54,7 @@ public class ResumeDetailResponseDto {
     private List<CommentsResponseDto> commentList;
 
     @QueryProjection
-    public ResumeDetailResponseDto(Long resumeId, String title, String content, int views, Long membersId, String membersNickname, String membersPicture, TFCode mainYn, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime, long commentCount) {
+    public ResumeDetailResponseDto(Long resumeId, String title, String content, int views, Long membersId, String membersNickname, String membersPicture, TFCode mainYn, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime) {
         this.resumeId = resumeId;
         this.title = title;
         this.content = content;
@@ -66,11 +66,10 @@ public class ResumeDetailResponseDto {
         this.modifyYn = TFCode.TRUE.equals(modifyYn) ? "Y" : "N";
         this.regTime = regTime != null ? regTime.format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
         this.modifyTime = modifyTime != null ? modifyTime.format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
-        this.commentCount = commentCount;
     }
 
     @Builder
-    public ResumeDetailResponseDto(Resume resume, List<CommentsResponseDto> commentList) {
+    public ResumeDetailResponseDto(Resume resume) {
         this.resumeId = resume.getId();
         this.title = resume.getTitle();
         this.content = resume.getContent();
@@ -84,6 +83,5 @@ public class ResumeDetailResponseDto {
         this.modifyYn = TFCode.TRUE.equals(resume.getModifyYn()) ? "Y" : "N";
         this.regTime = resume.getRegTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
         this.modifyTime = resume.getModifyTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
-        this.commentList = commentList == null ? new ArrayList<>() : commentList;
     }
 }

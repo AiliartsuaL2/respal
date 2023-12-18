@@ -56,11 +56,11 @@ public class ResumeService {
         Resume resume = Resume.create(createResumeRequestDto, resumeFile, members, resumeType);
         resumeRepository.save(resume);
 
-        tagService.addTags(members, resume.getId(), createResumeRequestDto.getTagIdList());
+        if(createResumeRequestDto.getTagIdList() != null)
+            tagService.addTags(members, resume.getId(), createResumeRequestDto.getTagIdList());
 
         ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
                 .resume(resume)
-                .commentList(new ArrayList<>())
                 .build();
         return resumeDetailResponseDto;
     }
@@ -79,15 +79,12 @@ public class ResumeService {
          * 조회수 증가, 댓글 가져와서 Comment DTO로 변환
          * Resume DTO로 변환하여 반환
          */
-        // 댓글
-        List<CommentsResponseDto> comments = commentRepository.findCommentsDtoByResume(resume).orElse(new ArrayList<>());
         // 조회수 증가
         resume.viewsCountUp();
 
         // DTO 변환
         ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
                 .resume(resume)
-                .commentList(comments)
                 .build();
         return resumeDetailResponseDto;
     }

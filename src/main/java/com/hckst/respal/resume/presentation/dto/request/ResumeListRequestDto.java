@@ -58,8 +58,6 @@ public class ResumeListRequestDto {
             this.sort = "asc".equals(direction) ? ResumeSort.RECENT_ASC : ResumeSort.RECENT_DESC;
         }else if("views".equals(sort)){
             this.sort = "asc".equals(direction) ? ResumeSort.VIEWS_ASC : ResumeSort.VIEWS_DESC;
-        }else if("comments".equals(sort)){
-            this.sort = "asc".equals(direction) ? ResumeSort.COMMENTS_ASC : ResumeSort.COMMENTS_DESC;
         }
         this.offset = (page-1)*limit;
     }

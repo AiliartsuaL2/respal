@@ -5,6 +5,7 @@ import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,7 +16,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class UserDetailsServiceImpl implements UserDetailsService {
-    private final MembersRepository membersRepository;
+    @Autowired
+    MembersRepository membersRepository;
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
         return membersRepository.findById(Long.parseLong(id))

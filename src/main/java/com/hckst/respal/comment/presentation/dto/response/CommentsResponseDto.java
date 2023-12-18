@@ -1,5 +1,6 @@
 package com.hckst.respal.comment.presentation.dto.response;
 
+import com.hckst.respal.comment.domain.Comment;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.*;
 
@@ -30,5 +31,18 @@ public class CommentsResponseDto {
         this.membersPicture = membersPicture;
         this.membersNickname = membersNickname;
         this.regTime = regTime != null ? regTime.format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
+    }
+
+    public static CommentsResponseDto create(Comment comment) {
+        CommentsResponseDto commentsResponseDto = new CommentsResponseDto();
+        commentsResponseDto.id = comment.getId();
+        commentsResponseDto.content = comment.getContent();
+        commentsResponseDto.xLocation = comment.getXLocation();
+        commentsResponseDto.yLocation = comment.getYLocation();
+//        this.membersId = membersId;
+//        this.membersPicture = membersPicture;
+//        this.membersNickname = membersNickname;
+        commentsResponseDto.regTime = comment.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        return commentsResponseDto;
     }
 }

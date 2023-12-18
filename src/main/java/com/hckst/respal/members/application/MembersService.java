@@ -28,7 +28,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
+@Transactional(value = "transactionManager", readOnly = true)
 public class MembersService {
     private final MembersRepository membersRepository;
     private final JwtTokenProvider jwtTokenProvider;
@@ -39,6 +39,7 @@ public class MembersService {
     private static final String JOIN_MAIL_TITLE = "[Respal] 비밀번호 재설정 링크입니다.";
     private static final String MAIL_MESSAGE = "변경된 임시 비밀번호는 아래와 같습니다. \n";
 
+    @Transactional("transactionManager")
     public MembersLoginResponseDto loginMembers(MembersLoginRequestDto membersLoginRequestDto) {
         Members members = findCommonMemberByEmail(membersLoginRequestDto.getEmail());
         members.checkPassword(membersLoginRequestDto.getPassword());
@@ -66,7 +67,7 @@ public class MembersService {
     }
 
     // 회원가입 서비스
-    @Transactional // insert query,, read-only false
+    @Transactional("transactionManager") // insert query,, read-only false
     public Token join(MembersJoinRequestDto membersJoinRequestDto) {
         if (duplicationCheckEmail(membersJoinRequestDto.getEmail())) {
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
@@ -105,7 +106,7 @@ public class MembersService {
     }
 
     // 비밀번호 재설정 direction 설정
-    @Transactional
+    @Transactional("transactionManager")
     // Async 설정
 //    @Async Annotation을 사용할 때 아래와 같은 세 가지 사항을 주의하자.
 //      private method는 사용 불가
@@ -132,7 +133,7 @@ public class MembersService {
     }
 
     // 비밀번호 변경
-    @Transactional
+    @Transactional("transactionManager")
     public void updatePassword(PasswordPatchRequestDto passwordPatchRequestDto) {
         Members members = membersRepository.findCommonMembersByEmail(passwordPatchRequestDto.getEmail()).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
@@ -143,7 +144,7 @@ public class MembersService {
     }
 
     // 비밀번호 재설정 메서드, UUID로 비밀번호를 설정 후 해당 이메일로 임시 비밀번호를 전송해줌.
-    @Transactional
+    @Transactional("transactionManager")
     public String passwordResetToTmp(String email) {
         Members members = membersRepository.findCommonMembersByEmail(email).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));

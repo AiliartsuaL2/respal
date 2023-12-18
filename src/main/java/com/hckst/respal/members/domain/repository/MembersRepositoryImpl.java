@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static com.hckst.respal.comment.domain.QComment.comment;
 import static com.hckst.respal.authentication.oauth.domain.QOauth.oauth;
 import static com.hckst.respal.members.domain.QMembers.members;
 import static com.hckst.respal.resume.domain.QResume.resume;
@@ -53,16 +52,6 @@ public class MembersRepositoryImpl implements MembersRepositoryCustom {
                 .where(members.email.eq(email)
                         .and(oauth.provider.isNull())
                 )
-                .fetchOne();
-        return Optional.ofNullable(member);
-    }
-
-    @Override
-    public Optional<Members> findMembersAndCommentById(long membersId) {
-        Members member = queryFactory.select(members)
-                .from(members)
-                .leftJoin(members.commentList, comment).fetchJoin()
-                .where(members.id.eq(membersId))
                 .fetchOne();
         return Optional.ofNullable(member);
     }

@@ -83,15 +83,8 @@ public class Resume {
     @OneToOne
     private ResumeFile resumeFile;
 
-
-    /**
-     * 연관관계 매핑
-     * 양방향
-     * Comment
-     * One to Many
-     * 이력서에 달린 댓글들
-     */
-    @OneToMany(mappedBy = "resume")
+    // R2DBC 관련 연관관계 매핑 x
+    @Transient
     private List<Comment> commentList;
 
     /**

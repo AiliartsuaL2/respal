@@ -18,11 +18,7 @@ public enum ResumeSort{
     // 조회수 높은순
     VIEWS_DESC(resume.views,Order.DESC),
     // 조회수 낮은순
-    VIEWS_ASC(resume.views,Order.ASC),
-    // 댓글 많은순
-    COMMENTS_DESC(resume.commentList.size(),Order.DESC),
-    // 댓글 많은순
-    COMMENTS_ASC(resume.commentList.size(),Order.ASC);
+    VIEWS_ASC(resume.views,Order.ASC);
 
     private final NumberExpression<?> sortCondition;
     private final Order order;

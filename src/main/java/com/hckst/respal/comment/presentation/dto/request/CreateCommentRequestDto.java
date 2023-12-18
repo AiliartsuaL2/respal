@@ -11,6 +11,6 @@ import lombok.*;
 @Builder
 public class CreateCommentRequestDto {
     private String content;
-    private int xLocation;
-    private int yLocation;
+    private int x;
+    private int y;
 }
