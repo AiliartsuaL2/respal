@@ -18,7 +18,6 @@ import javax.persistence.*;
 public class Oauth {
     //ouath id
     @Id  @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "OAUTH_ID")
     private Long id;
 
     //회원 id

@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 public class OauthTmp {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "OAUTH_TMP_ID")
     private Long id;
 
     // 쿼리파라미터로 식별하는 uid

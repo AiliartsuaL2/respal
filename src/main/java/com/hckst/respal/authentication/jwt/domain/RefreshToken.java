@@ -15,7 +15,6 @@ import javax.persistence.*;
 public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "REFRESH_TOKEN_ID", nullable = false)
     private Long refreshTokenId;
 
     @Column(name = "REFRESH_TOKEN", nullable = false)

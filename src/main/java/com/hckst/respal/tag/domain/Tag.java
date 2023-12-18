@@ -18,7 +18,6 @@ import java.util.Objects;
 public class Tag {
     // 멘션 ID
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "TAG_ID")
     private Long id;
     // 언급된 이력서
     @ManyToOne

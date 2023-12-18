@@ -29,11 +29,12 @@ public class JwtTokenProvider {
     private String secretKey ;
 
     // accessToken 기한
-//    private long accessTokenValidTime = 60 * 60 * 1000L; // 1시간
-    // refreshToken 기한
-//    private long refreshTokenValidTime = 60 * 60 * 24 * 14 * 1000L; // 2주
-    private long accessTokenValidTime = 60 * 1000L; // 1분
-    private long refreshTokenValidTime = 60 * 5 * 1000L; // 5분
+    private long accessTokenValidTime = 60 * 60 * 1000L; // 1시간
+//     refreshToken 기한
+    private long refreshTokenValidTime = 60 * 60 * 24 * 14 * 1000L; // 2주
+
+//    private long accessTokenValidTime = 60 * 1000L; // 1분
+//    private long refreshTokenValidTime = 60 * 5 * 1000L; // 5분
     private static final String TOKEN_TYPE = "Bearer";
 
     private final UserDetailsService userDetailsService;

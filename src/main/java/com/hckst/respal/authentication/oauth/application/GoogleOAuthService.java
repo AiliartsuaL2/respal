@@ -99,7 +99,7 @@ public class GoogleOAuthService implements OAuthService {
         GoogleUserInfo googleUserInfo = gson.fromJson(response , GoogleUserInfo.class);
 
         UserInfo oAuthUserInfoResponseDto = UserInfo.builder()
-                .id(googleUserInfo.getId())
+                .userInfoId(googleUserInfo.getId())
                 .email(googleUserInfo.getEmail())
                 .image(googleUserInfo.getPicture())
                 .nickname(googleUserInfo.getName())

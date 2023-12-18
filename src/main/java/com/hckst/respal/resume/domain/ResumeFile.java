@@ -15,7 +15,6 @@ import java.util.UUID;
 public class ResumeFile {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="RESUME_FILE_ID")
     private Long id;
 
     private String originName; // 이미지 파일의 본래 이름

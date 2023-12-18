@@ -14,7 +14,7 @@ import javax.persistence.Embeddable;
 @Schema(description = "OAuth 로그인시 받아오는 회원 정보")
 public class UserInfo {
     @Schema(description = "oauth id", nullable = false)
-    private String id;
+    private String userInfoId;
     @Schema(description = "oauth 이메일", nullable = false)
     private String email;
     @Schema(description = "oauth 사진", nullable = true)

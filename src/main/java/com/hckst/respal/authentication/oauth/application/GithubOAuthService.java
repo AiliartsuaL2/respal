@@ -96,7 +96,7 @@ public class GithubOAuthService implements OAuthService{
         GithubUserInfo githubUserInfo = gson.fromJson(response, GithubUserInfo.class);
 
         UserInfo oAuthUserInfoResponseDto = UserInfo.builder()
-                .id(githubUserInfo.getId())
+                .userInfoId(githubUserInfo.getId())
                 .email(githubUserInfo.getEmail())
                 .nickname(githubUserInfo.getLogin())
                 .image(githubUserInfo.getAvatar_url())

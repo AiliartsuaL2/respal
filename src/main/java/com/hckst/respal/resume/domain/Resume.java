@@ -26,7 +26,6 @@ import java.util.Objects;
 public class Resume {
     // 이력서 id
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="RESUME_ID")
     private Long id;
 
     // 이력서 제목

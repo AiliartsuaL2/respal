@@ -29,7 +29,6 @@ public class Members implements UserDetails {
 
     // 회원 ID
     @Id  @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "MEMBERS_ID")
     private Long id;
 
     // 이메일 , 일반 로그인 식별자

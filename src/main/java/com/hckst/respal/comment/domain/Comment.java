@@ -18,7 +18,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Comment {
-    @Column(name="COMMENT_ID")
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

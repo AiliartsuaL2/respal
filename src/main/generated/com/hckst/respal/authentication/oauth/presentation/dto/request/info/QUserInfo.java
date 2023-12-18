@@ -21,11 +21,11 @@ public class QUserInfo extends BeanPath<UserInfo> {
 
     public final StringPath email = createString("email");
 
-    public final StringPath id = createString("id");
-
     public final StringPath image = createString("image");
 
     public final StringPath nickname = createString("nickname");
+
+    public final StringPath userInfoId = createString("userInfoId");
 
     public QUserInfo(String variable) {
         super(UserInfo.class, forVariable(variable));
