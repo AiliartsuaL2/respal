@@ -10,12 +10,16 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.time.Duration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 public class testController {
@@ -39,4 +43,19 @@ public class testController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/data")
+    public Flux<ServerSentEvent<String>> getData() {
+
+        Mono<String> firstResponse = Mono.just("첫번째 응답입니다😆");
+        Mono<String> secondResponse = Mono.just("두번째 응답입니다😎");
+
+        Flux<ServerSentEvent<String>> responseStream = Flux.concat(
+                firstResponse.map(data -> ServerSentEvent.<String>builder().data(data).build()),
+                secondResponse.delayElement(Duration.ofSeconds(5)).map(data -> ServerSentEvent.<String>builder().data(data).build())
+        );
+
+        return responseStream;
+    }
+
 }

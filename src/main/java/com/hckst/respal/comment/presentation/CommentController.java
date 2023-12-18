@@ -5,9 +5,11 @@ import com.hckst.respal.comment.domain.Comment;
 import com.hckst.respal.comment.presentation.dto.request.CreateCommentRequestDto;
 import com.hckst.respal.comment.presentation.dto.response.CommentsResponseDto;
 import com.hckst.respal.members.domain.Members;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +37,7 @@ public class CommentController {
     }
 
     @GetMapping("/{resumeId}")
-    public Flux<CommentsResponseDto> findCommentByResumeId(@PathVariable Long resumeId) {
+    public Flux<ServerSentEvent<CommentsResponseDto>> findCommentByResumeId(@PathVariable Long resumeId) {
         return commentService.findByResumeId(resumeId);
     }
 }

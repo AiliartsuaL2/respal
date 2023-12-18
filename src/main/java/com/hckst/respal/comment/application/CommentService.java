@@ -11,12 +11,15 @@ import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.resume.domain.Resume;
 import com.hckst.respal.resume.domain.repository.ResumeRepository;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 
 @Service
 @RequiredArgsConstructor
@@ -25,12 +28,9 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final ResumeRepository resumeRepository;
     private final MembersRepository membersRepository;
+    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
+    private final Sinks.Many<Comment> commentUpdateSink = Sinks.many().multicast().onBackpressureBuffer();
 
-    /**
-     * 댓글 생성 메서드
-     * members : 댓글 작성자 / 없으면 401 떨어지므로 예외처리 하지않음
-     * resume : 이력서 / 존재하지 않음과 delete_yn 컬럼 상태를 확인하여 예외처리
-     */
     public Mono<Void> createComment(CreateCommentRequestDto requestDto, long membersId, long resumeId){
         Resume resume = resumeRepository.findById(resumeId).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID_EXCEPTION));
@@ -48,14 +48,24 @@ public class CommentService {
                 .resume(resume)
                 .build();
         commentRepository.save(comment).subscribe();
+        commentUpdateSink.tryEmitNext(comment);
 
         return Mono.empty();
     }
 
-    public Flux<CommentsResponseDto> findByResumeId(Long resumeId) {
-        return commentRepository.findByResumeId(resumeId)
+    public Flux<ServerSentEvent<CommentsResponseDto>> findByResumeId(Long resumeId) {
+        Flux<CommentsResponseDto> existComment = commentRepository.findByResumeId(resumeId)
                 .map(CommentsResponseDto::create);
+
+        Flux<ServerSentEvent<CommentsResponseDto>> updatedComment = commentUpdateSink.asFlux()
+                .map(comment -> ServerSentEvent.builder(CommentsResponseDto.create(comment)).build());
+
+        // 두 Flux를 merge하여 하나의 SSE 스트림으로 합침
+        return Flux.merge(existComment, updatedComment)
+                .map(comment -> ServerSentEvent.<CommentsResponseDto>builder().data((CommentsResponseDto) comment).build())
+                .delayElements(Duration.ofSeconds(1));
     }
+
     /**
      * 댓글 삭제 메서드
      * 댓글이 없거나 delteYn컬럼이 Y인경우 예외처리
