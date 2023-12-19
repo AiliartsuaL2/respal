@@ -51,21 +51,15 @@ public class CommentService {
     }
 
     public Flux<ServerSentEvent<CommentsResponseDto>> findByResumeId(Long resumeId) {
-        Flux<CommentsResponseDto> existComment = commentRepository.findAllCommentsByResumeId(resumeId)
-                .map(comment -> CommentsResponseDto.create(comment));
+        Flux<ServerSentEvent<CommentsResponseDto>> existComment = commentRepository.findAllCommentsByResumeId(resumeId)
+                .map(comment -> ServerSentEvent.builder(CommentsResponseDto.create(comment)).build());
 
         Flux<ServerSentEvent<CommentsResponseDto>> updatedComment = commentUpdateSink.asFlux()
-                .map(comment -> ServerSentEvent.builder(comment).build())
-                .doOnCancel(() -> commentUpdateSink.asFlux().blockLast());
+                .map(comment -> ServerSentEvent.builder(comment).build());
 
         // 두 Flux를 merge하여 하나의 SSE 스트림으로 합침
         return Flux.merge(existComment, updatedComment)
-                .map(comment -> ServerSentEvent.<CommentsResponseDto>builder().data((CommentsResponseDto) comment).build());
-    }
-
-    public Flux<CommentsResponseDto> findCommentsByResumeId(Long resumeId) {
-        return commentRepository.findAllCommentsByResumeId(resumeId)
-                .map(comment -> CommentsResponseDto.create(comment));
+                .doOnCancel(() -> commentUpdateSink.asFlux().blockLast());
     }
 
     /**
