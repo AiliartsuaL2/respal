@@ -2,8 +2,6 @@ package com.hckst.respal.resume.application;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.hckst.respal.comment.domain.repository.CommentRepository;
-import com.hckst.respal.comment.presentation.dto.response.CommentsResponseDto;
 import com.hckst.respal.converter.ResumeType;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
@@ -18,7 +16,6 @@ import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto
 import com.hckst.respal.resume.presentation.dto.response.ResumeListResponseDto;
 import com.hckst.respal.resume.presentation.dto.response.CreateResumeFileResponseDto;
 import com.hckst.respal.tag.application.TagService;
-import com.hckst.respal.tag.presentation.dto.request.AddTagRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,8 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,22 +31,16 @@ import java.util.List;
 public class ResumeService {
     private static final String BUCKET_NAME = "respal-resume";
     private final ResumeRepository resumeRepository;
-    private final CommentRepository commentRepository;
     private final ResumeFileRepository resumeFileRepository;
     private final AmazonS3Client amazonS3Client;
     private final TagService tagService;
 
-    /**
-     * 이력서 추가 메서드
-     * 회원 존재하지 않을시 401 떨어지므로 예외처리하지 않음
-     */
     @Transactional
     public ResumeDetailResponseDto createResume(CreateResumeRequestDto createResumeRequestDto, Members members){
         ResumeFile resumeFile = resumeFileRepository.findById(createResumeRequestDto.getResumeFileId()).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_FILE_ID_EXCEPTION));
 
-        ResumeType resumeType = ResumeType.findByValue(
-                createResumeRequestDto.getResumeType());
+        ResumeType resumeType = ResumeType.findByValue(createResumeRequestDto.getResumeType());
 
         Resume resume = Resume.create(createResumeRequestDto, resumeFile, members, resumeType);
         resumeRepository.save(resume);
@@ -60,7 +49,6 @@ public class ResumeService {
 
         ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
                 .resume(resume)
-                .commentList(new ArrayList<>())
                 .build();
         return resumeDetailResponseDto;
     }
@@ -73,21 +61,14 @@ public class ResumeService {
     public ResumeDetailResponseDto getResumeDetailByResumeId(Long resumeId){
         // resume entity 가져오기
         Resume resume = resumeRepository.findResumeJoinWithMembersById(resumeId).orElseThrow(
-                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID_EXCEPTION));
-        /**
-         * Resume entity 가져오기
-         * 조회수 증가, 댓글 가져와서 Comment DTO로 변환
-         * Resume DTO로 변환하여 반환
-         */
-        // 댓글
-        List<CommentsResponseDto> comments = commentRepository.findCommentsDtoByResume(resume).orElse(new ArrayList<>());
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION));
+
         // 조회수 증가
         resume.viewsCountUp();
 
         // DTO 변환
         ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
                 .resume(resume)
-                .commentList(comments)
                 .build();
         return resumeDetailResponseDto;
     }
@@ -152,18 +133,11 @@ public class ResumeService {
 
     @Transactional
     public void removeResume(long resumeId, Members members) {
-        if(members == null){
-            throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_DELETE_EXCEPTION);
-        }
         Resume resume = resumeRepository.findResumeJoinWithMembersById(resumeId).orElseThrow(
-                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID_EXCEPTION));
-        if(!members.equals(resume.getMembers())){
-            throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_DELETE_EXCEPTION);
-        }
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION));
 
-        // 삭제처리 (soft delete)
-        resume.deleteResume();
-        // 파일도 삭제, 이력서는 반드시 파일을 가지고 있어야 하기 때문에
+        resume.deleteResume(members);
+
         removeResumeFile(resume.getResumeFile().getId());
     }
 }

@@ -9,6 +9,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ResumeRepository extends JpaRepository<Resume, Long> , ResumeRepositoryCustom {
-    final TFCode deleteStatus = TFCode.FALSE;
-    Optional<Resume> findResumeByIdAndDeleteYn(long id,TFCode deleteYn);
+    Optional<Resume> findByIdAndDeleteYn(Long id, TFCode deleteYn);
 }

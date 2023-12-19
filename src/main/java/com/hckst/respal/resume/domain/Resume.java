@@ -5,6 +5,8 @@ import com.hckst.respal.converter.ResumeType;
 import com.hckst.respal.converter.ResumeTypeConverter;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.resume.presentation.dto.request.CreateResumeRequestDto;
 import com.hckst.respal.tag.domain.Tag;
@@ -131,20 +133,33 @@ public class Resume {
     }
 
     public void updateResume(String title, String content, ResumeFile resumeFile){
-        this.title = title;
-        this.content = content;
-        this.resumeFile = resumeFile;
+        this.title = Objects.requireNonNullElse(title, this.title);
+        this.content = Objects.requireNonNullElse(content, this.content);
+        this.resumeFile = Objects.requireNonNullElse(resumeFile, this.resumeFile);
         this.modifyYn = TFCode.TRUE;
         this.modifyTime = LocalDateTime.now();
     }
-    public void deleteResume(){
+
+    public void deleteResume(Members members){
+        validateForDelete(members);
         this.deleteYn = TFCode.TRUE;
         this.deleteTime = LocalDateTime.now();
     }
+
+    private void validateForDelete(Members members) {
+        if(TFCode.TRUE.equals(this.deleteYn)) {
+            throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION);
+        }
+        if(members == null || !members.equals(this.getMembers())){
+            throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_DELETE_EXCEPTION);
+        }
+    }
+
     // 조회수 증가
     public void viewsCountUp(){
         this.views++;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -159,5 +174,4 @@ public class Resume {
     public int hashCode() {
         return Objects.hash(id);
     }
-
 }

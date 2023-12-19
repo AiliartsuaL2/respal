@@ -47,6 +47,7 @@ public class ResumeController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
     @Operation(summary = "허브 조회 API", description = "허브 (공개 이력서 리스트)를 조회하는 API입니다. 정렬조건, 검색 조건을 통해서 조회 할 수 있습니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "HubList를 반환합니다.", useReturnTypeSchema = true)
@@ -72,6 +73,7 @@ public class ResumeController {
 
         return ResponseEntity.ok(response);
     }
+
     @Operation(summary = "Tagged 조회 API", description = "Tagged (태그된 이력서 리스트)를 조회하는 API입니다. 로그인을 해야 조회 할 수 있습니다.정렬조건, 검색 조건을 통해서 조회 할 수 있습니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "TaggedList를 반환합니다. ", useReturnTypeSchema = true),
@@ -98,6 +100,7 @@ public class ResumeController {
                 .build();
         return ResponseEntity.ok(response);
     }
+
     @Operation(summary = "이력서 생성 API", description = "이력서를 생성하는 API 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "이력서 생성에 성공하였습니다. ", useReturnTypeSchema = true),
@@ -128,6 +131,7 @@ public class ResumeController {
                 .build();
         return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
+
     @Operation(summary = "이력서 파일 저장 API", description = "이력서 파일을 저장하는 API 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "이력서의 파일 저장에 성공하는경우 응답입니다. ", useReturnTypeSchema = true),
@@ -142,6 +146,7 @@ public class ResumeController {
                 .build();
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
     @Operation(summary = "이력서 파일 삭제 API", description = "이력서 파일을 삭제하는 API 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "이력서의 파일 삭제에 성공하는경우 응답입니다. "),
@@ -157,6 +162,4 @@ public class ResumeController {
                 .build();
         return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
-
-
 }

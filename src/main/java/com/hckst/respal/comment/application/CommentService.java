@@ -36,10 +36,10 @@ public class CommentService {
     @Transactional
     public void createComment(CreateCommentRequestDto requestDto, long membersId, long resumeId){
         Resume resume = resumeRepository.findById(resumeId).orElseThrow(
-                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID_EXCEPTION));
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION));
         // delete_yn 컬럼이 Y인경우
         if(TFCode.TRUE.equals(resume.getDeleteYn())){
-            throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID_EXCEPTION);
+            throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION);
         }
         Members members = membersRepository.findMembersAndCommentById(membersId).get();
 
