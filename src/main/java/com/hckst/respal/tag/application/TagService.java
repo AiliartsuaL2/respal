@@ -37,7 +37,7 @@ public class TagService {
     @Transactional
     public void addTags(Members members, Long resumeId, List<Long> tagIdList){
         Resume resume = resumeRepository.findById(resumeId).orElseThrow(
-                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID_EXCEPTION));
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION));
 
         validationForAdd(resume.getResumeType(), members, resume.getMembers());
 
