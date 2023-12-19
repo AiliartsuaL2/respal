@@ -39,6 +39,7 @@ public class MembersService {
     private static final String JOIN_MAIL_TITLE = "[Respal] 비밀번호 재설정 링크입니다.";
     private static final String MAIL_MESSAGE = "변경된 임시 비밀번호는 아래와 같습니다. \n";
 
+    @Transactional
     public MembersLoginResponseDto loginMembers(MembersLoginRequestDto membersLoginRequestDto) {
         Members members = findCommonMemberByEmail(membersLoginRequestDto.getEmail());
         members.checkPassword(membersLoginRequestDto.getPassword());
