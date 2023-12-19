@@ -35,7 +35,7 @@ public class CommentController {
     public Mono<ResponseEntity<ApiCommonResponse<CommentsResponseDto>>> create(@RequestBody CreateCommentRequestDto createCommentRequestDto,
                                                                          @AuthenticationPrincipal Members members,
                                                                          @PathVariable Long resumeId) {
-        return commentService.createComment(createCommentRequestDto, members.getId(),resumeId)
+        return commentService.createComment(createCommentRequestDto, members, resumeId)
                         .map(dto -> ResponseEntity
                                 .ok()
                                 .body(ApiCommonResponse.<CommentsResponseDto>builder()

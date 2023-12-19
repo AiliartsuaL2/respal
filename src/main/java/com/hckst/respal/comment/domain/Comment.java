@@ -2,6 +2,8 @@ package com.hckst.respal.comment.domain;
 
 import com.hckst.respal.comment.presentation.dto.request.CreateCommentRequestDto;
 import com.hckst.respal.converter.TFCode;
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.resume.domain.Resume;
 import java.time.ZonedDateTime;
@@ -46,8 +48,8 @@ public class Comment {
     @Transient
     private Members members;
 
-    @Builder
     public Comment(CreateCommentRequestDto dto, Resume resume, Members members) {
+        validationForCreate(dto, resume, members);
         this.content = dto.getContent();
         this.xLocation = dto.getLocationX();
         this.yLocation = dto.getLocationY();
@@ -57,6 +59,18 @@ public class Comment {
         this.regTime = LocalDateTime.now();
         this.resumeId = resume.getId();
         this.membersId = members.getId();
+    }
+
+    private void validationForCreate(CreateCommentRequestDto dto, Resume resume, Members members) {
+        if(dto == null || dto.getContent() == null) {
+            throw new ApplicationException(ErrorMessage.ILLEGAL_COMMENT_ARGUMENT_EXCEPTION);
+        }
+        if(resume == null) {
+            throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION);
+        }
+        if(members == null) {
+            throw new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION);
+        }
     }
 
     public static Comment convertByQuery(Long id, String content, int xLocation, int yLocation, Members members, String deleteYn, ZonedDateTime regTime) {
@@ -73,8 +87,15 @@ public class Comment {
     }
 
     public void delete(){
+        validateForDelete();
         this.deleteYn = TFCode.TRUE.getValue();
         this.deleteTime = LocalDateTime.now();
+    }
+
+    private void validateForDelete() {
+        if(TFCode.TRUE.equals(this.deleteYn)) {
+            throw new ApplicationException(ErrorMessage.NOT_EXIST_COMMENT_EXCEPTION);
+        }
     }
 
     @Override

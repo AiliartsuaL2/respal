@@ -26,24 +26,13 @@ import reactor.core.publisher.Sinks;
 public class CommentService {
     private final CommentRepository commentRepository;
     private final ResumeRepository resumeRepository;
-    private final MembersRepository membersRepository;
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
     private final Sinks.Many<CommentsResponseDto> commentUpdateSink = Sinks.many().multicast().onBackpressureBuffer();
 
-    public Mono<CommentsResponseDto> createComment(CreateCommentRequestDto requestDto, long membersId, long resumeId){
-        Resume resume = resumeRepository.findById(resumeId).orElseThrow(
-                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID_EXCEPTION));
-        // delete_yn 컬럼이 Y인경우
-        if(TFCode.TRUE.equals(resume.getDeleteYn())){
-            throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_ID_EXCEPTION);
-        }
-        Members members = membersRepository.findById(membersId).get();
-
-        Comment comment = Comment.builder()
-                .dto(requestDto)
-                .members(members)
-                .resume(resume)
-                .build();
+    public Mono<CommentsResponseDto> createComment(CreateCommentRequestDto requestDto, Members members, long resumeId){
+        Resume resume = resumeRepository.findByIdAndDeleteYn(resumeId, TFCode.FALSE).orElseThrow(
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION));
+        Comment comment = new Comment(requestDto, resume, members);
 
         return commentRepository.save(comment)
                 .map(CommentsResponseDto::create)
