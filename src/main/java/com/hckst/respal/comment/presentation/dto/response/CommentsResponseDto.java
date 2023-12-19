@@ -20,7 +20,6 @@ public class CommentsResponseDto {
     private String membersNickname;
     private String regTime;
 
-    @QueryProjection
     @Builder
     public CommentsResponseDto(Long id, String content, int xLocation, int yLocation, Long membersId, String membersPicture, String membersNickname, LocalDateTime regTime) {
         this.id = id;
@@ -39,9 +38,9 @@ public class CommentsResponseDto {
         commentsResponseDto.content = comment.getContent();
         commentsResponseDto.xLocation = comment.getXLocation();
         commentsResponseDto.yLocation = comment.getYLocation();
-//        this.membersId = membersId;
-//        this.membersPicture = membersPicture;
-//        this.membersNickname = membersNickname;
+        commentsResponseDto.membersId = comment.getMembersId();
+        commentsResponseDto.membersPicture = comment.getMembers().getPicture();
+        commentsResponseDto.membersNickname = comment.getMembers().getNickname();
         commentsResponseDto.regTime = comment.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         return commentsResponseDto;
     }

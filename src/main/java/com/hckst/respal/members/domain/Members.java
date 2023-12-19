@@ -87,7 +87,8 @@ public class Members implements UserDetails {
     private List<Oauth> oauthList;
 
     @Builder
-    public Members(String password, String nickname, String email, String picture, RoleType roleType){
+    public Members(Long id,String password, String nickname, String email, String picture, RoleType roleType){
+        this.id = id;
         this.password = encryptPassword(password);
         this.picture = checkPicture(picture);
         this.nickname = nickname;
@@ -99,6 +100,15 @@ public class Members implements UserDetails {
         this.commentList = new ArrayList<>();
         this.resumeList = new ArrayList<>();
         this.taggedList = new ArrayList<>();
+    }
+
+    public static Members convertByQuery(Long id, String nickname, String email, String picture) {
+        Members members = new Members();
+        members.id = id;
+        members.nickname = nickname;
+        members.email = email;
+        members.picture = picture;
+        return members;
     }
 
     private String checkPicture(String picture) {
