@@ -28,8 +28,8 @@ class CommentServiceTest {
     void createComment() {
         //given
         CreateCommentRequestDto comment = CreateCommentRequestDto.builder()
-                .xLocation(340)
-                .yLocation(123)
+                .locationX(340)
+                .locationY(123)
                 .content("댓글 테스트1")
                 .build();
         long existMembersId = 2L;

@@ -49,8 +49,8 @@ public class Comment {
     @Builder
     public Comment(CreateCommentRequestDto dto, Resume resume, Members members) {
         this.content = dto.getContent();
-        this.xLocation = dto.getX();
-        this.yLocation = dto.getY();
+        this.xLocation = dto.getLocationX();
+        this.yLocation = dto.getLocationY();
         this.resume = resume;
         this.members = members;
         this.deleteYn = TFCode.FALSE.getValue();

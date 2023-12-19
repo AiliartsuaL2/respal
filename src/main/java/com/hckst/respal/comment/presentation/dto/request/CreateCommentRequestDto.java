@@ -5,12 +5,12 @@ import com.hckst.respal.resume.domain.Resume;
 import lombok.*;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
 @Builder
 public class CreateCommentRequestDto {
     private String content;
-    private int x;
-    private int y;
+    private int locationX;
+    private int locationY;
 }
