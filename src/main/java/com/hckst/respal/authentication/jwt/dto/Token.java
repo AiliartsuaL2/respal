@@ -34,7 +34,7 @@ public class Token {
 
     @Override
     public String toString() {
-        return "Token{" +
+        return "{" +
                 "grantType='" + grantType + '\'' +
                 ", accessToken='" + accessToken + '\'' +
                 ", refreshToken='" + refreshToken + '\'' +
