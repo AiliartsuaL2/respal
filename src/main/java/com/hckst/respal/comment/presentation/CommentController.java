@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,5 +48,16 @@ public class CommentController {
     @GetMapping("/{resumeId}")
     public Flux<ServerSentEvent<CommentsResponseDto>> findCommentByResumeId(@PathVariable Long resumeId) {
         return commentService.findByResumeId(resumeId);
+    }
+
+    @DeleteMapping("/{resumeId}")
+    public Mono<ResponseEntity<ApiCommonResponse<CommentsResponseDto>>> create(@AuthenticationPrincipal Members members, @PathVariable Long resumeId) {
+        return commentService.deleteComment(resumeId, members)
+                .map(dto -> ResponseEntity
+                        .ok()
+                        .body(ApiCommonResponse.<CommentsResponseDto>builder()
+                                .statusCode(200)
+                                .result(dto)
+                                .build()));
     }
 }

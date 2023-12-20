@@ -73,12 +73,13 @@ public class Comment {
         }
     }
 
-    public static Comment convertByQuery(Long id, String content, int xLocation, int yLocation, Members members, String deleteYn, ZonedDateTime regTime) {
+    public static Comment convertByQuery(Long id, String content, int xLocation, int yLocation, Resume resume, Members members, String deleteYn, ZonedDateTime regTime) {
         Comment comment = new Comment();
         comment.id = id;
         comment.content = content;
         comment.xLocation = xLocation;
         comment.yLocation = yLocation;
+        comment.resume = resume;
         comment.members = members;
         comment.deleteYn = deleteYn;
         comment.regTime = regTime.toLocalDateTime();
@@ -86,15 +87,20 @@ public class Comment {
         return comment;
     }
 
-    public void delete(){
-        validateForDelete();
+    public void delete(Members members){
+        validateForDelete(members);
         this.deleteYn = TFCode.TRUE.getValue();
         this.deleteTime = LocalDateTime.now();
     }
 
-    private void validateForDelete() {
+    private void validateForDelete(Members members) {
         if(TFCode.TRUE.equals(this.deleteYn)) {
             throw new ApplicationException(ErrorMessage.NOT_EXIST_COMMENT_EXCEPTION);
+        }
+        // 삭제하려는 주체가 해당 댓글의 주인이 아니거나, 이력서의 주인이 아닌경우 Exception
+        if(members.getId().longValue() != this.membersId.longValue()
+                || members.getId().longValue() != this.resume.getMembers().getId().longValue()) {
+            throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_DELETE_EXCEPTION);
         }
     }
 

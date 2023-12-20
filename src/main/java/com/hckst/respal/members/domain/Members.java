@@ -102,6 +102,12 @@ public class Members implements UserDetails {
         this.taggedList = new ArrayList<>();
     }
 
+    public static Members createProxy(Long id) {
+        Members members = new Members();
+        members.id = id;
+        return members;
+    }
+
     public static Members convertByQuery(Long id, String nickname, String email, String picture) {
         Members members = new Members();
         members.id = id;

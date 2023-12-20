@@ -41,10 +41,10 @@ public class CommentService {
 
     public Flux<ServerSentEvent<CommentsResponseDto>> findByResumeId(Long resumeId) {
         Flux<ServerSentEvent<CommentsResponseDto>> existComment = commentRepository.findAllCommentsByResumeId(resumeId)
-                .map(comment -> ServerSentEvent.builder(CommentsResponseDto.create(comment)).build());
+                .map(comment -> ServerSentEvent.builder(CommentsResponseDto.convert(comment)).build());
 
         Flux<ServerSentEvent<CommentsResponseDto>> updatedComment = commentUpdateSink.asFlux()
-                .map(comment -> ServerSentEvent.builder(comment).build());
+                .map(commentDto -> ServerSentEvent.builder(commentDto).build());
 
         // 두 Flux를 merge하여 하나의 SSE 스트림으로 합침
         return Flux.merge(existComment, updatedComment)
@@ -55,18 +55,20 @@ public class CommentService {
      * 댓글 삭제 메서드
      * 댓글이 없거나 delteYn컬럼이 Y인경우 예외처리
      * 회원이 댓글의 작성자이거나 이력서 작성자여야함
+     * Mono 반환
      */
-//    @Transactional
-//    public void deleteComment(Long commentId, Members members){
-//        // 댓글이 존재하지 않는경우
-//        Mono<Comment> comment = commentRepository.findById(commentId);
-//        if(TFCode.TRUE.equals(comment.getDeleteYn())){
-//            throw new ApplicationException(ErrorMessage.NOT_EXIST_COMMENT_EXCEPTION);
-//        }
-//        // 삭제 권한이 없는경우
-//        if(!(members.equals(comment.getMembers()) || members.equals(comment.getResume().getMembers()))){
-//            throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_DELETE_EXCEPTION);
-//        }
-//        comment.delete();
-//    }
+    public Mono<CommentsResponseDto> deleteComment(Long commentId, Members members){
+
+//        Comment foundComment = commentRepository.findById(commentId).block();
+//        foundComment.delete(members);
+//        return commentRepository.save(foundComment)
+//                .map(CommentsResponseDto::delete)
+//                .doOnNext(commentUpdateSink::tryEmitNext);
+        return commentRepository.findCommentWithResumeById(commentId)
+                .flatMap(comment -> {
+                    comment.delete(members);
+                    return commentRepository.save(comment);
+                }).map(CommentsResponseDto::delete)
+                .doOnNext(commentUpdateSink::tryEmitNext);
+    }
 }

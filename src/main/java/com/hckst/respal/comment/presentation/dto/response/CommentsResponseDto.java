@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 @NoArgsConstructor
 public class CommentsResponseDto {
     private Long id;
+    private CommentType commentType;
     private String content;
     private int xLocation;
     private int yLocation;
@@ -19,6 +20,15 @@ public class CommentsResponseDto {
     private String membersPicture;
     private String membersNickname;
     private String regTime;
+
+    @AllArgsConstructor
+    @Getter
+    private enum CommentType {
+        ADDED("added"),
+        EXISTS("exists"),
+        DELETED("deleted");
+        private final String name;
+    }
 
     @Builder
     public CommentsResponseDto(Long id, String content, int xLocation, int yLocation, Long membersId, String membersPicture, String membersNickname, LocalDateTime regTime) {
@@ -31,8 +41,7 @@ public class CommentsResponseDto {
         this.membersNickname = membersNickname;
         this.regTime = regTime != null ? regTime.format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
     }
-
-    public static CommentsResponseDto create(Comment comment) {
+    private static CommentsResponseDto of(Comment comment) {
         CommentsResponseDto commentsResponseDto = new CommentsResponseDto();
         commentsResponseDto.id = comment.getId();
         commentsResponseDto.content = comment.getContent();
@@ -42,6 +51,24 @@ public class CommentsResponseDto {
         commentsResponseDto.membersPicture = comment.getMembers().getPicture();
         commentsResponseDto.membersNickname = comment.getMembers().getNickname();
         commentsResponseDto.regTime = comment.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        return commentsResponseDto;
+    }
+
+    public static CommentsResponseDto create(Comment comment) {
+        CommentsResponseDto commentsResponseDto = of(comment);
+        commentsResponseDto.commentType = CommentType.ADDED;
+        return commentsResponseDto;
+    }
+
+    public static CommentsResponseDto convert(Comment comment) {
+        CommentsResponseDto commentsResponseDto = of(comment);
+        commentsResponseDto.commentType = CommentType.EXISTS;
+        return commentsResponseDto;
+    }
+
+    public static CommentsResponseDto delete(Comment comment) {
+        CommentsResponseDto commentsResponseDto = of(comment);
+        commentsResponseDto.commentType = CommentType.DELETED;
         return commentsResponseDto;
     }
 }

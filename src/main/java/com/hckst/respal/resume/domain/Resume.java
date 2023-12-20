@@ -123,6 +123,14 @@ public class Resume {
                 .build();
     }
 
+    public static Resume convertByQuery(Long resumeId, Long resumeMembersId, String deleteYn) {
+        Resume resume = new Resume();
+        resume.id = resumeId;
+        resume.members = Members.createProxy(resumeMembersId);
+        resume.deleteYn = TFCode.findByValue(deleteYn);
+        return resume;
+    }
+
     public void updateResume(String title, String content, ResumeFile resumeFile){
         this.title = title;
         this.content = content;
