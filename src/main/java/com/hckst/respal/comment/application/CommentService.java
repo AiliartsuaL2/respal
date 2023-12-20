@@ -12,6 +12,8 @@ import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.resume.domain.Resume;
 import com.hckst.respal.resume.domain.repository.ResumeRepository;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.ServerSentEvent;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
+import reactor.core.publisher.Sinks.Many;
 
 @Service
 @RequiredArgsConstructor
@@ -27,9 +30,14 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final ResumeRepository resumeRepository;
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
-    private final Sinks.Many<CommentsResponseDto> commentUpdateSink = Sinks.many().multicast().onBackpressureBuffer();
+    private final Map<Long, Many<CommentsResponseDto>> commentUpdateSinks = new HashMap<>();
+
+    private Sinks.Many<CommentsResponseDto> getOrCreateSink(Long resumeId) {
+        return commentUpdateSinks.computeIfAbsent(resumeId, key -> Sinks.many().multicast().onBackpressureBuffer());
+    }
 
     public Mono<CommentsResponseDto> createComment(CreateCommentRequestDto requestDto, Members members, long resumeId){
+        Many<CommentsResponseDto> commentUpdateSink = getOrCreateSink(resumeId);
         Resume resume = resumeRepository.findByIdAndDeleteYn(resumeId, TFCode.FALSE).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION));
         Comment comment = new Comment(requestDto, resume, members);
@@ -40,6 +48,7 @@ public class CommentService {
     }
 
     public Flux<ServerSentEvent<CommentsResponseDto>> findByResumeId(Long resumeId) {
+        Many<CommentsResponseDto> commentUpdateSink = getOrCreateSink(resumeId);
         Flux<ServerSentEvent<CommentsResponseDto>> existComment = commentRepository.findAllCommentsByResumeId(resumeId)
                 .map(comment -> ServerSentEvent.builder(CommentsResponseDto.convert(comment)).build());
 
@@ -58,17 +67,14 @@ public class CommentService {
      * Mono 반환
      */
     public Mono<CommentsResponseDto> deleteComment(Long commentId, Members members){
-
-//        Comment foundComment = commentRepository.findById(commentId).block();
-//        foundComment.delete(members);
-//        return commentRepository.save(foundComment)
-//                .map(CommentsResponseDto::delete)
-//                .doOnNext(commentUpdateSink::tryEmitNext);
         return commentRepository.findCommentWithResumeById(commentId)
                 .flatMap(comment -> {
                     comment.delete(members);
                     return commentRepository.save(comment);
                 }).map(CommentsResponseDto::delete)
-                .doOnNext(commentUpdateSink::tryEmitNext);
+                .doOnNext(comment -> {
+                    getOrCreateSink(comment.getResumeId())
+                            .tryEmitNext(comment);
+                });
     }
 }
