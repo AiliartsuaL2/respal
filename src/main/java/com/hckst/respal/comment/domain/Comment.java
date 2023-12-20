@@ -83,6 +83,7 @@ public class Comment {
         comment.members = members;
         comment.deleteYn = deleteYn;
         comment.regTime = regTime.toLocalDateTime();
+        comment.resumeId = resume.getId();
         comment.membersId = members.getId();
         return comment;
     }

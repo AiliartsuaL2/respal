@@ -48,6 +48,11 @@ public class CommentService {
     }
 
     public Flux<ServerSentEvent<CommentsResponseDto>> findByResumeId(Long resumeId) {
+        if(resumeRepository.findById(resumeId).isEmpty()) {
+            log.error(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION.getMsg());
+            return Flux.error(new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION));
+        }
+
         Many<CommentsResponseDto> commentUpdateSink = getOrCreateSink(resumeId);
         Flux<ServerSentEvent<CommentsResponseDto>> existComment = commentRepository.findAllCommentsByResumeId(resumeId)
                 .map(comment -> ServerSentEvent.builder(CommentsResponseDto.convert(comment)).build());
