@@ -125,6 +125,8 @@ public class OAuthServiceImpl {
             return token.get();
         }
 
+        log.info("image : " + oauthTmp.getUserInfo().getImage());
+
         // 신규 유저인 경우 데이터 저장
         oauthTmpRepository.save(oauthTmp);
 
