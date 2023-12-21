@@ -1,6 +1,7 @@
 package com.hckst.respal.authentication.oauth.presentation.dto.request.info;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import javax.persistence.Column;
 import lombok.*;
 
 import javax.persistence.Embeddable;
@@ -18,6 +19,7 @@ public class UserInfo {
     @Schema(description = "oauth 이메일", nullable = false)
     private String email;
     @Schema(description = "oauth 사진", nullable = true)
+    @Column(length = 500)
     private String image;
     @Schema(description = "oauth 닉네임", nullable = true)
     private String nickname;

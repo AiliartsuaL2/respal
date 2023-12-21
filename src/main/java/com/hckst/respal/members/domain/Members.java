@@ -40,7 +40,7 @@ public class Members implements UserDetails {
     // 닉네임
     @Column(length = 20)
     private String nickname;
-    @Column(length = 100)
+    @Column(length = 500)
     private String picture;
 
 
