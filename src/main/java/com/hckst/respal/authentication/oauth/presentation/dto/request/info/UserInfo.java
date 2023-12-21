@@ -19,7 +19,7 @@ public class UserInfo {
     @Schema(description = "oauth 이메일", nullable = false)
     private String email;
     @Schema(description = "oauth 사진", nullable = true)
-    @Column(length = 500)
+    @Column(length = 2083)
     private String image;
     @Schema(description = "oauth 닉네임", nullable = true)
     private String nickname;
