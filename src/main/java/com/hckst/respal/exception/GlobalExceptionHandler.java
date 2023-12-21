@@ -32,9 +32,9 @@ public class GlobalExceptionHandler {
                 .body(ApiErrorResponse.builder()
                         .statusCode(statusCode)
                         .result(ApiErrorMessageAndCode.builder()
-                                        .errorCode(ex.getErrorCode())
-                                        .message(ex.getMessage())
-                                        .build())
+                                .errorCode(ex.getErrorCode())
+                                .message(ex.getMessage())
+                                .build())
                         .build());
     }
 

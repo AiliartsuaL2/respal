@@ -47,7 +47,6 @@ public interface CommentRepository extends R2dbcRepository<Comment,Long> {
                 + "ON c.members_id = m.id \n"
             + "INNER JOIN resume r \n"
                 + "ON c.resume_id = r.id \n"
-            + "where c.id = :commentId \n"
-            + "AND c.delete_yn = 'N'")
+            + "where c.id = :commentId")
     Mono<Comment> findCommentWithResumeById(Long commentId);
 }

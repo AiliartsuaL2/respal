@@ -95,7 +95,7 @@ public class Comment {
     }
 
     private void validateForDelete(Members members) {
-        if(TFCode.TRUE.equals(this.deleteYn)) {
+        if(TFCode.TRUE.getValue().equals(this.deleteYn)) {
             throw new ApplicationException(ErrorMessage.NOT_EXIST_COMMENT_EXCEPTION);
         }
         // 삭제하려는 주체가 해당 댓글의 주인이 아니거나, 이력서의 주인이 아닌경우 Exception
