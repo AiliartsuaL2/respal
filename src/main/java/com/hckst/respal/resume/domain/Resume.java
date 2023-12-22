@@ -152,12 +152,37 @@ public class Resume {
             throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION);
         }
         if(members == null || !members.equals(this.getMembers())){
-            throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_DELETE_EXCEPTION);
+            throw new ApplicationException(ErrorMessage.PERMISSION_DENIED_TO_DELETE_EXCEPTION);
         }
     }
 
+    public void view(Members members) {
+        viewsCountUp(members);
+        if(ResumeType.PUBLIC.equals(this.resumeType)) {
+            return;
+        }
+        if(!isTagged(members)) {
+            throw new ApplicationException(ErrorMessage.PERMISSION_DENIED_TO_VIEW_EXCEPTION);
+        }
+    }
+
+    private boolean isTagged(Members members) {
+        if(this.members.equals(members)) {
+            return true;
+        }
+        for (Tag tag : this.tagList) {
+            if(tag.getMembers().equals(members)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // 조회수 증가
-    public void viewsCountUp(){
+    private void viewsCountUp(Members members){
+        if(this.members.equals(members)) {
+            return;
+        }
         this.views++;
     }
 

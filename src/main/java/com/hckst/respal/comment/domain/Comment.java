@@ -102,7 +102,7 @@ public class Comment {
         if(members == null
                 || members.getId().longValue() != this.membersId.longValue()
                 || members.getId().longValue() != this.resume.getMembers().getId().longValue()) {
-            throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_DELETE_EXCEPTION);
+            throw new ApplicationException(ErrorMessage.PERMISSION_DENIED_TO_DELETE_EXCEPTION);
         }
     }
 

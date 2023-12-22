@@ -70,17 +70,12 @@ public class ResumeService {
      * 이력서 유무 , delete_yn 컬럼값 확인하여 예외처리
      */
     @Transactional
-    public ResumeDetailResponseDto getResumeDetailByResumeId(Long resumeId){
+    public ResumeDetailResponseDto getResumeDetailByResumeId(Long resumeId, Members members){
         // resume entity 가져오기
-        Resume resume = resumeRepository.findResumeJoinWithMembersById(resumeId).orElseThrow(
+        Resume resume = resumeRepository.findAllResumeById(resumeId).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION));
-        /**
-         * Resume entity 가져오기
-         * 조회수 증가, 댓글 가져와서 Comment DTO로 변환
-         * Resume DTO로 변환하여 반환
-         */
-        // 조회수 증가
-        resume.viewsCountUp();
+
+        resume.view(members);
 
         // DTO 변환
         ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
@@ -149,7 +144,7 @@ public class ResumeService {
 
     @Transactional
     public void removeResume(long resumeId, Members members) {
-        Resume resume = resumeRepository.findResumeJoinWithMembersById(resumeId).orElseThrow(
+        Resume resume = resumeRepository.findAllResumeById(resumeId).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION));
 
         resume.deleteResume(members);

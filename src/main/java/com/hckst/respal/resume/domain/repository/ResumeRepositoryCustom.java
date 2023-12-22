@@ -10,5 +10,5 @@ import java.util.Optional;
 
 public interface ResumeRepositoryCustom {
     ResumeListResponseDto findResumeListByConditions(ResumeListRequestDto requestDto);
-    Optional<Resume> findResumeJoinWithMembersById(long id);
+    Optional<Resume> findAllResumeById(long id);
 }

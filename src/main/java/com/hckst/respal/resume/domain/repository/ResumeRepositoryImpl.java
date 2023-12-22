@@ -84,11 +84,12 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
 
 
     @Override
-    public Optional<Resume> findResumeJoinWithMembersById(long id) {
+    public Optional<Resume> findAllResumeById(long id) {
         Resume result = queryFactory.select(resume)
                 .from(resume)
                 .innerJoin(resume.resumeFile, resumeFile).fetchJoin()
                 .innerJoin(resume.members, members).fetchJoin()
+                .leftJoin(resume.tagList, tag).fetchJoin()
                 .where(resumeIdCondition(id)
                         .and(resume.deleteYn.eq(TFCode.FALSE))
                         .and(resumeFile.deleteYn.eq(TFCode.FALSE))

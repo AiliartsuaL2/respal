@@ -32,15 +32,16 @@ import java.util.List;
 @Slf4j
 public class ResumeController {
     private final ResumeService resumeService;
-    @Operation(summary = "이력서 상세 조회 API", description = "이력서 상세 조회 API입니다. 조회하려는 이력서의 seq값을 path variable로 요청합니다.")
+    @Operation(summary = "이력서 상세 조회 API", description = "이력서 상세 조회 API입니다. 조회하려는 이력서의 seq값을 path로 요청합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이력서 상세", useReturnTypeSchema = true),
-            @ApiResponse(responseCode = "400", description = "seq에 해당하는 이력서가 존재하지 않음.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+            @ApiResponse(responseCode = "400", description = "seq에 해당하는 이력서가 존재하지 않음.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "해당 이력서의 열람 권한이 없음", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @GetMapping("/resume/{resumeId}")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> getResumeDetail(@PathVariable long resumeId){
-        ResumeDetailResponseDto resumeDetail = resumeService.getResumeDetailByResumeId(resumeId);
+    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> getResumeDetail(@PathVariable long resumeId, @AuthenticationPrincipal Members members){
+        ResumeDetailResponseDto resumeDetail = resumeService.getResumeDetailByResumeId(resumeId, members);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .result(resumeDetail)

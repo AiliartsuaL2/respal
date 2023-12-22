@@ -58,7 +58,7 @@ public class TagService {
         }
         // 멘션하려는이가 게시물의 주인이 아닌경우
         if(!taggingMember.equals(writer)){
-            throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_TAG_EXCEPTION);
+            throw new ApplicationException(ErrorMessage.PERMISSION_DENIED_TO_TAG_EXCEPTION);
         }
     }
 
@@ -70,7 +70,7 @@ public class TagService {
         // 삭제의 주체가 이력서의 주인이 아니거나, 멘션당한 사람이 아닌경우
         if(!(removeTagRequestDto.getMembers().equals(tag.getMembers())
                 || removeTagRequestDto.getMembers().equals(tag.getResume().getMembers()))){
-            throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_DELETE_EXCEPTION);
+            throw new ApplicationException(ErrorMessage.PERMISSION_DENIED_TO_DELETE_EXCEPTION);
         }
         tagRepository.delete(tag);
     }
