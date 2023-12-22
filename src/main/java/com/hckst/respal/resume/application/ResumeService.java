@@ -149,18 +149,11 @@ public class ResumeService {
 
     @Transactional
     public void removeResume(long resumeId, Members members) {
-        if(members == null){
-            throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_DELETE_EXCEPTION);
-        }
         Resume resume = resumeRepository.findResumeJoinWithMembersById(resumeId).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION));
-        if(!members.equals(resume.getMembers())){
-            throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_DELETE_EXCEPTION);
-        }
 
-        // 삭제처리 (soft delete)
-        resume.deleteResume();
-        // 파일도 삭제, 이력서는 반드시 파일을 가지고 있어야 하기 때문에
+        resume.deleteResume(members);
+
         removeResumeFile(resume.getResumeFile().getId());
     }
 }

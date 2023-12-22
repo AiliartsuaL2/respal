@@ -31,7 +31,6 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-
 public class GoogleOAuthService implements OAuthService {
     private final MembersRepository membersRepository;
     private final JwtTokenProvider jwtTokenProvider;

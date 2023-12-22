@@ -50,9 +50,6 @@ public class ResumeDetailResponseDto {
     // 이력서 리스트를 위한 댓글 개수
     private long commentCount;
 
-    // 이력서 상세를 위한 댓글 리스트
-    private List<CommentsResponseDto> commentList;
-
     @QueryProjection
     public ResumeDetailResponseDto(Long resumeId, String title, String content, int views, Long membersId, String membersNickname, String membersPicture, TFCode mainYn, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime) {
         this.resumeId = resumeId;
