@@ -99,7 +99,8 @@ public class Comment {
             throw new ApplicationException(ErrorMessage.NOT_EXIST_COMMENT_EXCEPTION);
         }
         // 삭제하려는 주체가 해당 댓글의 주인이 아니거나, 이력서의 주인이 아닌경우 Exception
-        if(members.getId().longValue() != this.membersId.longValue()
+        if(members == null
+                || members.getId().longValue() != this.membersId.longValue()
                 || members.getId().longValue() != this.resume.getMembers().getId().longValue()) {
             throw new ApplicationException(ErrorMessage.PERMITION_DENIED_TO_DELETE_EXCEPTION);
         }
