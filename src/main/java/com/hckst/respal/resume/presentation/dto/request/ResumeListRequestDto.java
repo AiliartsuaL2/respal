@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @Schema(description = "이력서 리스트 요청 DTO")
+@NoArgsConstructor
 public class ResumeListRequestDto {
     // 페이지 넘버
     @NotNull(message = "페이지 번호는 필수 입력값이에요.")
@@ -19,25 +20,11 @@ public class ResumeListRequestDto {
     private long limit;
     // 쿼리에 사용될 offset / (page-1) * limit
     private long offset;
-
-    // 필터( 직업)
-    private Integer jobId;
     // 정렬 조건
     private ResumeSort sort;
-
     private ResumeType resumeType;
     // 조회하는 회원, tagged 에서만 필요.
     private Members viewer;
-
-    public void setViewer(Members viewer){
-        this.viewer = viewer;
-    }
-
-    public void setResumeType(ResumeType resumeType) {
-        if(ResumeType.PUBLIC.equals(resumeType) || ResumeType.PRIVATE.equals(resumeType)) {
-            this.resumeType = resumeType;
-        }
-    }
     /**
      * 매핑 조건
      * sort (정렬 기준)
@@ -49,16 +36,32 @@ public class ResumeListRequestDto {
      *   - asc
      *   - desc
      */
-    @Builder
-    public ResumeListRequestDto(int page, long limit, Integer jobId, String sort, String direction) {
-        this.page = page == 0 ? 1 : page;
-        this.limit = limit == 0 ? 20 : limit;
-        this.jobId = jobId;
+    public static ResumeListRequestDto createHubCondition(int page, long limit, String sort) {
+        ResumeListRequestDto dto = new ResumeListRequestDto();
+        dto.page = page == 0 ? 1 : page;
+        dto.limit = limit == 0 ? 20 : limit;
         if("recent".equals(sort)){
-            this.sort = "asc".equals(direction) ? ResumeSort.RECENT_ASC : ResumeSort.RECENT_DESC;
+            dto.sort = ResumeSort.RECENT_DESC;
         }else if("views".equals(sort)){
-            this.sort = "asc".equals(direction) ? ResumeSort.VIEWS_ASC : ResumeSort.VIEWS_DESC;
+            dto.sort = ResumeSort.VIEWS_DESC;
         }
-        this.offset = (page-1)*limit;
+        dto.offset = (page-1)*limit;
+        dto.resumeType = ResumeType.PUBLIC;
+        return dto;
+    }
+
+    public static ResumeListRequestDto createTaggedCondition(int page, long limit, String sort, Members viewer) {
+        ResumeListRequestDto dto = new ResumeListRequestDto();
+        dto.page = page == 0 ? 1 : page;
+        dto.limit = limit == 0 ? 20 : limit;
+        if("recent".equals(sort)){
+            dto.sort = ResumeSort.RECENT_DESC;
+        }else if("views".equals(sort)){
+            dto.sort = ResumeSort.VIEWS_DESC;
+        }
+        dto.offset = (page-1)*limit;
+        dto.resumeType = ResumeType.PUBLIC;
+        dto.viewer = viewer;
+        return dto;
     }
 }

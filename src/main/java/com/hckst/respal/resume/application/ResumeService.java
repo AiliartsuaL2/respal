@@ -88,8 +88,7 @@ public class ResumeService {
      * 이력서 조회 메서드
      * Todo 조회하는 이력서 카테고리가 Hub인지 Mentioned인지 분기처리 로직 필요
      */
-    public ResumeListResponseDto getResumeList(ResumeListRequestDto requestDto,ResumeType resumeType) {
-        requestDto.setResumeType(resumeType);
+    public ResumeListResponseDto getResumeList(ResumeListRequestDto requestDto) {
         ResumeListResponseDto resumeList = resumeRepository.findResumeListByConditions(requestDto);
         return resumeList;
     }

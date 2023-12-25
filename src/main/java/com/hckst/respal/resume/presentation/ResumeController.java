@@ -57,16 +57,10 @@ public class ResumeController {
     public ResponseEntity<ApiCommonResponse<ResumeListResponseDto>> getHub(
             @RequestParam int page,
             @RequestParam int limit,
-            @RequestParam(required = false) Integer jobId,
             @RequestParam(required = false) String sort){
-        ResumeListRequestDto requestDto = ResumeListRequestDto.builder()
-                .page(page)
-                .limit(limit)
-                .jobId(jobId)
-                .sort(sort)
-                .build();
 
-        ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto, ResumeType.PUBLIC);
+        ResumeListRequestDto requestDto = ResumeListRequestDto.createHubCondition(page, limit, sort);
+        ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .result(resumeList)
@@ -84,17 +78,10 @@ public class ResumeController {
     public ResponseEntity<ApiCommonResponse<ResumeListResponseDto>> getTagged(
             @RequestParam int page,
             @RequestParam int limit,
-            @RequestParam(required = false) Integer jobId,
             @RequestParam(required = false) String sort,
             @AuthenticationPrincipal Members viewer){
-        ResumeListRequestDto requestDto = ResumeListRequestDto.builder()
-                .page(page)
-                .limit(limit)
-                .jobId(jobId)
-                .sort(sort)
-                .build();
-        requestDto.setViewer(viewer);
-        ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto, ResumeType.PRIVATE);
+        ResumeListRequestDto requestDto = ResumeListRequestDto.createTaggedCondition(page, limit, sort, viewer);
+        ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .result(resumeList)
