@@ -60,7 +60,7 @@ public class ResumeListRequestDto {
             dto.sort = ResumeSort.VIEWS_DESC;
         }
         dto.offset = (page-1)*limit;
-        dto.resumeType = ResumeType.PUBLIC;
+        dto.resumeType = ResumeType.PRIVATE;
         dto.viewer = viewer;
         return dto;
     }
