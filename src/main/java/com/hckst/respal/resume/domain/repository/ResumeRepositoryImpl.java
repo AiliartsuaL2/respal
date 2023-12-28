@@ -11,7 +11,9 @@ import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto
 import com.hckst.respal.resume.presentation.dto.response.ResumeListResponseDto;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
 
     /**
      * 이력서 조회 query
+     * 조회하는곳이 myPage인 경우, All Type의 resume 중 본인 이력서 List만 조회
      * 조회하는곳이 Hub인경우 public한 resume List만 조회
      * 조회하는곳이 Tagged인경우 private한 resume중, tagList에 조회하는 member가 있는 경우에만 조회
      */
@@ -54,11 +57,11 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                 .from(resume)
                 .innerJoin(resume.members, members)
                 .innerJoin(resume.resumeFile, resumeFile)
-                .leftJoin(resume.tagList, tag).on(addJoinConditionByResumeType(requestDto.getResumeType(),requestDto.getViewer()))
+                .leftJoin(resume.tagList, tag).on(addJoinTagCondition(requestDto.getResumeType(),requestDto.getViewer()))
                 .where(resume.deleteYn.eq(TFCode.FALSE)
-                        .and(resume.resumeType.eq(requestDto.getResumeType()))
                         .and(resumeFile.deleteYn.eq(TFCode.FALSE))
-                        .and(addWhereConditionByResumeType(requestDto.getResumeType())))
+                        .and(addResumeTypeCondition(requestDto.getResumeType()))
+                        .and(addMembersCondition(requestDto.getResumeType(), requestDto.getViewer())))
                 .groupBy(resume.id)
                 .limit(requestDto.getLimit())
                 .offset(requestDto.getOffset())
@@ -68,11 +71,11 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
         long count = queryFactory.select(resume.count())
                 .from(resume)
                 .innerJoin(resume.members, members)
-                .leftJoin(resume.tagList, tag).on(addJoinConditionByResumeType(requestDto.getResumeType(),requestDto.getViewer()))
+                .leftJoin(resume.tagList, tag).on(addJoinTagCondition(requestDto.getResumeType(),requestDto.getViewer()))
                 .where(resume.deleteYn.eq(TFCode.FALSE)
-                        .and(resume.resumeType.eq(requestDto.getResumeType()))
-                        .and(addWhereConditionByResumeType(requestDto.getResumeType()))
-                ).fetchOne();
+                        .and(addResumeTypeCondition(requestDto.getResumeType()))
+                        .and(addMembersCondition(requestDto.getResumeType(), requestDto.getViewer())))
+                .fetchOne();
 
         ResumeListResponseDto resumeList = ResumeListResponseDto.builder()
                 .resumeList(result)
@@ -80,6 +83,14 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                 .build();
 
         return resumeList;
+    }
+
+    private BooleanExpression addMembersCondition(ResumeType resumeType, Members viewer) {
+        // 이력서 타입이 ALL -> 본인이 생성한 이력서
+        if(ResumeType.ALL.equals(resumeType)) {
+            return members.eq(viewer);
+        }
+        return null;
     }
 
 
@@ -108,19 +119,25 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
         NumberExpression<?> sortCondition = resumeSort.getSortCondition();
         return new OrderSpecifier(direction, sortCondition);
     }
-    private BooleanExpression addJoinConditionByResumeType(ResumeType resumeType, Members viewer){
-        return ResumeType.PRIVATE.equals(resumeType) ? tag.members.eq(viewer) : tag.isNull();
+
+    private BooleanExpression addJoinTagCondition(ResumeType resumeType, Members viewer){
+        if(ResumeType.ALL.equals(resumeType)) {
+            return Expressions.asBoolean(true).isTrue();
+        }
+        if(ResumeType.PRIVATE.equals(resumeType)) {
+            return tag.members.eq(viewer);
+        }
+        return tag.isNull();
     }
-    private BooleanExpression addWhereConditionByResumeType(ResumeType resumeType){
-        return ResumeType.PRIVATE.equals(resumeType) ? tag.isNotNull() : null;
-    }
-    private BooleanExpression jobIdContains(Integer jobId) {
-        return jobId != null ? job.id.eq(jobId) : null;
+
+    private BooleanExpression addResumeTypeCondition(ResumeType resumeType) {
+        if(ResumeType.ALL.equals(resumeType)) {
+            return null;
+        }
+        return resume.resumeType.eq(resumeType);
     }
 
     private BooleanExpression resumeIdCondition(Long id) {
         return id != null ? resume.id.eq(id) : null;
     }
-
-
 }

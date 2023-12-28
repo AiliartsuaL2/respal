@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum ResumeType implements BaseEnumCode<String> {
     PUBLIC("public"),
     PRIVATE("private"),
-    NULL("");
+    ALL("");
 
     private final String value;
 
@@ -18,6 +18,6 @@ public enum ResumeType implements BaseEnumCode<String> {
                 return resumeType;
             }
         }
-        return NULL;
+        return ALL;
     }
 }
