@@ -50,15 +50,14 @@ public class ResumeController {
     }
     @Operation(summary = "이력서 조회 API", description = "이력서 조회 API 입니다. Paramter를 통해 type(my, tagged, hub), page, limit, 정렬 조건을 지정 할 수 있습니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "type에 맞는 이력서 반환합니다.", useReturnTypeSchema = true)
+            @ApiResponse(responseCode = "200", description = "type에 맞는 이력서 리스트를 반환합니다.", useReturnTypeSchema = true)
     })
     @GetMapping("/resume")
     public ResponseEntity<ApiCommonResponse<ResumeListResponseDto>> getResumes(
             @RequestParam String type,
-            @RequestParam int page,
-            @RequestParam int limit,
             @AuthenticationPrincipal Members viewer){
-        ResumeListRequestDto requestDto = ResumeListRequestDto.create(type, page, limit, viewer);
+        //todo 페이지네이션 개발단계 default(1,10) 처리 -> 12.28 협의
+        ResumeListRequestDto requestDto = ResumeListRequestDto.create(type, 1, 10, viewer);
         ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
