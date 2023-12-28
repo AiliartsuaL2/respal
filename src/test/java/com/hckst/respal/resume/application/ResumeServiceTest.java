@@ -6,7 +6,9 @@ import com.hckst.respal.members.domain.RoleType;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.resume.domain.repository.ResumeRepository;
 import com.hckst.respal.resume.presentation.dto.request.CreateResumeRequestDto;
+import com.hckst.respal.resume.presentation.dto.request.ResumeListRequestDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto;
+import com.hckst.respal.resume.presentation.dto.response.ResumeListResponseDto;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -104,5 +106,17 @@ class ResumeServiceTest {
         Assertions.assertThatThrownBy(() -> resumeService.getResumeDetailByResumeId(resume.getResumeId(), NOT_TAGGED_USER))
                 .isInstanceOf(ApplicationException.class)
                 .hasMessage("이력서 조회 권한이 없어요");
+    }
+    @Test
+    void 이력서_리스트_조회_테스트_본인_생성_이력서_정상_케이스() {
+        //given
+        Members members = membersRepository.findById(1L).get();
+        ResumeListRequestDto requestDto = ResumeListRequestDto.create("my", 1, 10, members);
+
+        //when
+        ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto);
+
+        //then
+        assertThat(resumeList.getResumeList().size()).isEqualTo(5);
     }
 }

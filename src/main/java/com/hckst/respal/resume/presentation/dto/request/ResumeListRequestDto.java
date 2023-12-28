@@ -36,31 +36,14 @@ public class ResumeListRequestDto {
      *   - asc
      *   - desc
      */
-    public static ResumeListRequestDto createHubCondition(int page, long limit, String sort) {
-        ResumeListRequestDto dto = new ResumeListRequestDto();
-        dto.page = page == 0 ? 1 : page;
-        dto.limit = limit == 0 ? 20 : limit;
-        if("recent".equals(sort)){
-            dto.sort = ResumeSort.RECENT_DESC;
-        }else if("views".equals(sort)){
-            dto.sort = ResumeSort.VIEWS_DESC;
-        }
-        dto.offset = (page-1)*limit;
-        dto.resumeType = ResumeType.PUBLIC;
-        return dto;
-    }
 
-    public static ResumeListRequestDto createTaggedCondition(int page, long limit, String sort, Members viewer) {
+    public static ResumeListRequestDto create(String type, int page, long limit, Members viewer) {
         ResumeListRequestDto dto = new ResumeListRequestDto();
         dto.page = page == 0 ? 1 : page;
         dto.limit = limit == 0 ? 20 : limit;
-        if("recent".equals(sort)){
-            dto.sort = ResumeSort.RECENT_DESC;
-        }else if("views".equals(sort)){
-            dto.sort = ResumeSort.VIEWS_DESC;
-        }
+        dto.sort = ResumeSort.RECENT_DESC;
         dto.offset = (page-1)*limit;
-        dto.resumeType = ResumeType.PRIVATE;
+        dto.resumeType = ResumeType.findByValue(type);
         dto.viewer = viewer;
         return dto;
     }

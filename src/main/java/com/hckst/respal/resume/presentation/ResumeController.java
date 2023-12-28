@@ -48,47 +48,25 @@ public class ResumeController {
                 .build();
         return ResponseEntity.ok(response);
     }
-
-    @Operation(summary = "허브 조회 API", description = "허브 (공개 이력서 리스트)를 조회하는 API입니다. 정렬조건, 검색 조건을 통해서 조회 할 수 있습니다.")
+    @Operation(summary = "이력서 조회 API", description = "이력서 조회 API 입니다. Paramter를 통해 type, page, limit, 정렬 조건을 지정 할 수 있습니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "HubList를 반환합니다.", useReturnTypeSchema = true)
     })
-    @GetMapping("/hub")
-    public ResponseEntity<ApiCommonResponse<ResumeListResponseDto>> getHub(
+    @GetMapping("/resume")
+    public ResponseEntity<ApiCommonResponse<ResumeListResponseDto>> getResumes(
+            @RequestParam String type,
             @RequestParam int page,
             @RequestParam int limit,
-            @RequestParam(required = false) String sort){
-
-        ResumeListRequestDto requestDto = ResumeListRequestDto.createHubCondition(page, limit, sort);
-        ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto);
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
-                .result(resumeList)
-                .build();
-
-        return ResponseEntity.ok(response);
-    }
-
-    @Operation(summary = "Tagged 조회 API", description = "Tagged (태그된 이력서 리스트)를 조회하는 API입니다. 로그인을 해야 조회 할 수 있습니다.정렬조건, 검색 조건을 통해서 조회 할 수 있습니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "TaggedList를 반환합니다. ", useReturnTypeSchema = true),
-            @ApiResponse(responseCode = "401", description = "로그인하지 않은경우 반환되는 에러입니다.",content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
-    })
-    @GetMapping("/tagged")
-    public ResponseEntity<ApiCommonResponse<ResumeListResponseDto>> getTagged(
-            @RequestParam int page,
-            @RequestParam int limit,
-            @RequestParam(required = false) String sort,
             @AuthenticationPrincipal Members viewer){
-        ResumeListRequestDto requestDto = ResumeListRequestDto.createTaggedCondition(page, limit, sort, viewer);
+        ResumeListRequestDto requestDto = ResumeListRequestDto.create(type, page, limit, viewer);
         ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
                 .result(resumeList)
                 .build();
+
         return ResponseEntity.ok(response);
     }
-
     @Operation(summary = "이력서 생성 API", description = "이력서를 생성하는 API 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "이력서 생성에 성공하였습니다. ", useReturnTypeSchema = true),
