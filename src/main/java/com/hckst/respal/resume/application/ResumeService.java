@@ -98,19 +98,27 @@ public class ResumeService {
      * 이력서 파일 생성 메서드
      */
     public CreateResumeFileResponseDto createResumeFile(MultipartFile multipartFile) {
+        log.info("디버그 포인트 1");
         String originalName = multipartFile.getOriginalFilename();
         ResumeFile resumeFile = ResumeFile.builder().originName(originalName).build();
         String filename = resumeFile.getStoredName();
+        log.info("디버그 포인트 2");
 
         try {
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentType(multipartFile.getContentType());
+            log.info("디버그 포인트 3");
+            log.info("contentLength : "+multipartFile.getInputStream().available());
             objectMetadata.setContentLength(multipartFile.getInputStream().available());
+
+            log.info("디버그 포인트 4");
 
             amazonS3Client.putObject(BUCKET_NAME, filename, multipartFile.getInputStream(), objectMetadata);
 
+            log.info("디버그 포인트 5");
             String accessUrl = amazonS3Client.getUrl(BUCKET_NAME, filename).toString();
             resumeFile.setAccessUrl(accessUrl);
+            log.info("디버그 포인트 6");
         } catch(IOException e) {
             throw new ApplicationException(ErrorMessage.FAILED_FILE_UPLOAD_TO_S3_EXCEPTION);
         }
