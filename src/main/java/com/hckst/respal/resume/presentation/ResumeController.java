@@ -103,7 +103,7 @@ public class ResumeController {
             @ApiResponse(responseCode = "500", description = "S3 서버 업로드시 에러가 발생하는경우 발생하는 응답입니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/resume/file")
-    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> createResumeFile(@RequestPart(value = "resumeFile", required = false) MultipartFile requestDto){
+    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> createResumeFile(@RequestPart(value = "file", required = false) MultipartFile requestDto){
         CreateResumeFileResponseDto resumeFile = resumeService.createResumeFile(requestDto);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(201)
