@@ -22,36 +22,35 @@ import java.util.stream.Collectors;
 @Setter
 @Schema(description = "이력서 상세 조회 DTO")
 public class ResumeDetailResponseDto {
-    // 이력서 ID
+    @Schema(description = "이력서의 ID입니다.")
     private Long resumeId;
-    // 이력서 제목
+    @Schema(description = "이력서의 제목입니다.")
     private String title;
-    // 이력서 내용
+    @Schema(description = "이력서의 내용입니다.")
     private String content;
-    // 이력서 파일 경로
+    @Schema(description = "이력서 파일의 경로입니다.")
     private String filePath;
+    @Schema(description = "이력서 파일의 이름입니다.")
     private String fileName;
-    // 조회수
+    @Schema(description = "이력서의 조회수 입니다.")
     private int views;
-    // 작성자 id
+    @Schema(description = "이력서 작성자의 ID입니다.")
     private Long membersId;
-    // 작성자 닉네임
+    @Schema(description = "이력서 작성자의 닉네임 입니다.")
     private String membersNickname;
-    // 작성자 프로필 이미지
+    @Schema(description = "이력서 작성자의 프로필 사진 입니다.")
     private String membersPicture;
-    // 대표여부
-    private String mainYn;
-    // 수정여부
+    @Schema(description = "이력서의 수정 여부 입니다/")
     private String modifyYn;
-    // 작성시간
+    @Schema(description = "이력서 작성 시간입니다.")
     private String regTime;
-    // 수정시간
+    @Schema(description = "이력서의 수정 시간입니다.")
     private String modifyTime;
-    // 이력서 리스트를 위한 댓글 개수
+    @Schema(description = "이력서의 댓글 개수 입니다.")
     private long commentCount;
 
     @QueryProjection
-    public ResumeDetailResponseDto(Long resumeId, String title, String content, int views, Long membersId, String membersNickname, String membersPicture, TFCode mainYn, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime) {
+    public ResumeDetailResponseDto(Long resumeId, String title, String content, int views, Long membersId, String membersNickname, String membersPicture, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime) {
         this.resumeId = resumeId;
         this.title = title;
         this.content = content;
@@ -59,7 +58,6 @@ public class ResumeDetailResponseDto {
         this.membersId = membersId;
         this.membersNickname = membersNickname;
         this.membersPicture = membersPicture;
-        this.mainYn = TFCode.TRUE.equals(mainYn) ? "Y" : "N";
         this.modifyYn = TFCode.TRUE.equals(modifyYn) ? "Y" : "N";
         this.regTime = regTime != null ? regTime.format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
         this.modifyTime = modifyTime != null ? modifyTime.format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
@@ -76,7 +74,6 @@ public class ResumeDetailResponseDto {
         this.membersId = resume.getMembers().getId();
         this.membersNickname = resume.getMembers().getNickname();
         this.membersPicture = resume.getMembers().getPicture();
-        this.mainYn = TFCode.TRUE.equals(resume.getMainYn()) ? "Y" : "N";
         this.modifyYn = TFCode.TRUE.equals(resume.getModifyYn()) ? "Y" : "N";
         this.regTime = resume.getRegTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
         this.modifyTime = resume.getModifyTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;

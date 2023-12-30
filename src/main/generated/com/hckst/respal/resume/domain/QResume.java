@@ -30,8 +30,6 @@ public class QResume extends EntityPathBase<Resume> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final EnumPath<com.hckst.respal.converter.TFCode> mainYn = createEnum("mainYn", com.hckst.respal.converter.TFCode.class);
-
     public final com.hckst.respal.members.domain.QMembers members;
 
     public final DateTimePath<java.time.LocalDateTime> modifyTime = createDateTime("modifyTime", java.time.LocalDateTime.class);

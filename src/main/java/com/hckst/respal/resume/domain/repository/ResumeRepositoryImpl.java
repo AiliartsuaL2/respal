@@ -50,7 +50,6 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                         members.id,
                         members.nickname,
                         members.picture,
-                        resume.mainYn,
                         resume.modifyYn,
                         resume.regTime,
                         resume.modifyTime))

@@ -12,13 +12,17 @@ import com.hckst.respal.resume.presentation.dto.response.CreateResumeFileRespons
 import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto;
 import com.hckst.respal.resume.presentation.dto.response.ResumeListResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.util.Enumeration;
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +44,11 @@ public class ResumeController {
     })
     @GetMapping("/resume/{resumeId}")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> getResumeDetail(@PathVariable long resumeId, @AuthenticationPrincipal Members members){
+    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> getResumeDetail(
+            @Parameter(description = "조회 할 이력서의 ID 입니다.")
+            @PathVariable long resumeId,
+            @Parameter(description = "조회하는 회원입니다. 인증 토큰을 통해 자동으로 매핑됩니다.")
+            @AuthenticationPrincipal Members members){
         ResumeDetailResponseDto resumeDetail = resumeService.getResumeDetailByResumeId(resumeId, members);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
@@ -48,13 +56,16 @@ public class ResumeController {
                 .build();
         return ResponseEntity.ok(response);
     }
-    @Operation(summary = "이력서 조회 API", description = "이력서 조회 API 입니다. Paramter를 통해 type(my, tagged, hub), page, limit, 정렬 조건을 지정 할 수 있습니다.")
+
+    @Operation(summary = "이력서 조회 API", description = "이력서 리스트 조회 API 입니다. 타입을 통해 내 이력서, 태그된 이력서, 공개 이력서 리스트를 조회 할 수 있습니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "type에 맞는 이력서 리스트를 반환합니다.", useReturnTypeSchema = true)
     })
     @GetMapping("/resume")
     public ResponseEntity<ApiCommonResponse<ResumeListResponseDto>> getResumes(
+            @Parameter(description = "조회하는 이력서의 타입입니다. my, tagged, hub 가 있습니다.")
             @RequestParam String type,
+            @Parameter(description = "조회하는 회원입니다. 인증 토큰을 통해 자동으로 매핑됩니다.")
             @AuthenticationPrincipal Members viewer){
         //todo 페이지네이션 개발단계 default(1,10) 처리 -> 12.28 협의
         ResumeListRequestDto requestDto = ResumeListRequestDto.create(type, 1, 10, viewer);
@@ -66,13 +77,18 @@ public class ResumeController {
 
         return ResponseEntity.ok(response);
     }
+
     @Operation(summary = "이력서 생성 API", description = "이력서를 생성하는 API 입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "이력서 생성에 성공하였습니다. ", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "201", description = "이력서 생성에 성공한 경우 응답됩니다. ", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "401", description = "이력서 생성 권한이 없는경우 발생합니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/resume")
-    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> createResume(@Valid @RequestBody CreateResumeRequestDto requestDto, @AuthenticationPrincipal Members members){
+    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> createResume(
+            @Parameter(description = "이력서 생성에 필요한 데이터를 갖고있는 DTO입니다.")
+            @Valid @RequestBody CreateResumeRequestDto requestDto,
+            @Parameter(description = "이력서를 생성하는 회원입니다. 인증 토큰을 통해 자동으로 매핑됩니다.")
+            @AuthenticationPrincipal Members members){
         ResumeDetailResponseDto savedResume = resumeService.createResume(requestDto, members);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(201)
@@ -88,7 +104,11 @@ public class ResumeController {
             @ApiResponse(responseCode = "401", description = "이력서 삭제 권한이 없는경우 발생하는 응답입니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @DeleteMapping("/resume/{resumeId}")
-    public ResponseEntity<ApiCommonResponse<?>> removeResume(@PathVariable long resumeId, @AuthenticationPrincipal Members members){
+    public ResponseEntity<ApiCommonResponse<?>> removeResume(
+            @Parameter(description = "삭제할 이력서의 ID입니다.")
+            @PathVariable long resumeId,
+            @Parameter(description = "이력서를 삭제하는 회원입니다. 인증 토큰을 통해 자동으로 매핑됩니다.")
+            @AuthenticationPrincipal Members members){
         resumeService.removeResume(resumeId, members);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(204)
@@ -102,9 +122,17 @@ public class ResumeController {
             @ApiResponse(responseCode = "201", description = "이력서의 파일 저장에 성공하는경우 응답입니다. ", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "500", description = "S3 서버 업로드시 에러가 발생하는경우 발생하는 응답입니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
-    @PostMapping("/resume/file")
-    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> createResumeFile(@RequestPart(value = "file", required = false) MultipartFile requestDto){
-        CreateResumeFileResponseDto resumeFile = resumeService.createResumeFile(requestDto);
+    @PostMapping(value ="/resume/file",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> createResumeFile(
+            HttpServletRequest request,
+            @Parameter(description = "multipart/form-data 형식의 이미지 리스트를 input으로 받습니다. 이때 key 값은 file 입니다.")
+            @RequestPart(value = "file") MultipartFile file){
+        String header = request.getHeader("Content-Type");
+        log.info("content-type : "+header);
+
+        CreateResumeFileResponseDto resumeFile = resumeService.createResumeFile(file);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(201)
                 .result(resumeFile)
@@ -119,7 +147,10 @@ public class ResumeController {
             @ApiResponse(responseCode = "500", description = "S3 파일 삭제 에러가 발생하는경우 발생하는 응답입니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @DeleteMapping("/resume/file")
-    public ResponseEntity<ApiCommonResponse<?>> removeResumeFile(@RequestParam Long resumeFileId){
+    public ResponseEntity<ApiCommonResponse<?>> removeResumeFile(
+            @Parameter(description = "삭제할 이력서 파일의 ID입니다.")
+            @RequestParam Long resumeFileId){
+        // todo 삭제 검증 로직 추가 필요
         resumeService.removeResumeFile(resumeFileId);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(204)

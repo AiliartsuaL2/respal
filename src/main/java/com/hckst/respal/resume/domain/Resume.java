@@ -40,10 +40,6 @@ public class Resume {
     @Column(length = 10)
     private int views;
 
-    // 대표 여부
-    @Convert(converter = TFCodeConverter.class)
-    @Column(columnDefinition = "char")
-    private TFCode mainYn;
     // 수정 여부
     @Convert(converter = TFCodeConverter.class)
     @Column(columnDefinition = "char")
@@ -105,7 +101,6 @@ public class Resume {
         this.title = title;
         this.content = content;
         this.resumeType = resumeType;
-        this.mainYn = TFCode.FALSE;
         this.modifyYn = TFCode.FALSE;
         this.deleteYn = TFCode.FALSE;
         this.regTime = LocalDateTime.now();
