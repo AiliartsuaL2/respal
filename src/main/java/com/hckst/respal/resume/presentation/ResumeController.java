@@ -1,11 +1,9 @@
 package com.hckst.respal.resume.presentation;
 
-import com.hckst.respal.converter.ResumeType;
 import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.resume.application.ResumeService;
-import com.hckst.respal.resume.domain.ResumeFile;
 import com.hckst.respal.resume.presentation.dto.request.CreateResumeRequestDto;
 import com.hckst.respal.resume.presentation.dto.request.ResumeListRequestDto;
 import com.hckst.respal.resume.presentation.dto.response.CreateResumeFileResponseDto;
@@ -17,7 +15,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -126,12 +122,8 @@ public class ResumeController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> createResumeFile(
-            HttpServletRequest request,
             @Parameter(description = "multipart/form-data 형식의 이미지 리스트를 input으로 받습니다. 이때 key 값은 file 입니다.")
             @RequestPart(value = "file") MultipartFile file){
-        String header = request.getHeader("Content-Type");
-        log.info("content-type : "+header);
-
         CreateResumeFileResponseDto resumeFile = resumeService.createResumeFile(file);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(201)
@@ -149,7 +141,7 @@ public class ResumeController {
     @DeleteMapping("/resume/file")
     public ResponseEntity<ApiCommonResponse<?>> removeResumeFile(
             @Parameter(description = "삭제할 이력서 파일의 ID입니다.")
-            @RequestParam Long resumeFileId){
+            @RequestParam Long resumeFileId) {
         // todo 삭제 검증 로직 추가 필요
         resumeService.removeResumeFile(resumeFileId);
         ApiCommonResponse response = ApiCommonResponse.builder()
