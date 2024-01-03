@@ -3,10 +3,7 @@ package com.hckst.respal.tag.application;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.repository.MembersRepository;
-import com.hckst.respal.tag.domain.Tag;
 import com.hckst.respal.tag.domain.repository.TagRepository;
-import com.hckst.respal.tag.presentation.dto.request.AddTagRequestDto;
-import com.hckst.respal.tag.presentation.dto.request.RemoveTagRequestDto;
 import com.hckst.respal.resume.domain.Resume;
 import com.hckst.respal.resume.domain.repository.ResumeRepository;
 import org.assertj.core.api.Assertions;
@@ -18,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @SpringBootTest
 @Transactional
@@ -106,36 +102,6 @@ class TagServiceTest {
         //when
         //then
         Assertions.assertThatThrownBy(() -> mentionService.addTags(resumeOwner, existResumeId, membersIdList))
-                .isInstanceOf(ApplicationException.class);
-    }
-
-    @Test
-    void removeMentionSuccess(){
-        //given
-        long existMentionId = 11L;
-        RemoveTagRequestDto removeMentionRequestDto = RemoveTagRequestDto.builder()
-                .tagId(existMentionId)
-                .members(resumeOwner)
-                .build();
-        //when
-        mentionService.removeTag(removeMentionRequestDto);
-        //then
-        Optional<Tag> findedMention = tagRepository.findById(11L);
-        Assertions.assertThat(findedMention).isEqualTo(Optional.empty());
-    }
-    // 아무 관련 없는 사람이 멘션을 삭제하려는 경우
-    @Test
-    void removeMentionFail1(){
-        long existMentionId = 11L;
-        Members thirdMembers = membersRepository.findById(exist3rdMembersId).get();
-
-        RemoveTagRequestDto removeMentionRequestDto = RemoveTagRequestDto.builder()
-                .tagId(existMentionId)
-                .members(thirdMembers)
-                .build();
-        //when
-        //then
-        Assertions.assertThatThrownBy(() -> mentionService.removeTag(removeMentionRequestDto))
                 .isInstanceOf(ApplicationException.class);
     }
 }

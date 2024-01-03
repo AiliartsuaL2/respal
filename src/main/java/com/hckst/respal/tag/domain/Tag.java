@@ -30,7 +30,6 @@ public class Tag {
     // 언급시간
     private LocalDateTime regTime;
 
-    @Builder
     public Tag(Resume resume, Members members){
         this.resume = resume;
         this.members = members;

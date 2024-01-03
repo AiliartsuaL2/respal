@@ -8,7 +8,6 @@ import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.tag.domain.Tag;
 import com.hckst.respal.tag.domain.repository.TagJdbcRepository;
 import com.hckst.respal.tag.domain.repository.TagRepository;
-import com.hckst.respal.tag.presentation.dto.request.RemoveTagRequestDto;
 import com.hckst.respal.resume.domain.Resume;
 import com.hckst.respal.resume.domain.repository.ResumeRepository;
 import java.util.stream.Collectors;
@@ -35,41 +34,42 @@ public class TagService {
      * 편집시에도 updateResume에서 같이 처리(저장 클릭시 한 번에)
      */
     @Transactional
-    public void addTags(Members members, Long resumeId, List<Long> tagIdList){
+    public void addTags(Members members, Long resumeId, List<Long> taggedIdList){
         Resume resume = resumeRepository.findById(resumeId).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION));
 
-        validationForAdd(resume.getResumeType(), members, resume.getMembers());
+        validationForAdd(resume, members, taggedIdList);
 
-        List<Tag> tagList = membersRepository.findByIdIn(tagIdList).stream()
+        List<Tag> tagList = membersRepository.findByIdIn(taggedIdList).stream()
                 .filter(m -> !m.equals(resume.getMembers()))
-                .map(m -> Tag.builder()
-                            .resume(resume)
-                            .members(m)
-                            .build())
+                .map(m -> new Tag(resume, m))
                 .collect(Collectors.toList());
         tagJdbcRepository.saveAll(tagList);
     }
 
-    private void validationForAdd(ResumeType resumeType, Members taggingMember, Members writer) {
+    private void validationForAdd(Resume resume, Members writer, List<Long> taggedIdList) {
         // 공개 이력서인데 언급을 시도하는경우
-        if(ResumeType.PUBLIC.equals(resumeType)){
+        if(ResumeType.PUBLIC.equals(resume.getResumeType())){
             throw new ApplicationException(ErrorMessage.CAN_NOT_TAG_PUBLIC_RESUME_EXCEPTION);
         }
         // 멘션하려는이가 게시물의 주인이 아닌경우
-        if(!taggingMember.equals(writer)){
+        if(!resume.getMembers().equals(writer)){
             throw new ApplicationException(ErrorMessage.PERMISSION_DENIED_TO_TAG_EXCEPTION);
+        }
+        // 본인 이력서에 본인을 언급하는 경우
+        if(taggedIdList.contains(writer.getId())) {
+            throw new ApplicationException(ErrorMessage.CAN_NOT_TAG_ONESELF_EXCEPTION);
         }
     }
 
     @Transactional
-    public void removeTag(RemoveTagRequestDto removeTagRequestDto){
+    public void removeTag(Long tagId, Members members){
         // 이력서와 멘션을 조인해서 가져옴
-        Tag tag = tagRepository.findTagAndResumeById(removeTagRequestDto.getTagId())
+        Tag tag = tagRepository.findTagAndResumeById(tagId)
                 .orElseThrow(() -> new ApplicationException(ErrorMessage.NOT_EXIST_TAG_EXCEPTION));
         // 삭제의 주체가 이력서의 주인이 아니거나, 멘션당한 사람이 아닌경우
-        if(!(removeTagRequestDto.getMembers().equals(tag.getMembers())
-                || removeTagRequestDto.getMembers().equals(tag.getResume().getMembers()))){
+        if(!(members.equals(tag.getMembers())
+                || members.equals(tag.getResume().getMembers()))){
             throw new ApplicationException(ErrorMessage.PERMISSION_DENIED_TO_DELETE_EXCEPTION);
         }
         tagRepository.delete(tag);
