@@ -1,8 +1,5 @@
 package com.hckst.respal.resume.presentation.dto.response;
 
-
-import com.hckst.respal.comment.domain.Comment;
-import com.hckst.respal.comment.presentation.dto.response.CommentsResponseDto;
 import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.resume.domain.Resume;
 import com.querydsl.core.annotations.QueryProjection;
@@ -11,10 +8,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -40,7 +33,7 @@ public class ResumeDetailResponseDto {
     private String membersNickname;
     @Schema(description = "이력서 작성자의 프로필 사진 입니다.")
     private String membersPicture;
-    @Schema(description = "이력서의 수정 여부 입니다/")
+    @Schema(description = "이력서의 수정 여부 입니다.")
     private String modifyYn;
     @Schema(description = "이력서 작성 시간입니다.")
     private String regTime;

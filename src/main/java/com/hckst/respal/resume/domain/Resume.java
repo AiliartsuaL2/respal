@@ -153,15 +153,15 @@ public class Resume {
 
     public void view(Members members) {
         viewsCountUp(members);
-        if(ResumeType.PUBLIC.equals(this.resumeType)) {
-            return;
-        }
-        if(!isTagged(members)) {
+        if(!hasHandlePermission(members)) {
             throw new ApplicationException(ErrorMessage.PERMISSION_DENIED_TO_VIEW_EXCEPTION);
         }
     }
 
-    private boolean isTagged(Members members) {
+    public boolean hasHandlePermission(Members members) {
+        if(ResumeType.PUBLIC.equals(this.resumeType)) {
+            return true;
+        }
         if(this.members.equals(members)) {
             return true;
         }

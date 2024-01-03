@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -34,7 +33,7 @@ public class ResumeController {
     private final ResumeService resumeService;
     @Operation(summary = "이력서 상세 조회 API", description = "이력서 상세 조회 API입니다. 조회하려는 이력서의 seq값을 path로 요청합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "이력서 상세", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "200", description = "이력서 상세 정보가 응답됩니다.", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "seq에 해당하는 이력서가 존재하지 않음.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
             @ApiResponse(responseCode = "403", description = "해당 이력서의 열람 권한이 없음", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })

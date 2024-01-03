@@ -14,6 +14,8 @@ import com.hckst.respal.resume.domain.repository.ResumeRepository;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.ServerSentEvent;
@@ -37,9 +39,13 @@ public class CommentService {
     }
 
     public Mono<CommentsResponseDto> createComment(CreateCommentRequestDto requestDto, Members members, long resumeId){
-        Many<CommentsResponseDto> commentUpdateSink = getOrCreateSink(resumeId);
         Resume resume = resumeRepository.findByIdAndDeleteYn(resumeId, TFCode.FALSE).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION));
+        if(!resume.hasHandlePermission(members)) {
+            throw new ApplicationException(ErrorMessage.PERMISSION_DENIED_TO_CREATE_EXCEPTION);
+        }
+
+        Many<CommentsResponseDto> commentUpdateSink = getOrCreateSink(resumeId);
         Comment comment = new Comment(requestDto, resume, members);
 
         return commentRepository.save(comment)
@@ -47,10 +53,11 @@ public class CommentService {
                 .doOnNext(commentUpdateSink::tryEmitNext);
     }
 
-    public Flux<ServerSentEvent<CommentsResponseDto>> findByResumeId(Long resumeId) {
-        if(resumeRepository.findById(resumeId).isEmpty()) {
-            log.error(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION.getMsg());
-            return Flux.error(new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION));
+    public Flux<ServerSentEvent<CommentsResponseDto>> findByResumeId(Long resumeId, Members members) {
+        Optional<ErrorMessage> validatedResult = validationForView(resumeId, members);
+        if(validatedResult.isPresent()) {
+            log.error(validatedResult.get().getMsg());
+            return Flux.error(new ApplicationException(validatedResult.get()));
         }
 
         Many<CommentsResponseDto> commentUpdateSink = getOrCreateSink(resumeId);
@@ -77,9 +84,18 @@ public class CommentService {
                     comment.delete(members);
                     return commentRepository.save(comment);
                 }).map(CommentsResponseDto::delete)
-                .doOnNext(comment -> {
-                    getOrCreateSink(comment.getResumeId())
-                            .tryEmitNext(comment);
-                });
+                .doOnNext(comment -> getOrCreateSink(comment.getResumeId())
+                            .tryEmitNext(comment));
+    }
+
+    private Optional<ErrorMessage> validationForView(Long resumeId, Members members) {
+        Optional<Resume> foundResume = resumeRepository.findById(resumeId);
+        if(foundResume.isEmpty()) {
+            return Optional.ofNullable(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION);
+        }
+        if(!foundResume.get().hasHandlePermission(members)) {
+            return Optional.ofNullable(ErrorMessage.PERMISSION_DENIED_TO_VIEW_EXCEPTION);
+        }
+        return Optional.empty();
     }
 }

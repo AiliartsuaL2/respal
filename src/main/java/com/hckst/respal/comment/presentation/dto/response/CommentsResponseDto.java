@@ -2,6 +2,7 @@ package com.hckst.respal.comment.presentation.dto.response;
 
 import com.hckst.respal.comment.domain.Comment;
 import com.querydsl.core.annotations.QueryProjection;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -10,16 +11,27 @@ import java.time.format.DateTimeFormatter;
 @Getter
 @Setter
 @NoArgsConstructor
+@Schema(description = "댓글 응답 DTO")
 public class CommentsResponseDto {
+    @Schema(description = "댓글의 ID입니다.")
     private Long id;
+    @Schema(description = "댓글의 타입입니다. (추가된 댓글 : ADDED, 기 존재 댓글 : EXISTS, 삭제된 댓글 : DELETED)")
     private CommentType commentType;
+    @Schema(description = "댓글의 내용입니다.")
     private String content;
+    @Schema(description = "댓글의 x좌표 입니다.")
     private int xLocation;
+    @Schema(description = "댓글의 y좌표 입니다.")
     private int yLocation;
+    @Schema(description = "해당 댓글이 존재하는 이력서 ID 입니다.")
     private Long resumeId;
+    @Schema(description = "댓글 작성자의 ID 입니다.")
     private Long membersId;
+    @Schema(description = "댓글 작성자의 이미지 url 입니다.")
     private String membersPicture;
+    @Schema(description = "댓글 작성자의 닉네임 입니다.")
     private String membersNickname;
+    @Schema(description = "댓글의 생성 일자 입니다.")
     private String regTime;
 
     @AllArgsConstructor
