@@ -10,7 +10,8 @@ import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
-import com.hckst.respal.members.presentation.dto.response.SearchMembersRequestDto;
+import com.hckst.respal.members.presentation.dto.request.SearchMembersRequestDto;
+import com.hckst.respal.members.presentation.dto.response.MembersResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
@@ -154,7 +155,7 @@ public class MembersService {
     }
 
     // 닉네임을 통해 회원을 조회하는 메서드
-    public List<SearchMembersResponseDto> searchMembers(SearchMembersRequestDto searchMembersRequestDto){
+    public List<MembersResponseDto> searchMembers(SearchMembersRequestDto searchMembersRequestDto){
         return membersRepository.findMembersByNickname(searchMembersRequestDto);
     }
 }

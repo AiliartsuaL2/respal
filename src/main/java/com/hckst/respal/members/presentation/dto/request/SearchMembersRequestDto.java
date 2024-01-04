@@ -1,4 +1,4 @@
-package com.hckst.respal.members.presentation.dto.response;
+package com.hckst.respal.members.presentation.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

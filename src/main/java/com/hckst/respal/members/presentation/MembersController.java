@@ -11,7 +11,8 @@ import com.hckst.respal.members.presentation.dto.request.*;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import com.hckst.respal.members.application.MembersService;
 import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
-import com.hckst.respal.members.presentation.dto.response.SearchMembersRequestDto;
+import com.hckst.respal.members.presentation.dto.request.SearchMembersRequestDto;
+import com.hckst.respal.members.presentation.dto.response.MembersResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -183,13 +184,13 @@ public class MembersController {
     })
     @GetMapping("/members")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<SearchMembersResponseDto>> searchMembers(@RequestParam String searchWord, @RequestParam int limit){
+    public ResponseEntity<ApiCommonResponse<MembersResponseDto>> searchMembers(@RequestParam String searchWord, @RequestParam int limit){
         SearchMembersRequestDto searchMembersRequestDto = SearchMembersRequestDto.builder()
                 .limit(limit)
                 .searchWord(searchWord)
                 .build();
 
-        List<SearchMembersResponseDto> searchMembers = membersService.searchMembers(searchMembersRequestDto);
+        List<MembersResponseDto> searchMembers = membersService.searchMembers(searchMembersRequestDto);
 
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)

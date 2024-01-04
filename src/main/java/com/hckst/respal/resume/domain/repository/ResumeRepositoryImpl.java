@@ -100,6 +100,7 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                 .innerJoin(resume.resumeFile, resumeFile).fetchJoin()
                 .innerJoin(resume.members, members).fetchJoin()
                 .leftJoin(resume.tagList, tag).fetchJoin()
+                .leftJoin(tag.members, members).fetchJoin()
                 .where(resumeIdCondition(id)
                         .and(resume.deleteYn.eq(TFCode.FALSE))
                         .and(resumeFile.deleteYn.eq(TFCode.FALSE))

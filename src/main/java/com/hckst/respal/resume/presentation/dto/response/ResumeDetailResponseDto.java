@@ -1,6 +1,8 @@
 package com.hckst.respal.resume.presentation.dto.response;
 
 import com.hckst.respal.converter.TFCode;
+import com.hckst.respal.members.domain.Members;
+import com.hckst.respal.members.presentation.dto.response.MembersResponseDto;
 import com.hckst.respal.resume.domain.Resume;
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,6 +10,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -41,6 +45,8 @@ public class ResumeDetailResponseDto {
     private String modifyTime;
     @Schema(description = "이력서의 댓글 개수 입니다.")
     private long commentCount;
+    @Schema(description = "해당 이력서에 태그된 회원 ID 입니다.")
+    private List<MembersResponseDto> taggedMembers;
 
     @QueryProjection
     public ResumeDetailResponseDto(Long resumeId, String title, String content, int views, Long membersId, String membersNickname, String membersPicture, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime) {
@@ -67,6 +73,9 @@ public class ResumeDetailResponseDto {
         this.membersId = resume.getMembers().getId();
         this.membersNickname = resume.getMembers().getNickname();
         this.membersPicture = resume.getMembers().getPicture();
+        this.taggedMembers = resume.getTagList().stream()
+                .map(tag -> MembersResponseDto.convert(tag.getMembers()))
+                .collect(Collectors.toList());
         this.modifyYn = TFCode.TRUE.equals(resume.getModifyYn()) ? "Y" : "N";
         this.regTime = resume.getRegTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
         this.modifyTime = resume.getModifyTime() != null ? resume.getRegTime().format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;

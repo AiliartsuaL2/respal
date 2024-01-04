@@ -4,9 +4,9 @@ import com.hckst.respal.converter.Provider;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.repository.dto.MembersOAuthDto;
 import com.hckst.respal.members.domain.repository.dto.QMembersOAuthDto;
-import com.hckst.respal.members.presentation.dto.request.QSearchMembersResponseDto;
-import com.hckst.respal.members.presentation.dto.request.SearchMembersResponseDto;
-import com.hckst.respal.members.presentation.dto.response.SearchMembersRequestDto;
+import com.hckst.respal.members.presentation.dto.response.MembersResponseDto;
+import com.hckst.respal.members.presentation.dto.request.SearchMembersRequestDto;
+import com.hckst.respal.members.presentation.dto.response.QMembersResponseDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -67,8 +67,8 @@ public class MembersRepositoryImpl implements MembersRepositoryCustom {
     }
 
     @Override
-    public List<SearchMembersResponseDto> findMembersByNickname(SearchMembersRequestDto searchMembersRequestDto) {
-        return queryFactory.select(new QSearchMembersResponseDto(
+    public List<MembersResponseDto> findMembersByNickname(SearchMembersRequestDto searchMembersRequestDto) {
+        return queryFactory.select(new QMembersResponseDto(
                 members.id,
                 members.nickname,
                 members.picture,
