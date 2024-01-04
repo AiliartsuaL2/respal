@@ -1,5 +1,7 @@
 package com.hckst.respal.tag.domain;
 
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.resume.domain.Resume;
 import lombok.AllArgsConstructor;
@@ -31,6 +33,7 @@ public class Tag {
     private LocalDateTime regTime;
 
     public Tag(Resume resume, Members members){
+        validateForCreate(resume, members);
         this.resume = resume;
         this.members = members;
         this.regTime = LocalDateTime.now();
@@ -38,9 +41,28 @@ public class Tag {
         this.members.getTaggedList().add(this);
     }
 
-    public void remove() {
+    private void validateForCreate(Resume resume, Members members) {
+        if(resume.getMembers().equals(members)) {
+            throw new ApplicationException(ErrorMessage.CAN_NOT_TAG_ONESELF_EXCEPTION);
+        }
+    }
+
+    public void remove(Members deleteMembers) {
+        validateForDelete(deleteMembers);
         this.resume.deleteTag(this);
         this.members.deleteTag(this);
+    }
+
+    private void validateForDelete(Members deleteMembers) {
+        // 삭제의 주체가 멘션당한 사람인 경우
+        if(deleteMembers.equals(this.getMembers())) {
+            return;
+        }
+        // 삭제의 주체가 이력서 주인인 경우
+        if(deleteMembers.equals(this.getResume().getMembers())) {
+            return;
+        }
+        throw new ApplicationException(ErrorMessage.PERMISSION_DENIED_TO_DELETE_EXCEPTION);
     }
 
     @Override

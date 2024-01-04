@@ -199,4 +199,15 @@ public class Resume {
     public void deleteTag(Tag tag) {
         this.tagList.remove(tag);
     }
+
+    public void validateForTag(Members writer) {
+        // 공개 이력서인데 태그를 시도하는경우
+        if(ResumeType.PUBLIC.equals(this.getResumeType())){
+            throw new ApplicationException(ErrorMessage.CAN_NOT_TAG_PUBLIC_RESUME_EXCEPTION);
+        }
+        // 태그하려는이가 게시물의 주인이 아닌경우
+        if(!this.getMembers().equals(writer)){
+            throw new ApplicationException(ErrorMessage.PERMISSION_DENIED_TO_TAG_EXCEPTION);
+        }
+    }
 }

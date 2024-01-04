@@ -59,11 +59,11 @@ public class TagController {
     })
     @PostMapping("/tag/{tagId}")
     public ResponseEntity<ApiCommonResponse<?>> removeTag(
-            @Parameter(description = "제거할 태그의 ID 입니다.")
-            @PathVariable Long tagId,
+            @Parameter(description = "제거 당할 태그에 해당하는 회원 ID 입니다.")
+            @PathVariable Long taggedMembersId,
             @Parameter(description = "태그를 제거하는 회원입니다. 인증 토큰을 통해 자동으로 매핑됩니다.")
             @AuthenticationPrincipal Members members){
-        tagService.removeTag(tagId, members);
+        tagService.removeTag(taggedMembersId, members);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
