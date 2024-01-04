@@ -17,11 +17,11 @@ public class TagRepositoryImpl implements TagRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Optional<Tag> findTagAndResumeById(Long tagId) {
+    public Optional<Tag> findTagAndResumeByMembersId(Long membersId) {
         Tag findedTag = queryFactory.select(tag)
                 .from(tag)
                 .join(tag.resume, resume).fetchJoin()
-                .where(tag.id.eq(tagId))
+                .where(tag.members.id.eq(membersId))
                 .fetchOne();
         return Optional.ofNullable(findedTag);
     }

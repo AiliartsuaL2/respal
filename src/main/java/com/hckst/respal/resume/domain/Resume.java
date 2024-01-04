@@ -195,4 +195,8 @@ public class Resume {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    public void deleteTag(Tag tag) {
+        this.tagList.remove(tag);
+    }
 }

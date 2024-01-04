@@ -213,4 +213,8 @@ public class Members implements UserDetails {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    public void deleteTag(Tag tag) {
+        this.taggedList.remove(tag);
+    }
 }

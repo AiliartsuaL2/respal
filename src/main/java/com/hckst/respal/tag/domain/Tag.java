@@ -38,6 +38,11 @@ public class Tag {
         this.members.getTaggedList().add(this);
     }
 
+    public void remove() {
+        this.resume.deleteTag(this);
+        this.members.deleteTag(this);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
