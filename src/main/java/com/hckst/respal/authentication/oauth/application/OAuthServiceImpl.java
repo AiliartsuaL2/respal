@@ -58,13 +58,7 @@ public class OAuthServiceImpl {
     public MembersLoginResponseDto join(Provider provider, MembersJoinRequestDto membersJoinRequestDto) {
         Token token = createByProvider(provider, membersJoinRequestDto);
         jwtService.login(token); // refresh 토큰 초기화
-
-        return MembersLoginResponseDto.builder()
-                .membersEmail(token.getMembersEmail())
-                .accessToken(token.getAccessToken())
-                .refreshToken(token.getRefreshToken())
-                .grantType(token.getGrantType())
-                .build();
+        return MembersLoginResponseDto.create(token);
     }
     public Token createByProvider(Provider provider, MembersJoinRequestDto membersJoinRequestDto) {
         if(Provider.COMMON.equals(provider)){ // 일반 로그인

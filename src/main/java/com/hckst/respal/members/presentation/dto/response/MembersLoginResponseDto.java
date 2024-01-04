@@ -30,4 +30,13 @@ public class MembersLoginResponseDto {
         membersLoginResponseDto.tmpPasswordStatus = tmpPasswordStatus;
         return membersLoginResponseDto;
     }
+
+    public static MembersLoginResponseDto create(Token token) {
+        MembersLoginResponseDto membersLoginResponseDto = new MembersLoginResponseDto();
+        membersLoginResponseDto.membersEmail = token.getMembersEmail();
+        membersLoginResponseDto.refreshToken = token.getRefreshToken();
+        membersLoginResponseDto.accessToken = token.getAccessToken();
+        membersLoginResponseDto.grantType = token.getGrantType();
+        return membersLoginResponseDto;
+    }
 }
