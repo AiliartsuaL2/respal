@@ -110,13 +110,7 @@ public class KakaoOAuthService implements OAuthService{
         if(membersRepository.existsMembersOauthForJoin(membersJoinRequestDto.getEmail(),Provider.KAKAO)){
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
-        Members members = Members.builder()
-                .email(membersJoinRequestDto.getEmail())
-                .nickname(membersJoinRequestDto.getNickname())
-                .roleType(RoleType.ROLE_USER)
-                .picture(membersJoinRequestDto.getPicture())
-                .password(UUID.randomUUID().toString().replace("-", ""))
-                .build();
+        Members members = Members.create(membersJoinRequestDto);
         Oauth oauth = Oauth.builder()
                 .membersId(members)
                 .provider(Provider.KAKAO)

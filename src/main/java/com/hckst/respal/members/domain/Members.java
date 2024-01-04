@@ -165,6 +165,9 @@ public class Members implements UserDetails {
 
     // 비밀번호를 암호화하는 메서드
     private static String encryptPassword(String password) {
+        if(password == null) {
+            password = UUID.randomUUID().toString().replace("-", "");
+        }
         String encryptedPassword = B_CRYPT_PASSWORD_ENCODER.encode(password);
         return encryptedPassword;
     }
