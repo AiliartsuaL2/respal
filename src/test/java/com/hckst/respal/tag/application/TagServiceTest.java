@@ -1,107 +1,243 @@
 package com.hckst.respal.tag.application;
 
+import com.hckst.respal.converter.ResumeType;
 import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
+import com.hckst.respal.members.domain.RoleType;
 import com.hckst.respal.members.domain.repository.MembersRepository;
-import com.hckst.respal.tag.domain.repository.TagRepository;
+import com.hckst.respal.resume.application.ResumeService;
 import com.hckst.respal.resume.domain.Resume;
+import com.hckst.respal.resume.domain.ResumeFile;
+import com.hckst.respal.resume.domain.repository.ResumeFileRepository;
 import com.hckst.respal.resume.domain.repository.ResumeRepository;
-import org.assertj.core.api.Assertions;
+import com.hckst.respal.resume.presentation.dto.request.CreateResumeRequestDto;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
 class TagServiceTest {
     @Autowired
-    TagService mentionService;
+    private TagService tagService;
     @Autowired
-    MembersRepository membersRepository;
+    private ResumeService resumeService;
     @Autowired
-    TagRepository tagRepository;
+    private ResumeRepository resumeRepository;
     @Autowired
-    ResumeRepository resumeRepository;
+    private ResumeFileRepository resumeFileRepository;
+    @Autowired
+    private MembersRepository membersRepository;
 
-    private Members resumeOwner ;
-    private Members otherMember ;
-    private Resume resume;
-    private List<Long> membersIdList;
+    private static Members RESUME_OWNER;
+    private static Members TAGGED_MEMBER_1;
+    private static Members TAGGED_MEMBER_2;
+    private static Members TAGGED_MEMBER_3;
+    private static Members NOT_RELATED_MEMBER;
+    private static Resume PRIVATE_RESUME;
+    private static Resume PUBLIC_RESUME;
+    private static Long NOT_EXIST_RESUME_ID = 1000000L;
 
-    private static final long resumeOwnerId = 2L;
-    private static final long existOtherMembersId = 6L;
-    private static final long existResumeId = 3L;
-    private static final long publicResumeId = 8L;
-    private static final long exist3rdMembersId = 7L;
-    private static final long exist4thMembersId = 59L;
-    private static final long exist5thMembersId = 60L;
+    @BeforeEach
+    public void init() {
+        RESUME_OWNER = membersRepository.save(Members.builder()
+                .email("test@naver.com")
+                .password("test1234")
+                .picture("picture")
+                .nickname("testName")
+                .roleType(RoleType.ROLE_USER)
+                .build());
 
-    @PostConstruct
-    public void initialize(){
-        resumeOwner = membersRepository.findById(resumeOwnerId).get();
-        otherMember = membersRepository.findById(existOtherMembersId).get();
-        resume = resumeRepository.findById(existResumeId).get();
+        TAGGED_MEMBER_1 = membersRepository.save(Members.builder()
+                .email("test2@naver.com")
+                .password("test1234")
+                .picture("picture")
+                .nickname("testName2")
+                .roleType(RoleType.ROLE_USER)
+                .build());
 
-        membersIdList = new ArrayList<>();
-        membersIdList.add(existOtherMembersId);
-        membersIdList.add(exist3rdMembersId);
-        membersIdList.add(exist4thMembersId);
-        membersIdList.add(exist5thMembersId);
+        TAGGED_MEMBER_2 = membersRepository.save(Members.builder()
+                .email("test3@naver.com")
+                .password("test1234")
+                .picture("picture")
+                .nickname("testName3")
+                .roleType(RoleType.ROLE_USER)
+                .build());
+
+        TAGGED_MEMBER_3 = membersRepository.save(Members.builder()
+                .email("test4@naver.com")
+                .password("test1234")
+                .picture("picture")
+                .nickname("testName4")
+                .roleType(RoleType.ROLE_USER)
+                .build());
+
+        NOT_RELATED_MEMBER = membersRepository.save(Members.builder()
+                .email("test5@naver.com")
+                .password("test1234")
+                .picture("picture")
+                .nickname("testName5")
+                .roleType(RoleType.ROLE_USER)
+                .build());
+
+        CreateResumeRequestDto privateDto = CreateResumeRequestDto.builder()
+                .title("제목")
+                .content("내용")
+                .resumeType("private")
+                .resumeFileId(1L)
+                .build();
+
+        CreateResumeRequestDto publicDto = CreateResumeRequestDto.builder()
+                .title("제목")
+                .content("내용")
+                .resumeType("public")
+                .resumeFileId(1L)
+                .build();
+
+        ResumeFile resumeFile = resumeFileRepository.findById(1L).get();
+        PRIVATE_RESUME = resumeRepository.save(Resume.create(privateDto, resumeFile, RESUME_OWNER, ResumeType.PRIVATE));
+        PUBLIC_RESUME = resumeRepository.save(Resume.create(publicDto, resumeFile, RESUME_OWNER, ResumeType.PUBLIC));
     }
 
     @Test
-    void addMentionSuccess() {
-        //given
-        //when
-        mentionService.addTags(resumeOwner, existResumeId, membersIdList);
-        //then
-//        Assertions.assertThat(mentionRepository.findMentionByResume(resume).size()).isEqualTo(4);
+    void 태그_생성_정상_케이스() {
+        // given
+        List<Long> taggedIdList = List.of(
+                TAGGED_MEMBER_1.getId(),
+                TAGGED_MEMBER_2.getId(),
+                TAGGED_MEMBER_3.getId());
+
+        // when
+        tagService.addTags(RESUME_OWNER, PRIVATE_RESUME.getId(), taggedIdList);
+
+        // then
+        assertThat(PRIVATE_RESUME.getTagList().size()).isEqualTo(3);
     }
 
-    // 이력서가 존재하지 않는경우
     @Test
-    void addMentionFail1() {
-        //given
-        long notExistResumeId = 4L;
-        //when
-        //then
-        Assertions.assertThatThrownBy(() -> mentionService.addTags(resumeOwner, notExistResumeId, membersIdList))
-                .isInstanceOf(ApplicationException.class);
+    void 태그_생성_공개_이력서_경우_예외_발생() {
+        // given
+        List<Long> taggedIdList = List.of(
+                TAGGED_MEMBER_1.getId(),
+                TAGGED_MEMBER_2.getId(),
+                TAGGED_MEMBER_3.getId());
+
+        // when
+        // then
+        assertThatThrownBy(() -> tagService.addTags(RESUME_OWNER, PUBLIC_RESUME.getId(), taggedIdList))
+                .isInstanceOf(ApplicationException.class)
+                .hasMessage(ErrorMessage.CAN_NOT_TAG_PUBLIC_RESUME_EXCEPTION.getMsg());
     }
 
-    // 자기 자신을 언급하려는 경우
     @Test
-    void addMentionFail2() {
-        //given
-        membersIdList.add(resumeOwnerId);
-        //when
-        //then
-        Assertions.assertThatThrownBy(() -> mentionService.addTags(resumeOwner, existResumeId, membersIdList))
-                .isInstanceOf(ApplicationException.class);
+    void 태그_생성_비공개_이력서_다른_사람이_태그시_예외_발생() {
+        // given
+        List<Long> taggedIdList = List.of(
+                TAGGED_MEMBER_1.getId(),
+                TAGGED_MEMBER_2.getId(),
+                TAGGED_MEMBER_3.getId());
+
+        // when
+        // then
+        assertThatThrownBy(() -> tagService.addTags(NOT_RELATED_MEMBER, PRIVATE_RESUME.getId(), taggedIdList))
+                .isInstanceOf(ApplicationException.class)
+                .hasMessage(ErrorMessage.PERMISSION_DENIED_TO_TAG_EXCEPTION.getMsg());
     }
 
-    // public resume에서 멘션하려는경우
     @Test
-    void addMentionFail3() {
-        //given
-        //when
-        //then
-        Assertions.assertThatThrownBy(() -> mentionService.addTags(resumeOwner, publicResumeId, membersIdList))
-                .isInstanceOf(ApplicationException.class);
+    void 태그_생성_비공개_이력서_본인_태그시_예외_발생() {
+        // given
+        List<Long> taggedIdList = List.of(
+                RESUME_OWNER.getId(),
+                TAGGED_MEMBER_1.getId(),
+                TAGGED_MEMBER_2.getId(),
+                TAGGED_MEMBER_3.getId());
+
+        // when
+        // then
+        assertThatThrownBy(() -> tagService.addTags(RESUME_OWNER, PRIVATE_RESUME.getId(), taggedIdList))
+                .isInstanceOf(ApplicationException.class)
+                .hasMessage(ErrorMessage.CAN_NOT_TAG_ONESELF_EXCEPTION.getMsg());
     }
 
-    // 자기 게시물이 아닌데 언급하려는 경우
     @Test
-    void addMentionFail4() {
-        //given
-        //when
-        //then
-        Assertions.assertThatThrownBy(() -> mentionService.addTags(resumeOwner, existResumeId, membersIdList))
-                .isInstanceOf(ApplicationException.class);
+    void 태그_제거_이력서_주인_시도_시_정상_제거() {
+        // given
+        List<Long> taggedIdList = List.of(
+                TAGGED_MEMBER_1.getId(),
+                TAGGED_MEMBER_2.getId(),
+                TAGGED_MEMBER_3.getId());
+        tagService.addTags(RESUME_OWNER, PRIVATE_RESUME.getId(), taggedIdList);
+
+        Resume beforeRemoveResume = resumeRepository.findAllResumeById(PRIVATE_RESUME.getId()).get();
+
+        // when
+        tagService.removeTag(TAGGED_MEMBER_1.getId(), RESUME_OWNER);
+        Resume afterRemovedResume = resumeRepository.findAllResumeById(PRIVATE_RESUME.getId()).get();
+
+        // then
+        // 삭제 전, 삭제 후 모두 적용 확인
+        assertThat(beforeRemoveResume.getTagList().size()).isEqualTo(2);
+        assertThat(afterRemovedResume.getTagList().size()).isEqualTo(2);
+    }
+
+    @Test
+    void 태그_제거_태그_당한_사람_시도_시_정상_제거() {
+        // given
+        List<Long> taggedIdList = List.of(
+                TAGGED_MEMBER_1.getId(),
+                TAGGED_MEMBER_2.getId(),
+                TAGGED_MEMBER_3.getId());
+        tagService.addTags(RESUME_OWNER, PRIVATE_RESUME.getId(), taggedIdList);
+
+        Resume beforeRemoveResume = resumeRepository.findAllResumeById(PRIVATE_RESUME.getId()).get();
+
+        // when
+        tagService.removeTag(TAGGED_MEMBER_1.getId(), TAGGED_MEMBER_1);
+        Resume afterRemovedResume = resumeRepository.findAllResumeById(PRIVATE_RESUME.getId()).get();
+
+        // then
+        // 삭제 전, 삭제 후 모두 적용 확인
+        assertThat(beforeRemoveResume.getTagList().size()).isEqualTo(2);
+        assertThat(afterRemovedResume.getTagList().size()).isEqualTo(2);
+    }
+
+    @Test
+    void 태그_제거_미존재_태그시_예외_발생() {
+        // given
+        List<Long> taggedIdList = List.of(
+                TAGGED_MEMBER_1.getId(),
+                TAGGED_MEMBER_2.getId(),
+                TAGGED_MEMBER_3.getId());
+        tagService.addTags(RESUME_OWNER, PRIVATE_RESUME.getId(), taggedIdList);
+
+        // when
+        // then
+        assertThatThrownBy(() -> tagService.removeTag(NOT_RELATED_MEMBER.getId(), TAGGED_MEMBER_1))
+                .isInstanceOf(ApplicationException.class)
+                .hasMessage(ErrorMessage.NOT_EXIST_TAG_EXCEPTION.getMsg());
+    }
+
+    @Test
+    void 태그_제거_연관_없는_사람이_시도_시_예외_발생() {
+        // given
+        List<Long> taggedIdList = List.of(
+                TAGGED_MEMBER_1.getId(),
+                TAGGED_MEMBER_2.getId(),
+                TAGGED_MEMBER_3.getId());
+        tagService.addTags(RESUME_OWNER, PRIVATE_RESUME.getId(), taggedIdList);
+
+        // when
+        // then
+        assertThatThrownBy(() -> tagService.removeTag(TAGGED_MEMBER_1.getId(), NOT_RELATED_MEMBER))
+                .isInstanceOf(ApplicationException.class)
+                .hasMessage(ErrorMessage.PERMISSION_DENIED_TO_DELETE_EXCEPTION.getMsg());
     }
 }
