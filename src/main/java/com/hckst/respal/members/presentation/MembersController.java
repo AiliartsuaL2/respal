@@ -43,7 +43,6 @@ public class MembersController {
         return "member/login.html";
     }
 
-
     @Operation(summary = "로그인 메서드", description = "일반 이메일 로그인 메서드입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공", useReturnTypeSchema = true),
@@ -198,5 +197,4 @@ public class MembersController {
                 .build();
         return ResponseEntity.ok(response);
     }
-
 }

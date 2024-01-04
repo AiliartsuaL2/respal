@@ -4,7 +4,6 @@ import com.hckst.respal.authentication.jwt.application.JwtService;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
-import com.hckst.respal.members.domain.RoleType;
 import com.hckst.respal.members.presentation.dto.request.*;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
@@ -22,14 +21,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(value = "transactionManager", readOnly = true)
+@Transactional
 public class MembersService {
     private final MembersRepository membersRepository;
     private final JwtTokenProvider jwtTokenProvider;
@@ -40,21 +37,13 @@ public class MembersService {
     private static final String JOIN_MAIL_TITLE = "[Respal] 비밀번호 재설정 링크입니다.";
     private static final String MAIL_MESSAGE = "변경된 임시 비밀번호는 아래와 같습니다. \n";
 
-    @Transactional("transactionManager")
+    @Transactional
     public MembersLoginResponseDto loginMembers(MembersLoginRequestDto membersLoginRequestDto) {
         Members members = findCommonMemberByEmail(membersLoginRequestDto.getEmail());
         members.checkPassword(membersLoginRequestDto.getPassword());
-        String tmpPasswordStatus = members.getTmpPasswordStatus();
         Token token = jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
         jwtService.login(token);
-
-        return MembersLoginResponseDto.builder()
-                .membersEmail(token.getMembersEmail())
-                .refreshToken(token.getRefreshToken())
-                .accessToken(token.getAccessToken())
-                .grantType(token.getGrantType())
-                .tmpPasswordStatus(tmpPasswordStatus)
-                .build();
+        return MembersLoginResponseDto.create(token, members.getTmpPasswordStatus());
     }
 
     public Members findCommonMemberByEmail(String email) {
@@ -62,31 +51,21 @@ public class MembersService {
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
     }
 
-    // email 중복체크 ,, 중복이면 true 없으면 false
     public boolean duplicationCheckEmail(String email) {
         return membersRepository.existsMembersByEmail(email);
     }
 
     // 회원가입 서비스
-    @Transactional("transactionManager") // insert query,, read-only false
+    @Transactional
     public Token join(MembersJoinRequestDto membersJoinRequestDto) {
         if (duplicationCheckEmail(membersJoinRequestDto.getEmail())) {
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
-
-        Members members = Members.builder()
-                .email(membersJoinRequestDto.getEmail())
-                .password(Optional.ofNullable(membersJoinRequestDto.getPassword()).orElseThrow(
-                        () -> new ApplicationException(ErrorMessage.NOT_EXIST_PASSWORD_EXCEPTION)))
-                .picture(membersJoinRequestDto.getPicture())
-                .nickname(membersJoinRequestDto.getNickname())
-                .roleType(RoleType.ROLE_USER)
-                .build();
+        Members members = Members.create(membersJoinRequestDto);
         membersRepository.save(members);
 
         return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
     }
-
 
     @Async
     public void sendJoinEmail(SendEmailRequestDto sendEmailRequestDto) {
@@ -106,8 +85,7 @@ public class MembersService {
         }
     }
 
-    // 비밀번호 재설정 direction 설정
-    @Transactional("transactionManager")
+    @Transactional
     // Async 설정
 //    @Async Annotation을 사용할 때 아래와 같은 세 가지 사항을 주의하자.
 //      private method는 사용 불가
@@ -128,13 +106,11 @@ public class MembersService {
         }
     }
 
-    //회원임을 확인하는 로직 이메일 send는 Async 처리로 controller에서 해당 로직으로 확인 후 메일 전송
     public boolean checkMembers(String email){
         return membersRepository.findCommonMembersByEmail(email).isPresent();
     }
 
-    // 비밀번호 변경
-    @Transactional("transactionManager")
+    @Transactional
     public void updatePassword(PasswordPatchRequestDto passwordPatchRequestDto) {
         Members members = membersRepository.findCommonMembersByEmail(passwordPatchRequestDto.getEmail()).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
@@ -144,8 +120,7 @@ public class MembersService {
         members.updatePassword(passwordPatchRequestDto.getNewPassword());
     }
 
-    // 비밀번호 재설정 메서드, UUID로 비밀번호를 설정 후 해당 이메일로 임시 비밀번호를 전송해줌.
-    @Transactional("transactionManager")
+    @Transactional
     public String passwordResetToTmp(String email) {
         Members members = membersRepository.findCommonMembersByEmail(email).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
@@ -154,7 +129,6 @@ public class MembersService {
         return password;
     }
 
-    // 닉네임을 통해 회원을 조회하는 메서드
     public List<MembersResponseDto> searchMembers(SearchMembersRequestDto searchMembersRequestDto){
         return membersRepository.findMembersByNickname(searchMembersRequestDto);
     }

@@ -1,11 +1,13 @@
 package com.hckst.respal.members.presentation.dto.response;
 
 
+import com.hckst.respal.authentication.jwt.dto.Token;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 @Getter
-@Builder
+@NoArgsConstructor
 @Schema(description = "일반 이메일 로그인 응답")
 public class MembersLoginResponseDto {
     @Schema(description = "토큰 타입")
@@ -19,4 +21,13 @@ public class MembersLoginResponseDto {
     @Schema(description = "임시 비밀번호 status , Y인 경우 임시 비밀번호 / N인 경우 일반 비밀번호")
     private String tmpPasswordStatus;
 
+    public static MembersLoginResponseDto create(Token token, String tmpPasswordStatus) {
+        MembersLoginResponseDto membersLoginResponseDto = new MembersLoginResponseDto();
+        membersLoginResponseDto.membersEmail = token.getMembersEmail();
+        membersLoginResponseDto.refreshToken = token.getRefreshToken();
+        membersLoginResponseDto.accessToken = token.getAccessToken();
+        membersLoginResponseDto.grantType = token.getGrantType();
+        membersLoginResponseDto.tmpPasswordStatus = tmpPasswordStatus;
+        return membersLoginResponseDto;
+    }
 }

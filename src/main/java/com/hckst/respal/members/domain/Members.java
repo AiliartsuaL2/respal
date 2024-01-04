@@ -6,6 +6,7 @@ import com.hckst.respal.converter.TFCode;
 import com.hckst.respal.converter.TFCodeConverter;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
+import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.tag.domain.Tag;
 import com.hckst.respal.resume.domain.Resume;
 import lombok.*;
@@ -86,20 +87,21 @@ public class Members implements UserDetails {
     @OneToMany(mappedBy = "membersId")
     private List<Oauth> oauthList;
 
-    @Builder
-    public Members(Long id,String password, String nickname, String email, String picture, RoleType roleType){
-        this.id = id;
-        this.password = encryptPassword(password);
-        this.picture = checkPicture(picture);
-        this.nickname = nickname;
-        this.roleType = roleType;
-        this.regTime = LocalDateTime.now();
-        this.email = email;
-        this.oauthList = new ArrayList<>();
-        this.passwordTmpYn = TFCode.FALSE;
-        this.commentList = new ArrayList<>();
-        this.resumeList = new ArrayList<>();
-        this.taggedList = new ArrayList<>();
+    public static Members create(MembersJoinRequestDto membersJoinRequestDto) {
+        Members members = new Members();
+        members.email = membersJoinRequestDto.getEmail();
+        members.password = encryptPassword(membersJoinRequestDto.getPassword());
+        members.picture = checkPicture(membersJoinRequestDto.getPicture());
+        members.nickname = membersJoinRequestDto.getNickname();
+
+        members.roleType = RoleType.ROLE_USER;
+        members.regTime = LocalDateTime.now();
+        members.oauthList = new ArrayList<>();
+        members.passwordTmpYn = TFCode.FALSE;
+        members.commentList = new ArrayList<>();
+        members.resumeList = new ArrayList<>();
+        members.taggedList = new ArrayList<>();
+        return members;
     }
 
     public static Members createProxy(Long id) {
@@ -117,7 +119,7 @@ public class Members implements UserDetails {
         return members;
     }
 
-    private String checkPicture(String picture) {
+    private static String checkPicture(String picture) {
         if(picture != null) {
             return picture;
         }
@@ -162,7 +164,7 @@ public class Members implements UserDetails {
     }
 
     // 비밀번호를 암호화하는 메서드
-    private String encryptPassword(String password) {
+    private static String encryptPassword(String password) {
         String encryptedPassword = B_CRYPT_PASSWORD_ENCODER.encode(password);
         return encryptedPassword;
     }
