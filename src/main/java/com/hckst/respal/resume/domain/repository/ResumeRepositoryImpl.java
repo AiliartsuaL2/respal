@@ -45,7 +45,6 @@ public class ResumeRepositoryImpl implements ResumeRepositoryCustom{
                 .select(new QResumeDetailResponseDto(
                         resume.id,
                         resume.title,
-                        resume.content,
                         resume.views,
                         members.id,
                         members.nickname,

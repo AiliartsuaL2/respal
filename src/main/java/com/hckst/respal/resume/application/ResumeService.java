@@ -48,7 +48,7 @@ public class ResumeService {
         Resume resume = Resume.create(createResumeRequestDto);
         resumeRepository.save(resume);
 
-        if(!createResumeRequestDto.getTagIdList().isEmpty()) {
+        if(!(createResumeRequestDto.getTagIdList() == null)) {
             tagService.addTags(members, resume.getId(), createResumeRequestDto.getTagIdList());
         }
 

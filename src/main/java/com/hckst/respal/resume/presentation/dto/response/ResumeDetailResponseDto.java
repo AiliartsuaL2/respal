@@ -23,8 +23,6 @@ public class ResumeDetailResponseDto {
     private Long resumeId;
     @Schema(description = "이력서의 제목입니다.")
     private String title;
-    @Schema(description = "이력서의 내용입니다.")
-    private String content;
     @Schema(description = "이력서 파일의 경로입니다.")
     private String filePath;
     @Schema(description = "이력서 파일의 이름입니다.")
@@ -49,10 +47,9 @@ public class ResumeDetailResponseDto {
     private List<MembersResponseDto> taggedMembers;
 
     @QueryProjection
-    public ResumeDetailResponseDto(Long resumeId, String title, String content, int views, Long membersId, String membersNickname, String membersPicture, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime) {
+    public ResumeDetailResponseDto(Long resumeId, String title, int views, Long membersId, String membersNickname, String membersPicture, TFCode modifyYn, LocalDateTime regTime, LocalDateTime modifyTime) {
         this.resumeId = resumeId;
         this.title = title;
-        this.content = content;
         this.views = views;
         this.membersId = membersId;
         this.membersNickname = membersNickname;
@@ -65,7 +62,6 @@ public class ResumeDetailResponseDto {
     public ResumeDetailResponseDto(Resume resume) {
         this.resumeId = resume.getId();
         this.title = resume.getTitle();
-        this.content = resume.getContent();
         this.filePath = resume.getResumeFile().getAccessUrl();
         this.fileName = resume.getResumeFile().getOriginName();
         this.views = resume.getViews();

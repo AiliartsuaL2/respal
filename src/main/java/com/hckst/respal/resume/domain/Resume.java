@@ -29,9 +29,6 @@ public class Resume {
     // 이력서 제목
     @Column(length = 20)
     private String title;
-    // 이력서 내용
-    @Column(length = 1000)
-    private String content;
     // 게시물 조회수
     @Column(length = 10)
     private int views;
@@ -66,7 +63,6 @@ public class Resume {
     public static Resume create(CreateResumeRequestDto requestDto) {
         Resume resume = new Resume();
         resume.title = requestDto.getTitle();
-        resume.content = requestDto.getContent();
         resume.resumeType = ResumeType.findByType(requestDto.getResumeType());
         resume.modifyYn = TFCode.FALSE;
         resume.deleteYn = TFCode.FALSE;
@@ -86,9 +82,8 @@ public class Resume {
         return resume;
     }
 
-    public void updateResume(String title, String content, ResumeFile resumeFile){
+    public void updateResume(String title, ResumeFile resumeFile){
         this.title = Objects.requireNonNullElse(title, this.title);
-        this.content = Objects.requireNonNullElse(content, this.content);
         this.resumeFile = Objects.requireNonNullElse(resumeFile, this.resumeFile);
         this.modifyYn = TFCode.TRUE;
         this.modifyTime = LocalDateTime.now();

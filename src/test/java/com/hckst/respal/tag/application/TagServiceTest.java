@@ -85,7 +85,6 @@ class TagServiceTest {
         ResumeFile resumeFile = resumeFileRepository.findById(1L).get();
         CreateResumeRequestDto privateDto = CreateResumeRequestDto.builder()
                 .title("제목")
-                .content("내용")
                 .resumeType("private")
                 .resumeFileId(1L)
                 .resumeFile(resumeFile)
@@ -93,7 +92,6 @@ class TagServiceTest {
                 .build();
         CreateResumeRequestDto publicDto = CreateResumeRequestDto.builder()
                 .title("제목")
-                .content("내용")
                 .resumeType("public")
                 .resumeFileId(1L)
                 .resumeFile(resumeFile)

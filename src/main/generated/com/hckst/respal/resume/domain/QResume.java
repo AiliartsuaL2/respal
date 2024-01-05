@@ -22,8 +22,6 @@ public class QResume extends EntityPathBase<Resume> {
 
     public static final QResume resume = new QResume("resume");
 
-    public final StringPath content = createString("content");
-
     public final DateTimePath<java.time.LocalDateTime> deleteTime = createDateTime("deleteTime", java.time.LocalDateTime.class);
 
     public final EnumPath<com.hckst.respal.converter.TFCode> deleteYn = createEnum("deleteYn", com.hckst.respal.converter.TFCode.class);

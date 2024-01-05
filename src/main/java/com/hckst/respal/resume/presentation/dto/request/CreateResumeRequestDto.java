@@ -20,9 +20,6 @@ public class CreateResumeRequestDto {
     @Schema(description = "이력서 제목 입니다.")
     @NotNull(message = "제목은 필수 입력값이에요")
     private String title;
-    @Schema(description = "이력서 내용 입니다.")
-    @NotNull(message = "내용은 필수 입력값이에요")
-    private String content;
     @Schema(description = "등록된 이력서 파일의 ID입니다.")
     @NotNull(message = "파일 ID는 필수 입력값이에요")
     private Long resumeFileId;

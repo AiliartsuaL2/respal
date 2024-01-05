@@ -67,13 +67,11 @@ class ResumeServiceTest {
 
         PUBLIC_RESUME_DTO = CreateResumeRequestDto.builder()
                 .title("제목 테스트1")
-                .content("내용테스트 1")
                 .resumeType("public")
                 .resumeFileId(1L)
                 .build();
         PRIVATE_RESUME_DTO = CreateResumeRequestDto.builder()
                 .title("제목 테스트 2")
-                .content("내용 테스트 2")
                 .resumeType("private")
                 .resumeFileId(1L)
                 .tagIdList(Arrays.asList(TAGGED_USER.getId()))
