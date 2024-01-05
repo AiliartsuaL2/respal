@@ -16,8 +16,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class UserDetailsServiceImpl implements UserDetailsService {
-    @Autowired
-    MembersRepository membersRepository;
+    private final MembersRepository membersRepository;
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
         return membersRepository.findById(Long.parseLong(id))
