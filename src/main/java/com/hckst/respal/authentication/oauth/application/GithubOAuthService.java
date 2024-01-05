@@ -112,10 +112,7 @@ public class GithubOAuthService implements OAuthService{
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
         Members members = Members.create(membersJoinRequestDto);
-        Oauth oauth = Oauth.builder()
-                .membersId(members)
-                .provider(Provider.GITHUB)
-                .build();
+        Oauth oauth = new Oauth(members, Provider.GITHUB);
 
         membersRepository.save(members);
         oauthRepository.save(oauth);

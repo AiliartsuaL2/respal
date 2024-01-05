@@ -30,32 +30,33 @@ public class ResumeFile {
     private LocalDateTime deleteTime;
     private LocalDateTime regTime;
 
-    @Builder
-    public ResumeFile(String originName) {
-        this.originName = originName;
-        this.storedName = getFileName(originName);
-        this.accessUrl = "";
-        this.deleteYn = TFCode.FALSE;
-        this.regTime = LocalDateTime.now();
+    public static ResumeFile create(String originName) {
+        ResumeFile resumeFile = new ResumeFile();
+        resumeFile.originName = originName;
+        resumeFile.storedName = convertToFileName(originName);
+        resumeFile.accessUrl = "";
+        resumeFile.deleteYn = TFCode.FALSE;
+        resumeFile.regTime = LocalDateTime.now();
+        return resumeFile;
     }
 
     public void setAccessUrl(String accessUrl) {
         this.accessUrl = accessUrl;
     }
+    public void deleteResumeFile(){
+        this.deleteYn = TFCode.TRUE;
+        this.deleteTime = LocalDateTime.now();
+    }
 
     // 이미지 파일의 확장자를 추출하는 메소드
-    public String extractExtension(String originName) {
+    private static String extractExtension(String originName) {
         int index = originName.lastIndexOf('.');
 
         return originName.substring(index, originName.length());
     }
 
     // 이미지 파일의 이름을 저장하기 위한 이름으로 변환하는 메소드
-    public String getFileName(String originName) {
+    private static String convertToFileName(String originName) {
         return UUID.randomUUID() + "." + extractExtension(originName);
-    }
-    public void deleteResumeFile(){
-        this.deleteYn = TFCode.TRUE;
-        this.deleteTime = LocalDateTime.now();
     }
 }

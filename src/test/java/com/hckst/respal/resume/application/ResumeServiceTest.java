@@ -4,6 +4,7 @@ import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.RoleType;
 import com.hckst.respal.members.domain.repository.MembersRepository;
+import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.resume.domain.repository.ResumeRepository;
 import com.hckst.respal.resume.presentation.dto.request.CreateResumeRequestDto;
 import com.hckst.respal.resume.presentation.dto.request.ResumeListRequestDto;
@@ -39,19 +40,27 @@ class ResumeServiceTest {
 
     @BeforeEach
     void initInstance() {
-        OWNER = Members.builder()
-                .password("pass")
-                .roleType(RoleType.ROLE_USER)
+        MembersJoinRequestDto dto1 = MembersJoinRequestDto.builder()
+                .email("test@naver.com")
+                .password("test1234")
+                .picture("picture")
+                .nickname("testName")
                 .build();
-        TAGGED_USER = Members.builder()
-                .password("pass")
-                .roleType(RoleType.ROLE_USER)
+        MembersJoinRequestDto dto2 = MembersJoinRequestDto.builder()
+                .email("test@naver.com")
+                .password("test1234")
+                .picture("picture")
+                .nickname("testName")
                 .build();
-        NOT_TAGGED_USER = Members.builder()
-                .password("pass")
-                .roleType(RoleType.ROLE_USER)
+        MembersJoinRequestDto dto3 = MembersJoinRequestDto.builder()
+                .email("test@naver.com")
+                .password("test1234")
+                .picture("picture")
+                .nickname("testName")
                 .build();
-
+        OWNER = Members.create(dto1);
+        TAGGED_USER = Members.create(dto2);
+        NOT_TAGGED_USER = Members.create(dto3);
         membersRepository.save(OWNER);
         membersRepository.save(TAGGED_USER);
         membersRepository.save(NOT_TAGGED_USER);
@@ -62,7 +71,6 @@ class ResumeServiceTest {
                 .resumeType("public")
                 .resumeFileId(1L)
                 .build();
-
         PRIVATE_RESUME_DTO = CreateResumeRequestDto.builder()
                 .title("제목 테스트 2")
                 .content("내용 테스트 2")

@@ -12,5 +12,4 @@ public class KakaoUserInfo {
     private String connectedAt;
     private KakaoPropertiesDto properties;
     private KakaoAccountDto kakaoAccount;
-
 }

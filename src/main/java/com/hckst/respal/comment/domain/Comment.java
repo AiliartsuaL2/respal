@@ -16,35 +16,24 @@ import java.util.Objects;
 import org.springframework.data.annotation.Transient;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Comment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    // 댓글 내용
     @Column(length = 300)
     private String content;
-    // x축 좌표
     private int xLocation;
-    // y축 좌표
     private int yLocation;
-
-    // 삭제 여부
     private String deleteYn;
-
     private LocalDateTime regTime;
     private LocalDateTime deleteTime;
-
     @Column(name = "resume_id")
     private Long resumeId;
-
     @Column(name = "members_id")
     private Long membersId;
-
     @Transient
     private Resume resume;
-
     @Transient
     private Members members;
 
@@ -120,5 +109,4 @@ public class Comment {
     public int hashCode() {
         return Objects.hash(id);
     }
-
 }

@@ -30,14 +30,10 @@ public class JwtService {
 
     @Transactional
     public void login(Token tokenDto){
-        RefreshToken refreshToken = RefreshToken.builder()
-                .keyId(tokenDto.getMembersId())
-                .refreshToken(tokenDto.getRefreshToken())
-                .build();
-        Members members = membersRepository.findById(refreshToken.getKeyId()).orElseThrow(
+        Members members = membersRepository.findById(tokenDto.getMembersId()).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.INVALID_MEMBER_EXCEPTION));
-        String email = members.getEmail();
-        tokenDto.setMembersEmail(email);
+        RefreshToken refreshToken = RefreshToken.create(tokenDto);
+        tokenDto.setMembersEmail(members.getEmail());
         if(refreshTokenRepository.existsByKeyId(tokenDto.getMembersId())){
             log.info("기존의 존재하는 refresh 토큰 삭제");
             refreshTokenRepository.deleteByKeyId(tokenDto.getMembersId());
@@ -52,8 +48,7 @@ public class JwtService {
     public RefreshAccessTokenResponseDto validateRefreshToken(String requestRefreshToken){
         requestRefreshToken = requestRefreshToken.replace(TOKEN_PREFIX,""); // Bearer 제거
         RefreshToken refreshToken = getRefreshToken(requestRefreshToken).orElseThrow(
-                () -> new ApplicationException(ErrorMessage.INCORRECT_REFRESH_TOKEN_EXCEPTION)
-        );
+                () -> new ApplicationException(ErrorMessage.INCORRECT_REFRESH_TOKEN_EXCEPTION));
         String createdAccessToken = jwtTokenProvider.validateRefreshToken(refreshToken.getRefreshToken());
         return createRefreshJson(createdAccessToken);
     }
@@ -73,8 +68,7 @@ public class JwtService {
     public void deleteRefreshToken(String refreshToken){
         refreshToken = refreshToken.replace(TOKEN_PREFIX,""); // Bearer 제거
         RefreshToken storedRefreshToken = refreshTokenRepository.findByRefreshToken(refreshToken).orElseThrow(
-                () -> new ApplicationException(ErrorMessage.NOT_EXIST_REFRESH_TOKEN_EXCEPTION)
-        );
+                () -> new ApplicationException(ErrorMessage.NOT_EXIST_REFRESH_TOKEN_EXCEPTION));
         refreshTokenRepository.deleteByKeyId(storedRefreshToken.getKeyId());
     }
 }

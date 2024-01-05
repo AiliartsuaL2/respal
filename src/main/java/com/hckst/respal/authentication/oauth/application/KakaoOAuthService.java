@@ -111,10 +111,7 @@ public class KakaoOAuthService implements OAuthService{
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
         Members members = Members.create(membersJoinRequestDto);
-        Oauth oauth = Oauth.builder()
-                .membersId(members)
-                .provider(Provider.KAKAO)
-                .build();
+        Oauth oauth = new Oauth(members, Provider.KAKAO);
 
         membersRepository.save(members);
         oauthRepository.save(oauth);

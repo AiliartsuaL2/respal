@@ -68,6 +68,10 @@ public class OAuthServiceImpl {
         return oAuthService.join(membersJoinRequestDto);
     }
 
+    /**
+     * 신규 회원의 경우 회원 정보 저장 후 redirect
+     * 기존 회원의 경우 토큰 정보 저장 후 redirect
+     */
     public Token login(Provider provider, Client client, String code, String uid) {
         String redirectUri = String.join("/", OAUTH_REDIRECT_URI_PREFIX
                 , "oauth"
@@ -80,11 +84,7 @@ public class OAuthServiceImpl {
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_TOKEN_INFO_EXCEPTION));
 
         // 신규 회원인경우, email, nickname, image oauth_tmp에 저장 후 redirect
-        OauthTmp oauthTmp = OauthTmp.builder()
-                .uid(uid)
-                .provider(provider)
-                .userInfo(userInfo)
-                .build();
+        OauthTmp oauthTmp = new OauthTmp(uid, provider, userInfo);
 
         // 신규유저 확인
         Token token = checkNewUser(client, oauthTmp);

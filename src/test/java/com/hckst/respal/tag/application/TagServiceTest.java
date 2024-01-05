@@ -1,11 +1,10 @@
 package com.hckst.respal.tag.application;
 
-import com.hckst.respal.converter.ResumeType;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
-import com.hckst.respal.members.domain.RoleType;
 import com.hckst.respal.members.domain.repository.MembersRepository;
+import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 import com.hckst.respal.resume.application.ResumeService;
 import com.hckst.respal.resume.domain.Resume;
 import com.hckst.respal.resume.domain.ResumeFile;
@@ -47,63 +46,61 @@ class TagServiceTest {
 
     @BeforeEach
     public void init() {
-        RESUME_OWNER = membersRepository.save(Members.builder()
+        MembersJoinRequestDto dto1 = MembersJoinRequestDto.builder()
                 .email("test@naver.com")
                 .password("test1234")
                 .picture("picture")
                 .nickname("testName")
-                .roleType(RoleType.ROLE_USER)
-                .build());
-
-        TAGGED_MEMBER_1 = membersRepository.save(Members.builder()
+                .build();
+        MembersJoinRequestDto dto2 = MembersJoinRequestDto.builder()
                 .email("test2@naver.com")
                 .password("test1234")
                 .picture("picture")
                 .nickname("testName2")
-                .roleType(RoleType.ROLE_USER)
-                .build());
-
-        TAGGED_MEMBER_2 = membersRepository.save(Members.builder()
+                .build();
+        MembersJoinRequestDto dto3 = MembersJoinRequestDto.builder()
                 .email("test3@naver.com")
                 .password("test1234")
                 .picture("picture")
                 .nickname("testName3")
-                .roleType(RoleType.ROLE_USER)
-                .build());
-
-        TAGGED_MEMBER_3 = membersRepository.save(Members.builder()
+                .build();
+        MembersJoinRequestDto dto4 = MembersJoinRequestDto.builder()
                 .email("test4@naver.com")
                 .password("test1234")
                 .picture("picture")
                 .nickname("testName4")
-                .roleType(RoleType.ROLE_USER)
-                .build());
-
-        NOT_RELATED_MEMBER = membersRepository.save(Members.builder()
+                .build();
+        MembersJoinRequestDto dto5 = MembersJoinRequestDto.builder()
                 .email("test5@naver.com")
                 .password("test1234")
                 .picture("picture")
                 .nickname("testName5")
-                .roleType(RoleType.ROLE_USER)
-                .build());
+                .build();
+        RESUME_OWNER = membersRepository.save(Members.create(dto1));
+        TAGGED_MEMBER_1 = membersRepository.save(Members.create(dto2));
+        TAGGED_MEMBER_2 = membersRepository.save(Members.create(dto3));
+        TAGGED_MEMBER_3 = membersRepository.save(Members.create(dto4));
+        NOT_RELATED_MEMBER = membersRepository.save(Members.create(dto5));
 
+        ResumeFile resumeFile = resumeFileRepository.findById(1L).get();
         CreateResumeRequestDto privateDto = CreateResumeRequestDto.builder()
                 .title("제목")
                 .content("내용")
                 .resumeType("private")
                 .resumeFileId(1L)
+                .resumeFile(resumeFile)
+                .writer(RESUME_OWNER)
                 .build();
-
         CreateResumeRequestDto publicDto = CreateResumeRequestDto.builder()
                 .title("제목")
                 .content("내용")
                 .resumeType("public")
                 .resumeFileId(1L)
+                .resumeFile(resumeFile)
+                .writer(RESUME_OWNER)
                 .build();
-
-        ResumeFile resumeFile = resumeFileRepository.findById(1L).get();
-        PRIVATE_RESUME = resumeRepository.save(Resume.create(privateDto, resumeFile, RESUME_OWNER, ResumeType.PRIVATE));
-        PUBLIC_RESUME = resumeRepository.save(Resume.create(publicDto, resumeFile, RESUME_OWNER, ResumeType.PUBLIC));
+        PRIVATE_RESUME = resumeRepository.save(Resume.create(privateDto));
+        PUBLIC_RESUME = resumeRepository.save(Resume.create(publicDto));
     }
 
     @Test

@@ -38,5 +38,4 @@ public class MembersJoinRequestDto {
     @Schema(description = "provider", nullable = false, allowableValues = {"common","kakao","google","github"})
     @NotNull(message = "Provider는 필수 입력 항목이에요")
     private String provider;
-
 }

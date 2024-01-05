@@ -10,10 +10,7 @@ import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.resume.presentation.dto.request.CreateResumeRequestDto;
 import com.hckst.respal.tag.domain.Tag;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -23,13 +20,12 @@ import java.util.Objects;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Resume {
     // 이력서 id
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     // 이력서 제목
     @Column(length = 20)
     private String title;
@@ -39,7 +35,6 @@ public class Resume {
     // 게시물 조회수
     @Column(length = 10)
     private int views;
-
     // 수정 여부
     @Convert(converter = TFCodeConverter.class)
     @Column(columnDefinition = "char")
@@ -48,76 +43,39 @@ public class Resume {
     @Convert(converter = TFCodeConverter.class)
     @Column(columnDefinition = "char")
     private TFCode deleteYn;
-
     @Convert(converter = ResumeTypeConverter.class)
     @Column(columnDefinition = "varchar(10)", nullable=false)
     private ResumeType resumeType;
-
     // 등록일시
     private LocalDateTime regTime;
     // 수정일시
     private LocalDateTime modifyTime;
     // 삭제일시
     private LocalDateTime deleteTime;
-
-    /**
-     * 연관관계 매핑
-     * 양방향
-     * Members
-     * Many to One
-     * 이력서의 주인
-     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MEMBERS_ID")
     private Members members;
-
-    /**
-     * 연관관계 매핑
-     * 단방향
-     * ResumeFile
-     * One to One
-     * 이력서의 파일
-     */
     @OneToOne
     private ResumeFile resumeFile;
-
     // R2DBC 관련 연관관계 매핑 x
     @Transient
     private List<Comment> commentList;
-
-    /**
-     * 연관관계 매핑
-     * 양방향
-     * Tag
-     * One to Many (다대다 중간테이블)
-     * 이력서에 언급한 언급 리스트
-     */
     @OneToMany(mappedBy = "resume")
     private List<Tag> tagList;
 
-
-    @Builder
-    private Resume(String title, String content ,ResumeFile resumeFile , Members members, ResumeType resumeType){
-        this.title = title;
-        this.content = content;
-        this.resumeType = resumeType;
-        this.modifyYn = TFCode.FALSE;
-        this.deleteYn = TFCode.FALSE;
-        this.regTime = LocalDateTime.now();
-        this.members = members;
-        this.commentList = new ArrayList<>();
-        this.resumeFile = resumeFile;
-        this.tagList = new ArrayList<>();
-    }
-
-    public static Resume create(CreateResumeRequestDto requestDto, ResumeFile resumeFile, Members writer, ResumeType resumeType) {
-        return Resume.builder()
-                .title(requestDto.getTitle())
-                .content(requestDto.getTitle())
-                .resumeFile(resumeFile)
-                .members(writer)
-                .resumeType(resumeType)
-                .build();
+    public static Resume create(CreateResumeRequestDto requestDto) {
+        Resume resume = new Resume();
+        resume.title = requestDto.getTitle();
+        resume.content = requestDto.getContent();
+        resume.resumeType = ResumeType.findByValue(requestDto.getResumeType());
+        resume.modifyYn = TFCode.FALSE;
+        resume.deleteYn = TFCode.FALSE;
+        resume.regTime = LocalDateTime.now();
+        resume.members = requestDto.getWriter();
+        resume.commentList = new ArrayList<>();
+        resume.resumeFile = requestDto.getResumeFile();
+        resume.tagList = new ArrayList<>();
+        return resume;
     }
 
     public static Resume convertByQuery(Long resumeId, Long resumeMembersId, String deleteYn) {

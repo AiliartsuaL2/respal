@@ -3,8 +3,6 @@ package com.hckst.respal.resume.application;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.hckst.respal.comment.domain.repository.CommentRepository;
-import com.hckst.respal.comment.presentation.dto.response.CommentsResponseDto;
-import com.hckst.respal.converter.ResumeType;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
@@ -18,7 +16,6 @@ import com.hckst.respal.resume.presentation.dto.response.ResumeDetailResponseDto
 import com.hckst.respal.resume.presentation.dto.response.ResumeListResponseDto;
 import com.hckst.respal.resume.presentation.dto.response.CreateResumeFileResponseDto;
 import com.hckst.respal.tag.application.TagService;
-import com.hckst.respal.tag.presentation.dto.request.AddTagRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,8 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +31,6 @@ import java.util.List;
 public class ResumeService {
     private static final String BUCKET_NAME = "respal-resume";
     private final ResumeRepository resumeRepository;
-    private final CommentRepository commentRepository;
     private final ResumeFileRepository resumeFileRepository;
     private final AmazonS3Client amazonS3Client;
     private final TagService tagService;
@@ -49,19 +43,16 @@ public class ResumeService {
     public ResumeDetailResponseDto createResume(CreateResumeRequestDto createResumeRequestDto, Members members){
         ResumeFile resumeFile = resumeFileRepository.findById(createResumeRequestDto.getResumeFileId()).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_FILE_ID_EXCEPTION));
+        createResumeRequestDto.setResumeFileAndWriter(resumeFile, members);
 
-        ResumeType resumeType = ResumeType.findByValue(
-                createResumeRequestDto.getResumeType());
-
-        Resume resume = Resume.create(createResumeRequestDto, resumeFile, members, resumeType);
+        Resume resume = Resume.create(createResumeRequestDto);
         resumeRepository.save(resume);
 
-        if(createResumeRequestDto.getTagIdList() != null)
+        if(!createResumeRequestDto.getTagIdList().isEmpty()) {
             tagService.addTags(members, resume.getId(), createResumeRequestDto.getTagIdList());
+        }
 
-        ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
-                .resume(resume)
-                .build();
+        ResumeDetailResponseDto resumeDetailResponseDto = new ResumeDetailResponseDto(resume);
         return resumeDetailResponseDto;
     }
 
@@ -78,9 +69,7 @@ public class ResumeService {
         resume.view(members);
 
         // DTO 변환
-        ResumeDetailResponseDto resumeDetailResponseDto = ResumeDetailResponseDto.builder()
-                .resume(resume)
-                .build();
+        ResumeDetailResponseDto resumeDetailResponseDto = new ResumeDetailResponseDto(resume);
         return resumeDetailResponseDto;
     }
 
@@ -99,7 +88,7 @@ public class ResumeService {
      */
     public CreateResumeFileResponseDto createResumeFile(MultipartFile multipartFile) {
         String originalName = multipartFile.getOriginalFilename();
-        ResumeFile resumeFile = ResumeFile.builder().originName(originalName).build();
+        ResumeFile resumeFile = ResumeFile.create(originalName);
         String filename = resumeFile.getStoredName();
 
         try {

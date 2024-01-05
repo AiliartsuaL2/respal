@@ -109,15 +109,11 @@ public class GoogleOAuthService implements OAuthService {
 
     @Override
     public Token join(MembersJoinRequestDto membersJoinRequestDto) {
-        // 이미 이메일과 provider로 존재하는경우 exception
-        if(membersRepository.existsMembersOauthForJoin(membersJoinRequestDto.getEmail(),Provider.GOOGLE)){
+        if(membersRepository.existsMembersOauthForJoin(membersJoinRequestDto.getEmail(), Provider.GOOGLE)){
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
         Members members = Members.create(membersJoinRequestDto);
-        Oauth oauth = Oauth.builder()
-                .membersId(members)
-                .provider(Provider.GOOGLE)
-                .build();
+        Oauth oauth = new Oauth(members, Provider.GOOGLE);
 
         membersRepository.save(members);
         oauthRepository.save(oauth);

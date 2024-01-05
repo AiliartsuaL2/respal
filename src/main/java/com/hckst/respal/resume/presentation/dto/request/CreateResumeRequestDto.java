@@ -1,7 +1,9 @@
 package com.hckst.respal.resume.presentation.dto.request;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hckst.respal.members.domain.Members;
+import com.hckst.respal.resume.domain.ResumeFile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -29,4 +31,19 @@ public class CreateResumeRequestDto {
     private String resumeType;
     @Schema(description = "등록시 태그할 회원의 ID 리스트 입니다.")
     private List<Long> tagIdList;
+
+    /**
+     * 내부 값 전달용 필드
+     */
+    @Schema(hidden = true)
+    @JsonIgnore
+    private ResumeFile resumeFile;
+    @Schema(hidden = true)
+    @JsonIgnore
+    private Members writer;
+
+    public void setResumeFileAndWriter(ResumeFile resumeFile, Members writer) {
+        this.resumeFile = resumeFile;
+        this.writer = writer;
+    }
 }

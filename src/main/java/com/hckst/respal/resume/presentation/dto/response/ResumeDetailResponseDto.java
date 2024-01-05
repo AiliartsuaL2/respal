@@ -62,7 +62,6 @@ public class ResumeDetailResponseDto {
         this.modifyTime = modifyTime != null ? modifyTime.format(DateTimeFormatter.ofPattern("yyyyMMdd")) : null;
     }
 
-    @Builder
     public ResumeDetailResponseDto(Resume resume) {
         this.resumeId = resume.getId();
         this.title = resume.getTitle();
