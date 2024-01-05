@@ -6,15 +6,16 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ResumeType implements BaseEnumCode<String> {
-    PUBLIC("public"),
-    PRIVATE("private"),
-    ALL("");
+    PUBLIC("public","hub"),
+    PRIVATE("private","tag"),
+    ALL("","me");
 
     private final String value;
+    private final String type;
 
-    public static ResumeType findByValue(String value) {
+    public static ResumeType findByType(String type) {
         for(ResumeType resumeType : ResumeType.values()) {
-            if(resumeType.value.equals(value)) {
+            if(resumeType.type.equals(type)) {
                 return resumeType;
             }
         }

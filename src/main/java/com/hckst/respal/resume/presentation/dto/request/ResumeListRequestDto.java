@@ -25,17 +25,6 @@ public class ResumeListRequestDto {
     private ResumeType resumeType;
     // 조회하는 회원, tagged 에서만 필요.
     private Members viewer;
-    /**
-     * 매핑 조건
-     * sort (정렬 기준)
-     *   - recent
-     *   - views
-     *   - comments
-     *
-     * direction (차순)
-     *   - asc
-     *   - desc
-     */
 
     public static ResumeListRequestDto create(String type, int page, long limit, Members viewer) {
         ResumeListRequestDto dto = new ResumeListRequestDto();
@@ -43,7 +32,7 @@ public class ResumeListRequestDto {
         dto.limit = limit == 0 ? 20 : limit;
         dto.sort = ResumeSort.RECENT_DESC;
         dto.offset = (page-1)*limit;
-        dto.resumeType = ResumeType.findByValue(type);
+        dto.resumeType = ResumeType.findByType(type);
         dto.viewer = viewer;
         return dto;
     }

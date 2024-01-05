@@ -67,7 +67,7 @@ public class Resume {
         Resume resume = new Resume();
         resume.title = requestDto.getTitle();
         resume.content = requestDto.getContent();
-        resume.resumeType = ResumeType.findByValue(requestDto.getResumeType());
+        resume.resumeType = ResumeType.findByType(requestDto.getResumeType());
         resume.modifyYn = TFCode.FALSE;
         resume.deleteYn = TFCode.FALSE;
         resume.regTime = LocalDateTime.now();
