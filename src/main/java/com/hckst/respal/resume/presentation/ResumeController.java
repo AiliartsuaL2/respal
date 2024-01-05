@@ -58,7 +58,7 @@ public class ResumeController {
     })
     @GetMapping("/resume")
     public ResponseEntity<ApiCommonResponse<ResumeListResponseDto>> getResumes(
-            @Parameter(description = "조회하는 이력서의 타입입니다. my, tagged, hub 가 있습니다.")
+            @Parameter(description = "조회하는 이력서의 타입입니다.", schema = @Schema(type = "string", allowableValues = {"me","hub","tag"}))
             @RequestParam String type,
             @Parameter(description = "조회하는 회원입니다. 인증 토큰을 통해 자동으로 매핑됩니다.")
             @AuthenticationPrincipal Members viewer){

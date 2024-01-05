@@ -1,6 +1,5 @@
 package com.hckst.respal.authentication.oauth.presentation;
 
-import com.google.gson.Gson;
 import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
 import com.hckst.respal.authentication.oauth.application.OAuthTmpService;
 import com.hckst.respal.authentication.oauth.domain.RedirectType;
@@ -11,6 +10,7 @@ import com.hckst.respal.converter.Provider;
 import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,17 +18,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 
 @Controller
@@ -53,10 +49,13 @@ public class OAuthController {
     })
     @GetMapping("/{client}/login/{provider}")
     @ResponseBody
-    public ResponseEntity oAuthLogin(HttpServletResponse response
-            , @PathVariable String client
-            , @PathVariable String provider
-            , @RequestParam String code){
+    public ResponseEntity oAuthLogin(
+            @Parameter(description = "해당 API를 호출하는 클라이언트 타입입니다.", schema = @Schema(type = "string", allowableValues = {"web-dev","wev-staging","web-prod","app"}))
+            @PathVariable String client,
+            @Parameter(description = "인증을 받아올 OAuth 서버 타입 입니다.", schema = @Schema(type = "string", allowableValues = {"kakao","google","github"}))
+            @PathVariable String provider,
+            @Parameter(description = "OAuth 서버로부터 받아오는 code입니다.")
+            @RequestParam String code){
         Client convertedClient = Client.findByValue(client);
         Provider convertedProvider = Provider.findByValue(provider);
 
@@ -84,7 +83,11 @@ public class OAuthController {
     })
     @GetMapping("/user/{uid}")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<RedirectResponse>> requestUserInfo(@PathVariable String uid, @RequestParam String type){
+    public ResponseEntity<ApiCommonResponse<RedirectResponse>> requestUserInfo(
+            @Parameter(description = "조회 할 데이터의 UID 입니다.")
+            @PathVariable String uid,
+            @Parameter(description = "해당 UID를 받아오며 리다이렉트 되었던 타입 입니다.", schema = @Schema(type = "string", allowableValues = {"signup","callback"}))
+            @RequestParam String type){
         RedirectResponse responseDto = oAuthTmpService.getOauthTmp(uid,type);
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)
