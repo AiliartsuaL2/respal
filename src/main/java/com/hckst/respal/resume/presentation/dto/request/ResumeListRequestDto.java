@@ -1,5 +1,7 @@
 package com.hckst.respal.resume.presentation.dto.request;
 
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.resume.domain.ResumeSort;
 import com.hckst.respal.converter.ResumeType;
 import com.hckst.respal.members.domain.Members;
@@ -27,13 +29,25 @@ public class ResumeListRequestDto {
     private Members viewer;
 
     public static ResumeListRequestDto create(String type, int page, long limit, Members viewer) {
+        ResumeType resumeType = ResumeType.findByType(type);
+        checkMember(resumeType, viewer);
+
         ResumeListRequestDto dto = new ResumeListRequestDto();
         dto.page = page == 0 ? 1 : page;
         dto.limit = limit == 0 ? 20 : limit;
         dto.sort = ResumeSort.RECENT_DESC;
         dto.offset = (page-1)*limit;
-        dto.resumeType = ResumeType.findByType(type);
+        dto.resumeType = resumeType;
         dto.viewer = viewer;
         return dto;
+    }
+
+    private static void checkMember(ResumeType resumeType, Members viewer) {
+        if(ResumeType.PUBLIC.equals(resumeType)) {
+            return;
+        }
+        if(viewer == null) {
+            throw new ApplicationException(ErrorMessage.PERMISSION_DENIED_TO_VIEW_EXCEPTION);
+        }
     }
 }
