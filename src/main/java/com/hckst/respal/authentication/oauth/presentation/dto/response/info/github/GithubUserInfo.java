@@ -1,4 +1,4 @@
-package com.hckst.respal.authentication.oauth.presentation.dto.request.info.github;
+package com.hckst.respal.authentication.oauth.presentation.dto.response.info.github;
 
 import lombok.*;
 

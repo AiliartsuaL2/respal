@@ -1,4 +1,4 @@
-package com.hckst.respal.authentication.oauth.presentation.dto.request.info;
+package com.hckst.respal.authentication.oauth.presentation.dto.response.info;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.persistence.Column;

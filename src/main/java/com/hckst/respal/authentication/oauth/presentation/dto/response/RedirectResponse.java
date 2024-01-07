@@ -1,6 +1,6 @@
 package com.hckst.respal.authentication.oauth.presentation.dto.response;
 
-import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
+import com.hckst.respal.authentication.oauth.presentation.dto.response.info.UserInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

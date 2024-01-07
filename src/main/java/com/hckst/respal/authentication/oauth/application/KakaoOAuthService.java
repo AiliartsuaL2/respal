@@ -3,16 +3,15 @@ package com.hckst.respal.authentication.oauth.application;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
+import com.hckst.respal.authentication.oauth.presentation.dto.response.info.UserInfo;
 import com.hckst.respal.converter.Provider;
-import com.hckst.respal.members.domain.RoleType;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
-import com.hckst.respal.authentication.oauth.presentation.dto.request.info.kakao.KakaoUserInfo;
+import com.hckst.respal.authentication.oauth.presentation.dto.response.info.kakao.KakaoUserInfo;
 import com.hckst.respal.config.OAuthConfig;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

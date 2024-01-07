@@ -5,7 +5,7 @@ import com.hckst.respal.authentication.jwt.application.JwtService;
 import com.hckst.respal.authentication.oauth.domain.OauthTmp;
 import com.hckst.respal.authentication.oauth.domain.RedirectType;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepository;
-import com.hckst.respal.authentication.oauth.presentation.dto.request.info.UserInfo;
+import com.hckst.respal.authentication.oauth.presentation.dto.response.info.UserInfo;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;

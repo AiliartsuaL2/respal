@@ -2,6 +2,7 @@ package com.hckst.respal.authentication.oauth.presentation.dto.request.info;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
+import com.hckst.respal.authentication.oauth.presentation.dto.response.info.UserInfo;
 import com.querydsl.core.types.dsl.*;
 
 import com.querydsl.core.types.PathMetadata;
