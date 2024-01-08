@@ -91,7 +91,7 @@ public class KakaoOAuthService implements OAuthService{
         KakaoUserInfo kakaoUserInfo = gson.fromJson(response, KakaoUserInfo.class);
 
         UserInfo oAuthUserInfoResponseDto = UserInfo.builder()
-                .userInfoId(kakaoUserInfo.getId())
+//                .userInfoId(kakaoUserInfo.getId())
                 .email(kakaoUserInfo.getKakaoAccount().getEmail())
                 .image(kakaoUserInfo.getProperties().getProfileImage())
                 .nickname(kakaoUserInfo.getProperties().getNickname())

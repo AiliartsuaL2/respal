@@ -7,11 +7,6 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class GoogleUserInfo extends UserInfo{
-    private String id;
-    private String email;
-    private String picture;
-    private String name;
-
     public GoogleUserInfo(String id, String email, String picture, String name) {
         super(id, email, picture, name);
     }
