@@ -1,5 +1,6 @@
 package com.hckst.respal.authentication.oauth.presentation;
 
+import com.hckst.respal.authentication.oauth.application.OAuthService2;
 import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
 import com.hckst.respal.authentication.oauth.application.OAuthTmpService;
 import com.hckst.respal.authentication.oauth.domain.RedirectType;
@@ -33,7 +34,7 @@ import java.net.URI;
 @Slf4j
 @Tag(name = "회원", description = "회원 관련 api")
 public class OAuthController {
-    private final OAuthServiceImpl oAuthService;
+    private final OAuthService2 oAuthService;
     private final OAuthTmpService oAuthTmpService;
 
     /**

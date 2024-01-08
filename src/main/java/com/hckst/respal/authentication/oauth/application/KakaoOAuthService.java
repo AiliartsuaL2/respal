@@ -12,7 +12,7 @@ import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.info.kakao.KakaoUserInfo;
-import com.hckst.respal.config.OAuthConfig;
+import com.hckst.respal.config.oauth.OAuthConfig;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.members.domain.repository.MembersRepository;
@@ -67,7 +67,6 @@ public class KakaoOAuthService implements OAuthService{
                 .bodyToMono(String.class) // Mono 객체로 데이터를 받음 , Mono는 단일 데이터, Flux는 복수 데이터
                 .block();// 비동기 방식으로 데이터를 받아옴
 
-        // UnderScoreCase To Camel GsonBuilder,, KakaoOAuth2Token 객체에 매핑
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
         OAuthToken oAuthToken = gson.fromJson(response, OAuthToken.class);
         log.info("카카오 액세스 토큰 : " + oAuthToken.getAccessToken());

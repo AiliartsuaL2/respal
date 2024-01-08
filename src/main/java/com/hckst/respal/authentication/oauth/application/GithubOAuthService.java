@@ -12,7 +12,7 @@ import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.info.github.GithubUserInfo;
-import com.hckst.respal.config.OAuthConfig;
+import com.hckst.respal.config.oauth.OAuthConfig;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthRepository;
 import com.hckst.respal.authentication.oauth.token.OAuthToken;
 import com.hckst.respal.members.domain.repository.MembersRepository;
