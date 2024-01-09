@@ -1,5 +1,8 @@
 package com.hckst.respal.config.oauth;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.info.UserInfo;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,5 +20,12 @@ public class Info {
 
     public void setProviderUserInfo(UserInfo providerUserInfo) {
         this.providerUserInfo = providerUserInfo;
+    }
+
+    public UserInfo convert(String response) {
+        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+        UserInfo userInfo = gson.fromJson(response, providerUserInfo.getClass());
+        userInfo.init();
+        return userInfo;
     }
 }

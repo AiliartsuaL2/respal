@@ -134,13 +134,20 @@ public class OAuthServiceImpl implements OAuthService {
                 .bodyToMono(String.class) // Mono 객체로 데이터를 받음 , Mono는 단일 데이터, Flux는 복수 데이터
                 .block();// 비동기 방식으로 데이터를 받아옴
 
-        // UnderScoreCase To Camel GsonBuilder,
-        if(!response.startsWith("{")) {
-            response = "{\"" + response.replace("&", "\",\"").replace("=", "\":\"") + "\"}";
-        }
+        return convert(response);
+    }
+
+    private OAuthToken convert(String response) {
+        String json = jsonCheck(response);
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-        OAuthToken oAuthToken = gson.fromJson(response, OAuthToken.class);
-        return oAuthToken;
+        return gson.fromJson(json, OAuthToken.class);
+    }
+
+    private String jsonCheck(String response) {
+        if(!response.startsWith("{")) {
+            return "{\"" + response.replace("&", "\",\"").replace("=", "\":\"") + "\"}";
+        }
+        return response;
     }
 
     private UserInfo getUserInfo(Info providerInfo, String accessToken) {
@@ -153,11 +160,8 @@ public class OAuthServiceImpl implements OAuthService {
                 .retrieve() // 데이터 받는 방식, 스프링에서는 exchange는 메모리 누수 가능성 때문에 retrieve 권장
                 .bodyToMono(String.class) // Mono 객체로 데이터를 받음 , Mono는 단일 데이터, Flux는 복수 데이터
                 .block();// 비동기 방식으로 데이터를 받아옴
-
-        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-        UserInfo userInfo = gson.fromJson(response, providerInfo.getProviderUserInfo().getClass());
-        userInfo.init();
-        return userInfo;
+        String json = jsonCheck(response);
+        return providerInfo.convert(json);
     }
 
     public void duplicationCheckEmail(Provider provider, String email) {
