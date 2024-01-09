@@ -7,6 +7,8 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class KakaoUserInfo extends UserInfo{
+    private String id;
+    private String connectedAt;
     private KakaoPropertiesDto properties;
     private KakaoAccountDto kakaoAccount;
 
@@ -24,7 +26,8 @@ public class KakaoUserInfo extends UserInfo{
         private String email;
     }
 
-    public KakaoUserInfo(String id, String connectedAt, KakaoPropertiesDto properties, KakaoAccountDto kakaoAccount) {
-        super(id, kakaoAccount.getEmail(), properties.getProfileImage(), properties.getNickname());
+    @Override
+    public void init() {
+        setAllFiled(id, kakaoAccount.email, properties.profileImage, properties.nickname);
     }
 }

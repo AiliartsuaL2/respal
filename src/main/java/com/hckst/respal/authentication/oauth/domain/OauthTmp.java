@@ -41,7 +41,7 @@ public class OauthTmp {
     public OauthTmp(String uid, Provider provider, UserInfo userInfo){
         this.uid = uid;
         this.provider = provider;
-        this.userInfo = userInfo;
+        this.userInfo = userInfo.copy(userInfo);
         this.regTime = LocalDateTime.now();
     }
 

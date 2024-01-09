@@ -7,7 +7,12 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class GithubUserInfo extends UserInfo{
-    public GithubUserInfo(String id, String avatar_url, String email, String login) {
-        super(id, email, avatar_url, login);
+    private String id;
+    private String avatar_url;
+    private String login;
+
+    @Override
+    public void init() {
+       setAllFiled(id, super.getEmail(), avatar_url, login);
     }
 }

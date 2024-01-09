@@ -2,7 +2,7 @@ package com.hckst.respal.members.presentation;
 
 import com.hckst.respal.authentication.jwt.dto.response.RefreshAccessTokenResponseDto;
 import com.hckst.respal.authentication.jwt.application.JwtService;
-import com.hckst.respal.authentication.oauth.application.OAuthServiceImpl;
+import com.hckst.respal.authentication.oauth.application.OAuthService;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
@@ -35,7 +35,7 @@ import java.util.List;
 @Tag(name = "회원", description = "회원 관련 api")
 public class MembersController {
     private final MembersService membersService;
-    private final OAuthServiceImpl oAuthService;
+    private final OAuthService oAuthService;
     private final JwtService jwtService;
 
     @GetMapping("/member/login")

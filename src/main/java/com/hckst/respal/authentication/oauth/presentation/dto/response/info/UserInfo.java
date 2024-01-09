@@ -8,7 +8,6 @@ import javax.persistence.Embeddable;
 
 @Getter
 @Setter
-@Builder
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,4 +22,21 @@ public class UserInfo {
     private String image;
     @Schema(description = "oauth 닉네임", nullable = true)
     private String nickname;
+
+    public void init() {}
+    protected void setAllFiled(String userInfoId, String email, String image, String nickname) {
+        this.userInfoId = userInfoId;
+        this.email = email;
+        this.image = image;
+        this.nickname = nickname;
+    }
+
+    public UserInfo copy(UserInfo userInfo) {
+        UserInfo newUserInfo = new UserInfo();
+        newUserInfo.userInfoId = userInfo.userInfoId;
+        newUserInfo.email = userInfo.email;
+        newUserInfo.image = userInfo.image;
+        newUserInfo.nickname = userInfo.nickname;
+        return newUserInfo;
+    }
 }
