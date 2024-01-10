@@ -20,6 +20,7 @@ import com.hckst.respal.converter.Provider;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.exception.oauth.OAuthAppLoginException;
+import com.hckst.respal.global.Utils;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.domain.repository.dto.MembersOAuthDto;
@@ -32,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
@@ -44,7 +46,7 @@ public class OAuthServiceImpl implements OAuthService {
     private final OauthRepository oauthRepository;
     private final JwtService jwtService;
     private final JwtTokenProvider jwtTokenProvider;
-    private static final String OAUTH_REDIRECT_URI_PREFIX = "https://localhost";
+    private static final String OAUTH_REDIRECT_URI_PREFIX = "https://api.respal.me";
 
     /**
      * - 가입된 회원인지 확인
@@ -108,20 +110,11 @@ public class OAuthServiceImpl implements OAuthService {
         throw new OAuthAppLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION, oauthTmp.getUid(),redirectUri);
     }
 
-    private String getOAuthRedirectUri(String environment, String provider) {
-        return String.join("/", OAUTH_REDIRECT_URI_PREFIX
-                , "oauth"
-                , environment
-                , "login"
-                , provider);
-    }
-
     private OAuthToken getAccessToken(Info providerInfo, String code, String redirectUrl) {
         WebClient webClient = WebClient.builder()
                 .baseUrl(providerInfo.getTokenUrl()) // 요청 할 API Url
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE) // 헤더 설정
                 .build();
-
         String response = webClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .queryParam("grant_type", providerInfo.getGrantType())
@@ -133,21 +126,7 @@ public class OAuthServiceImpl implements OAuthService {
                 .retrieve() // 데이터 받는 방식, 스프링에서는 exchange는 메모리 누수 가능성 때문에 retrieve 권장
                 .bodyToMono(String.class) // Mono 객체로 데이터를 받음 , Mono는 단일 데이터, Flux는 복수 데이터
                 .block();// 비동기 방식으로 데이터를 받아옴
-
         return convert(response);
-    }
-
-    private OAuthToken convert(String response) {
-        String json = jsonCheck(response);
-        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-        return gson.fromJson(json, OAuthToken.class);
-    }
-
-    private String jsonCheck(String response) {
-        if(!response.startsWith("{")) {
-            return "{\"" + response.replace("&", "\",\"").replace("=", "\":\"") + "\"}";
-        }
-        return response;
     }
 
     private UserInfo getUserInfo(Info providerInfo, String accessToken) {
@@ -160,8 +139,21 @@ public class OAuthServiceImpl implements OAuthService {
                 .retrieve() // 데이터 받는 방식, 스프링에서는 exchange는 메모리 누수 가능성 때문에 retrieve 권장
                 .bodyToMono(String.class) // Mono 객체로 데이터를 받음 , Mono는 단일 데이터, Flux는 복수 데이터
                 .block();// 비동기 방식으로 데이터를 받아옴
-        String json = jsonCheck(response);
-        return providerInfo.convert(json);
+        return providerInfo.convert(response);
+    }
+
+    private String getOAuthRedirectUri(String environment, String provider) {
+        return String.join("/", OAUTH_REDIRECT_URI_PREFIX
+                , "oauth"
+                , environment
+                , "login"
+                , provider);
+    }
+
+    private OAuthToken convert(String response) {
+        String json = Utils.queryParamToJson(response);
+        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+        return gson.fromJson(json, OAuthToken.class);
     }
 
     public void duplicationCheckEmail(Provider provider, String email) {

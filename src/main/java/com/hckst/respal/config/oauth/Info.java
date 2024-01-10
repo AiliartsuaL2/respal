@@ -4,6 +4,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.info.UserInfo;
+import com.hckst.respal.global.Utils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -23,8 +24,9 @@ public class Info {
     }
 
     public UserInfo convert(String response) {
+        String json = Utils.queryParamToJson(response);
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-        UserInfo userInfo = gson.fromJson(response, providerUserInfo.getClass());
+        UserInfo userInfo = gson.fromJson(json, providerUserInfo.getClass());
         userInfo.init();
         return userInfo;
     }
