@@ -21,7 +21,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
         return membersRepository.findById(Long.parseLong(id))
                 .orElseThrow(
-                        () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION)
-                );
+                        () -> new IllegalArgumentException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION.getMsg()));
     }
 }

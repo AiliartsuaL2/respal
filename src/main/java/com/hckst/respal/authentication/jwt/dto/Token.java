@@ -4,44 +4,19 @@ import com.google.gson.Gson;
 import com.hckst.respal.converter.Client;
 import java.net.URLEncoder;
 import java.util.Base64;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import org.springframework.http.ResponseCookie;
 
 @Getter
-@Setter
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "토큰")
 public class Token {
-    private static final String COOKIE_DOMAIN = ".respal.me";
-
-    private String grantType;
+    @Schema(description = "액세스 토큰")
     private String accessToken;
+    @Schema(description = "리프레시 토큰")
     private String refreshToken;
-    private Long membersId;
-    private String membersEmail;
-
-    public ResponseCookie convert(Client convertedClient) {
-        String encodedToken = Base64.getEncoder().encodeToString(new Gson().toJson(this).getBytes());
-        ResponseCookie cookie = ResponseCookie.from("token", encodedToken)
-                .path(convertedClient.getCookiePath())
-                .domain(COOKIE_DOMAIN)
-                .httpOnly(true)
-                .maxAge(3600)
-                .build();
-        return cookie;
-    }
-
-    @Override
-    public String toString() {
-        return "{" +
-                "grantType='" + grantType + '\'' +
-                ", accessToken='" + accessToken + '\'' +
-                ", refreshToken='" + refreshToken + '\'' +
-                ", membersId=" + membersId +
-                ", membersEmail='" + membersEmail + '\'' +
-                '}';
-    }
 
     public String convertToQueryParameter() {
         String encodedToken = URLEncoder.encode(this.toString());

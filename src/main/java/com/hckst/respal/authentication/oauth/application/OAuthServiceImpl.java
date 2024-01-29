@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hckst.respal.authentication.jwt.application.JwtService;
 import com.hckst.respal.authentication.jwt.dto.Token;
-import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.authentication.oauth.domain.Oauth;
 import com.hckst.respal.authentication.oauth.domain.OauthTmp;
 import com.hckst.respal.authentication.oauth.domain.RedirectType;
@@ -25,7 +24,7 @@ import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.domain.repository.dto.MembersOAuthDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
-import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
+
 import java.net.URI;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
@@ -45,7 +43,6 @@ public class OAuthServiceImpl implements OAuthService {
     private final OauthTmpRepository oauthTmpRepository;
     private final OauthRepository oauthRepository;
     private final JwtService jwtService;
-    private final JwtTokenProvider jwtTokenProvider;
     private static final String OAUTH_REDIRECT_URI_PREFIX = "https://api.respal.me";
 
     /**
@@ -57,13 +54,11 @@ public class OAuthServiceImpl implements OAuthService {
      */
     @Override
     public Token login(Provider provider, Client client, String code, String uid) {
-        Token token = checkNewUser(provider, client, code, uid);
-        jwtService.login(token); // refresh 토큰 초기화
-        return token;
+        return checkNewUser(provider, client, code, uid);
     }
 
     @Override
-    public MembersLoginResponseDto join(Provider provider, MembersJoinRequestDto membersJoinRequestDto) {
+    public void join(Provider provider, MembersJoinRequestDto membersJoinRequestDto) {
         duplicationCheckEmail(provider, membersJoinRequestDto.getEmail());
         Members members = Members.create(membersJoinRequestDto);
         membersRepository.save(members);
@@ -71,9 +66,6 @@ public class OAuthServiceImpl implements OAuthService {
             Oauth oauth = new Oauth(members, provider);
             oauthRepository.save(oauth);
         }
-        Token token = jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
-        jwtService.login(token); // refresh 토큰 초기화
-        return MembersLoginResponseDto.create(token);
     }
 
     @Override
@@ -98,7 +90,7 @@ public class OAuthServiceImpl implements OAuthService {
         Optional<MembersOAuthDto> membersOAuth = membersRepository.findMembersOauthForLogin(userInfo.getEmail(), provider);
         if(membersOAuth.isPresent()) {
             Members members = membersRepository.findById(membersOAuth.get().getId()).get();
-            return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
+            jwtService.login(members.getId());
         }
 
         // 미가입 회원시 저장 후 Redirect

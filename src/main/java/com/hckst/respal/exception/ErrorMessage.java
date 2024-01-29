@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorMessage {
     REQUEST_VALIDATION_EXCEPTION(HttpStatus.BAD_REQUEST,"요청 형식이 잘못 되었어요.","R000"),
     // 0번대 JWT 관련 오류
+    PERMISSION_DENIED_EXCEPTION( HttpStatus.FORBIDDEN, "접근 권한이 없어요","R001"),
     EXPIRED_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"만료된 토큰 정보에요.","R001"),
     INCORRECT_REFRESH_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"일치하지 않는 Refresh Token 이에요.","R002"),
     MALFORMED_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"지원하지 않는 토큰이에요.","R003"),
@@ -20,6 +21,8 @@ public enum ErrorMessage {
     INCORRECT_OAUTH_TYPE_EXCEPTION(HttpStatus.BAD_REQUEST,"OAuth type 설정이 잘못되었어요.","R103"),
 
     // 201번대 Members 관련 오류
+    NOT_EXIST_MEMBER_EMAIL_EXCEPTION(HttpStatus.BAD_REQUEST,"이메일은 필수 입력값이에요.","R201"),
+    NOT_EXIST_MEMBER_PASSWORD_EXCEPTION(HttpStatus.BAD_REQUEST,"비밀번호는 필수 입력값이에요.","R201"),
     DUPLICATE_EMAIL_EXCEPTION(HttpStatus.BAD_REQUEST,"이미 존재하는 이메일이에요.","R201"),
     NOT_EXIST_PASSWORD_EXCEPTION(HttpStatus.BAD_REQUEST,"일반 회원은 비밀번호 설정이 필수에요.","R201"),
     INVALID_MEMBER_EXCEPTION(HttpStatus.BAD_REQUEST,"유효하지 않은 사용자에요.","R201"),

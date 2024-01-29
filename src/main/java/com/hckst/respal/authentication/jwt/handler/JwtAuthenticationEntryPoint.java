@@ -19,22 +19,10 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
-    private final ObjectMapper objectMapper;
+    private final JwtErrorResponseHandler jwtErrorResponseHandler;
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        setResponse(response,ErrorMessage.NOT_EXIST_TOKEN_INFO_EXCEPTION);
-    }
-    private void setResponse( HttpServletResponse response, ErrorMessage errorMessage) throws IOException {
-        ApiErrorResponse apiErrorResponse = ApiErrorResponse.builder()
-                .statusCode(errorMessage.getCode())
-                .result(ApiErrorMessageAndCode.builder()
-                        .errorCode(errorMessage.getErrorCode())
-                        .message(errorMessage.getMsg())
-                        .build())
-                .build();
-        response.setStatus(errorMessage.getCode());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(apiErrorResponse));
+        jwtErrorResponseHandler.generateJwtErrorResponse(response, ErrorMessage.NOT_EXIST_TOKEN_INFO_EXCEPTION);
     }
 }
+

@@ -1,5 +1,6 @@
 package com.hckst.respal.members.presentation;
 
+import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.jwt.dto.response.RefreshAccessTokenResponseDto;
 import com.hckst.respal.authentication.jwt.application.JwtService;
 import com.hckst.respal.authentication.oauth.application.OAuthService;
@@ -10,7 +11,6 @@ import com.hckst.respal.global.dto.ApiCommonResponse;
 import com.hckst.respal.members.presentation.dto.request.*;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import com.hckst.respal.members.application.MembersService;
-import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
 import com.hckst.respal.members.presentation.dto.request.SearchMembersRequestDto;
 import com.hckst.respal.members.presentation.dto.response.MembersResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,13 +50,10 @@ public class MembersController {
     })
     @PostMapping("/member/login")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<MembersLoginResponseDto>> login(@RequestBody MembersLoginRequestDto membersLoginRequestDto){
-        MembersLoginResponseDto responseDto = membersService.loginMembers(membersLoginRequestDto);
+    public ResponseEntity<ApiCommonResponse<Token>> login(@RequestBody MembersLoginRequestDto membersLoginRequestDto){
+        Token token = membersService.login(membersLoginRequestDto);
 
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
-                .result(responseDto)
-                .build();
+        ApiCommonResponse<Token> response = new ApiCommonResponse<>(200, token);
         return ResponseEntity.ok(response);
     }
 
@@ -82,19 +79,14 @@ public class MembersController {
     })
     @PostMapping("/member/join")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<MembersLoginResponseDto>> join(@Valid @RequestBody MembersJoinRequestDto membersJoinRequestDto){
+    public ResponseEntity<?> join(@Valid @RequestBody MembersJoinRequestDto membersJoinRequestDto){
         // provider type 없는경우 exception
         if(membersJoinRequestDto.getProvider() == null){
             throw new ApplicationException(ErrorMessage.NOT_EXIST_PROVIDER_TYPE_EXCEPTION);
         }
         Provider provider = Provider.findByValue(membersJoinRequestDto.getProvider());
-        MembersLoginResponseDto joinResponseDto = oAuthService.join(provider, membersJoinRequestDto);
-
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(201)
-                .result(joinResponseDto)
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        oAuthService.join(provider, membersJoinRequestDto);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @Operation(summary = "회원가입시 이메일 인증 메서드", description = "")
@@ -123,7 +115,7 @@ public class MembersController {
     @PostMapping("/jwt/refresh")
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<RefreshAccessTokenResponseDto>> refreshAccessToken(@RequestHeader(value = "Authorization") String refreshToken){
-        RefreshAccessTokenResponseDto responseDto = jwtService.validateRefreshToken(refreshToken);
+        RefreshAccessTokenResponseDto responseDto = jwtService.renewAccessToken(refreshToken);
 
         ApiCommonResponse response = ApiCommonResponse.builder()
                 .statusCode(200)

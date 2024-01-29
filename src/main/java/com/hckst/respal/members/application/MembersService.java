@@ -1,14 +1,13 @@
 package com.hckst.respal.members.application;
 
 import com.hckst.respal.authentication.jwt.application.JwtService;
+import com.hckst.respal.authentication.jwt.application.TokenProvider;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.presentation.dto.request.*;
 import com.hckst.respal.authentication.jwt.dto.Token;
-import com.hckst.respal.authentication.jwt.handler.JwtTokenProvider;
 import com.hckst.respal.members.domain.repository.MembersRepository;
-import com.hckst.respal.members.presentation.dto.response.MembersLoginResponseDto;
 import com.hckst.respal.members.presentation.dto.request.SearchMembersRequestDto;
 import com.hckst.respal.members.presentation.dto.response.MembersResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,6 @@ import java.util.UUID;
 @Transactional
 public class MembersService {
     private final MembersRepository membersRepository;
-    private final JwtTokenProvider jwtTokenProvider;
     private final JavaMailSender mailSender;
     private final JwtService jwtService;
 
@@ -37,13 +35,11 @@ public class MembersService {
     private static final String JOIN_MAIL_TITLE = "[Respal] 비밀번호 재설정 링크입니다.";
     private static final String MAIL_MESSAGE = "변경된 임시 비밀번호는 아래와 같습니다. \n";
 
-    @Transactional
-    public MembersLoginResponseDto loginMembers(MembersLoginRequestDto membersLoginRequestDto) {
-        Members members = findCommonMemberByEmail(membersLoginRequestDto.getEmail());
-        members.checkPassword(membersLoginRequestDto.getPassword());
-        Token token = jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
-        jwtService.login(token);
-        return MembersLoginResponseDto.create(token, members.getTmpPasswordStatus());
+    public Token login(MembersLoginRequestDto membersLoginRequestDto) {
+        membersLoginRequestDto.checkNull();
+        Members member = findCommonMemberByEmail(membersLoginRequestDto.getEmail());
+        member.checkPassword(membersLoginRequestDto.getPassword());
+        return jwtService.login(member.getId());
     }
 
     public Members findCommonMemberByEmail(String email) {
@@ -57,14 +53,12 @@ public class MembersService {
 
     // 회원가입 서비스
     @Transactional
-    public Token join(MembersJoinRequestDto membersJoinRequestDto) {
+    public void join(MembersJoinRequestDto membersJoinRequestDto) {
         if (duplicationCheckEmail(membersJoinRequestDto.getEmail())) {
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
         Members members = Members.create(membersJoinRequestDto);
         membersRepository.save(members);
-
-        return jwtTokenProvider.createTokenWithRefresh(members.getId(), members.getRoleType());
     }
 
     @Async

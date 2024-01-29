@@ -2,8 +2,12 @@ package com.hckst.respal.authentication.jwt.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.global.dto.ApiErrorMessageAndCode;
 import com.hckst.respal.global.dto.ApiErrorResponse;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -20,33 +24,20 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Component
 public class JwtExceptionFilter extends OncePerRequestFilter {
+    private final JwtErrorResponseHandler jwtErrorResponseHandler;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         try {
             chain.doFilter(request, response);
-        } catch (ApplicationException ex) {
-            setResponse(ex, response);
-        }
-    }
-
-    private void setResponse(ApplicationException ex, HttpServletResponse response) throws RuntimeException, IOException {
-        ApiErrorResponse apiErrorResponse = ApiErrorResponse.builder()
-                .statusCode(ex.getStatusCode())
-                .result(ApiErrorMessageAndCode.builder()
-                                .message(ex.getMessage())
-                                .errorCode(ex.getErrorCode())
-                                .build())
-                .build();
-
-        response.setStatus(ex.getStatusCode());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        ObjectMapper objectMapper = new ObjectMapper();
-        try{
-            response.getWriter().write(objectMapper.writeValueAsString(apiErrorResponse));
-        }catch (IOException e){
-            e.printStackTrace();
+        } catch (SignatureException e) {
+            jwtErrorResponseHandler.generateJwtErrorResponse(response, ErrorMessage.SIGNATURE_TOKEN_EXCEPTION);
+        } catch (MalformedJwtException e) {
+            jwtErrorResponseHandler.generateJwtErrorResponse(response, ErrorMessage.MALFORMED_TOKEN_EXCEPTION);
+        } catch (ExpiredJwtException e) {
+            jwtErrorResponseHandler.generateJwtErrorResponse(response, ErrorMessage.EXPIRED_TOKEN_EXCEPTION);
+        } catch (IllegalArgumentException e) {
+            jwtErrorResponseHandler.generateJwtErrorResponse(response, ErrorMessage.INCORRECT_REFRESH_TOKEN_EXCEPTION);
         }
     }
 }
