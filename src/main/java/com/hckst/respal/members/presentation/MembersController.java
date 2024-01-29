@@ -57,21 +57,6 @@ public class MembersController {
         return ResponseEntity.ok(response);
     }
 
-//    @Operation(summary = "직업 목록 조회 API", description = "직업 목록 조회 API 입니다.")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "직업 목록 조회 성공", useReturnTypeSchema = true)
-//    })
-//    @GetMapping("/job")
-//    @ResponseBody
-//    public ResponseEntity<ApiCommonResponse<List<Job>>> jobs(){
-//        List<Job> jobs = jobRepository.findAll();
-//        ApiCommonResponse response = ApiCommonResponse.builder()
-//                .statusCode(200)
-//                .result(jobs)
-//                .build();
-//        return ResponseEntity.ok(response);
-//    }
-
     @Operation(summary = "회원가입 메서드", description = "일반 이메일 회원가입 메서드입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "회원가입 성공", useReturnTypeSchema = true),
@@ -80,10 +65,6 @@ public class MembersController {
     @PostMapping("/member/join")
     @ResponseBody
     public ResponseEntity<?> join(@Valid @RequestBody MembersJoinRequestDto membersJoinRequestDto){
-        // provider type 없는경우 exception
-        if(membersJoinRequestDto.getProvider() == null){
-            throw new ApplicationException(ErrorMessage.NOT_EXIST_PROVIDER_TYPE_EXCEPTION);
-        }
         Provider provider = Provider.findByValue(membersJoinRequestDto.getProvider());
         oAuthService.join(provider, membersJoinRequestDto);
         return new ResponseEntity<>(HttpStatus.CREATED);

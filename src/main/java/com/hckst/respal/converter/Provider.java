@@ -1,5 +1,7 @@
 package com.hckst.respal.converter;
 
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -19,6 +21,6 @@ public enum Provider implements BaseEnumCode<String>  {
                 return provider;
             }
         }
-        return NULL;
+        throw new ApplicationException(ErrorMessage.NOT_EXIST_PROVIDER_TYPE_EXCEPTION);
     }
 }

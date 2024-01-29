@@ -47,20 +47,6 @@ public class MembersService {
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
     }
 
-    public boolean duplicationCheckEmail(String email) {
-        return membersRepository.existsMembersByEmail(email);
-    }
-
-    // 회원가입 서비스
-    @Transactional
-    public void join(MembersJoinRequestDto membersJoinRequestDto) {
-        if (duplicationCheckEmail(membersJoinRequestDto.getEmail())) {
-            throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
-        }
-        Members members = Members.create(membersJoinRequestDto);
-        membersRepository.save(members);
-    }
-
     @Async
     public void sendJoinEmail(SendEmailRequestDto sendEmailRequestDto) {
         // 암호화등 프론트쪽과 체크 로직 고민해보기.

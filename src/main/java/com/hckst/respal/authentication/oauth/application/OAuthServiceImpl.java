@@ -32,11 +32,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class OAuthServiceImpl implements OAuthService {
     private final OAuthConfig oAuthConfig;
     private final MembersRepository membersRepository;
@@ -53,11 +55,35 @@ public class OAuthServiceImpl implements OAuthService {
      *      - 예외처리하여 회원가입 url로 Redirect
      */
     @Override
+    @Transactional
     public Token login(Provider provider, Client client, String code, String uid) {
-        return checkNewUser(provider, client, code, uid);
+        // OAuth 서버와 통신
+        UserInfo userInfo = getUserInfo(provider, client, code);
+
+        Optional<MembersOAuthDto> membersOAuth = membersRepository.findMembersOauthForLogin(userInfo.getEmail(), provider);
+        // 비회원인 경우 -> OAuth Tmp 저장 후 redirect
+        if(membersOAuth.isEmpty()) {
+            OauthTmp oauthTmp = new OauthTmp(uid, provider, userInfo);
+            oauthTmpRepository.save(oauthTmp);
+
+            String redirectUrl = client.getUidRedirectUrl(RedirectType.SIGN_UP, oauthTmp.getUid());
+            URI redirectUri = URI.create(redirectUrl);
+            throw new OAuthAppLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION, oauthTmp.getUid(), redirectUri);
+        }
+
+        // 기존 회원인 경우 -> token 응답
+        return jwtService.login(membersOAuth.get().getId());
+    }
+
+    private UserInfo getUserInfo(Provider provider, Client client, String code) {
+        Info info = oAuthConfig.getInfoByProvider(provider);
+        String oauthRedirectUri = getOAuthRedirectUri(client.getEnvironment(), provider.getValue());
+        OAuthToken accessToken = getAccessTokenFromOAuth(info, code, oauthRedirectUri);
+        return getUserInfoFromOAuth(info, accessToken.getAccessToken());
     }
 
     @Override
+    @Transactional
     public void join(Provider provider, MembersJoinRequestDto membersJoinRequestDto) {
         duplicationCheckEmail(provider, membersJoinRequestDto.getEmail());
         Members members = Members.create(membersJoinRequestDto);
@@ -72,40 +98,10 @@ public class OAuthServiceImpl implements OAuthService {
     public void logout(String refreshToken) {
     }
 
-    /**
-     * - 1. code -> accessToken 변환한다.
-     * - 2. accessToken을 통해 회원 정보를 가져와서 가입된 회원인지 확인한다. -> Provider + email
-     *  - 가입된 회원인 경우
-     *      - 회원 정보를 통해서 AccessToken을 받아옴.
-     *  - 미가입된 회원인 경우
-     *      - 해당 정보들을 OAuth_tmp에 저장 후 uid를 전달하며 redirect
-     */
-    private Token checkNewUser(Provider provider, Client client, String code, String uid) {
-        // OAuth 서버와 통신
-        Info info = oAuthConfig.getInfoByProvider(provider);
-        String oauthRedirectUri = getOAuthRedirectUri(client.getEnvironment(), provider.getValue());
-        OAuthToken accessToken = getAccessToken(info, code, oauthRedirectUri);
-        UserInfo userInfo = getUserInfo(info, accessToken.getAccessToken());
-
-        Optional<MembersOAuthDto> membersOAuth = membersRepository.findMembersOauthForLogin(userInfo.getEmail(), provider);
-        if(membersOAuth.isPresent()) {
-            Members members = membersRepository.findById(membersOAuth.get().getId()).get();
-            jwtService.login(members.getId());
-        }
-
-        // 미가입 회원시 저장 후 Redirect
-        OauthTmp oauthTmp = new OauthTmp(uid, provider, userInfo);
-        oauthTmpRepository.save(oauthTmp);
-
-        String redirectUrl = client.getUidRedirectUrl(RedirectType.SIGN_UP, oauthTmp.getUid());
-        URI redirectUri = URI.create(redirectUrl);
-        throw new OAuthAppLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION, oauthTmp.getUid(),redirectUri);
-    }
-
-    private OAuthToken getAccessToken(Info providerInfo, String code, String redirectUrl) {
+    OAuthToken getAccessTokenFromOAuth(Info providerInfo, String code, String redirectUrl) {
         WebClient webClient = WebClient.builder()
-                .baseUrl(providerInfo.getTokenUrl()) // 요청 할 API Url
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE) // 헤더 설정
+                .baseUrl(providerInfo.getTokenUrl())
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .build();
         String response = webClient.post()
                 .uri(uriBuilder -> uriBuilder
@@ -115,26 +111,26 @@ public class OAuthServiceImpl implements OAuthService {
                         .queryParam("redirect_uri", redirectUrl)
                         .queryParam("code", code)
                         .build())
-                .retrieve() // 데이터 받는 방식, 스프링에서는 exchange는 메모리 누수 가능성 때문에 retrieve 권장
-                .bodyToMono(String.class) // Mono 객체로 데이터를 받음 , Mono는 단일 데이터, Flux는 복수 데이터
-                .block();// 비동기 방식으로 데이터를 받아옴
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
         return convert(response);
     }
 
-    private UserInfo getUserInfo(Info providerInfo, String accessToken) {
+    private UserInfo getUserInfoFromOAuth(Info providerInfo, String accessToken) {
         WebClient webClient = WebClient.builder()
-                .baseUrl(providerInfo.getInfoUrl()) // 요청 할 API Url
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE) // 헤더 설정
+                .baseUrl(providerInfo.getInfoUrl())
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken)
                 .build();
         String response = webClient.get()
-                .retrieve() // 데이터 받는 방식, 스프링에서는 exchange는 메모리 누수 가능성 때문에 retrieve 권장
-                .bodyToMono(String.class) // Mono 객체로 데이터를 받음 , Mono는 단일 데이터, Flux는 복수 데이터
-                .block();// 비동기 방식으로 데이터를 받아옴
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
         return providerInfo.convert(response);
     }
 
-    private String getOAuthRedirectUri(String environment, String provider) {
+    String getOAuthRedirectUri(String environment, String provider) {
         return String.join("/", OAUTH_REDIRECT_URI_PREFIX
                 , "oauth"
                 , environment
