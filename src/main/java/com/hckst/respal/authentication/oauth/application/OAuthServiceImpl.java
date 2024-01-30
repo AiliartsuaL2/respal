@@ -55,7 +55,7 @@ public class OAuthServiceImpl implements OAuthService {
      *      - 예외처리하여 회원가입 url로 Redirect
      */
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = {OAuthAppLoginException.class})
     public Token login(Provider provider, Client client, String code, String uid) {
         // OAuth 서버와 통신
         UserInfo userInfo = getUserInfo(provider, client, code);
