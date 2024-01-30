@@ -20,6 +20,4 @@ public class SendEmailRequestDto {
     private String email;
     @Schema(description = "임시 비밀번호")
     private String tmpPassword;
-
-
 }

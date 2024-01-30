@@ -88,6 +88,7 @@ public class Members implements UserDetails {
     private List<Oauth> oauthList;
 
     public static Members create(MembersJoinRequestDto membersJoinRequestDto) {
+        membersJoinRequestDto.checkRequiredFieldIsNull();
         Members members = new Members();
         members.email = membersJoinRequestDto.getEmail();
         members.password = encryptPassword(membersJoinRequestDto.getPassword());

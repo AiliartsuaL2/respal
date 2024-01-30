@@ -131,7 +131,10 @@ public class MembersController {
     })
     @PatchMapping("/password")
     @ResponseBody
-    public ResponseEntity updatePassword(@RequestBody PasswordPatchRequestDto passwordPatchRequestDto){
+    public ResponseEntity updatePassword(
+            @RequestBody
+            @Valid
+            PasswordPatchRequestDto passwordPatchRequestDto){
         membersService.updatePassword(passwordPatchRequestDto);
         return ResponseEntity.noContent().build();
     }

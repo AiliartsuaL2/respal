@@ -9,6 +9,9 @@
 ![데이터모델링](https://github.com/AiliartsuaL2/respal/assets/89395238/7b78e41c-98c8-4ffb-8306-8f2fe5b91495)
 
 ## 기능 요구사항
+- 공통
+  - 도메인 생성시 필수 필드의 Null 체크는 DTO에서 @Valid 이후 추가적으로 도메인 레벨에서도 진행
+  - 비즈니스 Validation -> Application 레벨에서 진행 
 - 회원
   - 공통 기능
     - 회원가입

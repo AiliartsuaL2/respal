@@ -23,6 +23,8 @@ public enum ErrorMessage {
     // 201번대 Members 관련 오류
     NOT_EXIST_MEMBER_EMAIL_EXCEPTION(HttpStatus.BAD_REQUEST,"이메일은 필수 입력값이에요.","R201"),
     NOT_EXIST_MEMBER_PASSWORD_EXCEPTION(HttpStatus.BAD_REQUEST,"비밀번호는 필수 입력값이에요.","R201"),
+    NOT_EXIST_NICKNAME_EXCEPTION(HttpStatus.BAD_REQUEST,"닉네임은 필수 입력값이에요.","R201"),
+
     DUPLICATE_EMAIL_EXCEPTION(HttpStatus.BAD_REQUEST,"이미 존재하는 이메일이에요.","R201"),
     NOT_EXIST_PASSWORD_EXCEPTION(HttpStatus.BAD_REQUEST,"일반 회원은 비밀번호 설정이 필수에요.","R201"),
     INVALID_MEMBER_EXCEPTION(HttpStatus.BAD_REQUEST,"유효하지 않은 사용자에요.","R201"),

@@ -60,19 +60,19 @@ public class OAuthServiceImpl implements OAuthService {
         // OAuth 서버와 통신
         UserInfo userInfo = getUserInfo(provider, client, code);
 
-        Optional<MembersOAuthDto> membersOAuth = membersRepository.findMembersOauthForLogin(userInfo.getEmail(), provider);
-        // 비회원인 경우 -> OAuth Tmp 저장 후 redirect
-        if(membersOAuth.isEmpty()) {
-            OauthTmp oauthTmp = new OauthTmp(uid, provider, userInfo);
-            oauthTmpRepository.save(oauthTmp);
+        // 저장 후 Redirect
+        MembersOAuthDto membersOAuthDto = membersRepository.findMembersOauthForLogin(userInfo.getEmail(), provider)
+                .orElseThrow(() -> {
+                    OauthTmp oauthTmp = new OauthTmp(uid, provider, userInfo);
+                    oauthTmpRepository.save(oauthTmp);
 
-            String redirectUrl = client.getUidRedirectUrl(RedirectType.SIGN_UP, oauthTmp.getUid());
-            URI redirectUri = URI.create(redirectUrl);
-            throw new OAuthAppLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION, oauthTmp.getUid(), redirectUri);
-        }
+                    String redirectUrl = client.getUidRedirectUrl(RedirectType.SIGN_UP, oauthTmp.getUid());
+                    URI redirectUri = URI.create(redirectUrl);
+                    return new OAuthAppLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION, oauthTmp.getUid(), redirectUri);
+                });
 
         // 기존 회원인 경우 -> token 응답
-        return jwtService.login(membersOAuth.get().getId());
+        return jwtService.login(membersOAuthDto.getId());
     }
 
     private UserInfo getUserInfo(Provider provider, Client client, String code) {
@@ -85,7 +85,7 @@ public class OAuthServiceImpl implements OAuthService {
     @Override
     @Transactional
     public void join(Provider provider, MembersJoinRequestDto membersJoinRequestDto) {
-        duplicationCheckEmail(provider, membersJoinRequestDto.getEmail());
+        checkDuplicatedEmail(provider, membersJoinRequestDto.getEmail());
         Members members = Members.create(membersJoinRequestDto);
         membersRepository.save(members);
         if(!Provider.COMMON.equals(provider)) {
@@ -144,13 +144,13 @@ public class OAuthServiceImpl implements OAuthService {
         return gson.fromJson(json, OAuthToken.class);
     }
 
-    public void duplicationCheckEmail(Provider provider, String email) {
+    public void checkDuplicatedEmail(Provider provider, String email) {
         if(Provider.COMMON.equals(provider)) {
             if(membersRepository.existsMembersByEmail(email)) {
                 throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
             }
         }
-        if(membersRepository.existsMembersOauthForJoin(email,provider)){
+        if(membersRepository.existsMembersOauthForJoin(email, provider)){
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
     }

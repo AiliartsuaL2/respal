@@ -36,7 +36,7 @@ public class MembersService {
     private static final String MAIL_MESSAGE = "변경된 임시 비밀번호는 아래와 같습니다. \n";
 
     public Token login(MembersLoginRequestDto membersLoginRequestDto) {
-        membersLoginRequestDto.checkNull();
+        membersLoginRequestDto.checkRequiredFieldIsNull();
         Members member = findCommonMemberByEmail(membersLoginRequestDto.getEmail());
         member.checkPassword(membersLoginRequestDto.getPassword());
         return jwtService.login(member.getId());
@@ -95,7 +95,7 @@ public class MembersService {
         Members members = membersRepository.findCommonMembersByEmail(passwordPatchRequestDto.getEmail()).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
         // 비밀번호 검증
-        members.checkPassword(passwordPatchRequestDto.getTmpPassword());
+        members.checkPassword(passwordPatchRequestDto.getExistPassword());
         // 비밀번호 변경
         members.updatePassword(passwordPatchRequestDto.getNewPassword());
     }
