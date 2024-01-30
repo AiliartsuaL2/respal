@@ -26,7 +26,7 @@ public class Token {
     @Override
     public String toString() {
         return "{" +
-                ", accessToken='" + accessToken + '\'' +
+                "accessToken='" + accessToken + '\'' +
                 ", refreshToken='" + refreshToken + '\'' +
                 '}';
     }
