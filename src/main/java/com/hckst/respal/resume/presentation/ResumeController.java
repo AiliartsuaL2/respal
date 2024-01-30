@@ -45,10 +45,8 @@ public class ResumeController {
             @Parameter(description = "조회하는 회원입니다. 인증 토큰을 통해 자동으로 매핑됩니다.")
             @AuthenticationPrincipal Members members){
         ResumeDetailResponseDto resumeDetail = resumeService.getResumeDetailByResumeId(resumeId, members);
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
-                .result(resumeDetail)
-                .build();
+
+        ApiCommonResponse<ResumeDetailResponseDto> response = new ApiCommonResponse<>(200, resumeDetail);
         return ResponseEntity.ok(response);
     }
 
@@ -65,11 +63,8 @@ public class ResumeController {
         //todo 페이지네이션 개발단계 default(1,10) 처리 -> 12.28 협의
         ResumeListRequestDto requestDto = ResumeListRequestDto.create(type, 1, 10, viewer);
         ResumeListResponseDto resumeList = resumeService.getResumeList(requestDto);
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
-                .result(resumeList)
-                .build();
 
+        ApiCommonResponse<ResumeListResponseDto> response = new ApiCommonResponse<>(200, resumeList);
         return ResponseEntity.ok(response);
     }
 
@@ -85,10 +80,8 @@ public class ResumeController {
             @Parameter(description = "이력서를 생성하는 회원입니다. 인증 토큰을 통해 자동으로 매핑됩니다.")
             @AuthenticationPrincipal Members members){
         ResumeDetailResponseDto savedResume = resumeService.createResume(requestDto, members);
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(201)
-                .result(savedResume)
-                .build();
+
+        ApiCommonResponse<ResumeDetailResponseDto> response = new ApiCommonResponse<>(201, savedResume);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -99,16 +92,14 @@ public class ResumeController {
             @ApiResponse(responseCode = "401", description = "이력서 삭제 권한이 없는경우 발생하는 응답입니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @DeleteMapping("/resume/{resumeId}")
-    public ResponseEntity<ApiCommonResponse<?>> removeResume(
+    public ResponseEntity<ApiCommonResponse<String>> removeResume(
             @Parameter(description = "삭제할 이력서의 ID입니다.")
             @PathVariable long resumeId,
             @Parameter(description = "이력서를 삭제하는 회원입니다. 인증 토큰을 통해 자동으로 매핑됩니다.")
             @AuthenticationPrincipal Members members){
         resumeService.removeResume(resumeId, members);
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(204)
-                .result(null)
-                .build();
+
+        ApiCommonResponse<String> response = new ApiCommonResponse<>(204, "이력서 삭제가 완료되었어요.");
         return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
 
@@ -120,14 +111,12 @@ public class ResumeController {
     @PostMapping(value ="/resume/file",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiCommonResponse<ResumeDetailResponseDto>> createResumeFile(
+    public ResponseEntity<ApiCommonResponse<CreateResumeFileResponseDto>> createResumeFile(
             @Parameter(description = "multipart/form-data 형식의 이미지 리스트를 input으로 받습니다. 이때 key 값은 file 입니다.")
             @RequestPart(value = "file") MultipartFile file){
         CreateResumeFileResponseDto resumeFile = resumeService.createResumeFile(file);
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(201)
-                .result(resumeFile)
-                .build();
+
+        ApiCommonResponse<CreateResumeFileResponseDto> response = new ApiCommonResponse<>(201, resumeFile);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -138,15 +127,13 @@ public class ResumeController {
             @ApiResponse(responseCode = "500", description = "S3 파일 삭제 에러가 발생하는경우 발생하는 응답입니다.", content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @DeleteMapping("/resume/file")
-    public ResponseEntity<ApiCommonResponse<?>> removeResumeFile(
+    public ResponseEntity<ApiCommonResponse<String>> removeResumeFile(
             @Parameter(description = "삭제할 이력서 파일의 ID입니다.")
             @RequestParam Long resumeFileId) {
         // todo 삭제 검증 로직 추가 필요
         resumeService.removeResumeFile(resumeFileId);
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(204)
-                .result(null)
-                .build();
+
+        ApiCommonResponse<String> response = new ApiCommonResponse<>(204, "이력서 파일 삭제가 완료되었어요.");
         return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
 }

@@ -7,14 +7,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
 @Schema(description = "응답")
-@AllArgsConstructor
-@NoArgsConstructor
 public class ApiCommonResponse<T> {
     @Schema(description = "Http 응답 코드")
-    private Integer statusCode;
+    private final Integer statusCode;
 
     @Schema(description = "응답 데이터")
-    private T result;
+    private final T result;
+
+    public ApiCommonResponse(Integer statusCode, T result) {
+        this.statusCode = statusCode;
+        this.result = result;
+    }
 }

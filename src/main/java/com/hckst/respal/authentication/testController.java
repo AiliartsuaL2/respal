@@ -37,10 +37,7 @@ public class testController {
                 .message(message)
                 .code(HttpStatus.OK.value())
                 .build();
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
-                .result(responseDto)
-                .build();
+        ApiCommonResponse<TestResponseDto> response = new ApiCommonResponse<>(200, responseDto);
         return ResponseEntity.ok(response);
     }
 

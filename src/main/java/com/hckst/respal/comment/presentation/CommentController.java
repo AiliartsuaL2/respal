@@ -55,10 +55,7 @@ public class CommentController {
         return commentService.createComment(createCommentRequestDto, members, resumeId)
                         .map(dto -> ResponseEntity
                                 .ok()
-                                .body(ApiCommonResponse.<CommentsResponseDto>builder()
-                                        .statusCode(201)
-                                        .result(dto)
-                                        .build()));
+                                .body(new ApiCommonResponse<>(201, dto)));
     }
 
     @Operation(summary = "댓글 조회 API", description = "댓글 조회 API 입니다.")
@@ -87,9 +84,6 @@ public class CommentController {
         return commentService.deleteComment(commentId, members)
                 .map(dto -> ResponseEntity
                         .ok()
-                        .body(ApiCommonResponse.<CommentsResponseDto>builder()
-                                .statusCode(200)
-                                .result(dto)
-                                .build()));
+                        .body(new ApiCommonResponse<>(200, dto)));
     }
 }

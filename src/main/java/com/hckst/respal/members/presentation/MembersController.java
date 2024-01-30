@@ -64,10 +64,12 @@ public class MembersController {
     })
     @PostMapping("/member/join")
     @ResponseBody
-    public ResponseEntity<?> join(@Valid @RequestBody MembersJoinRequestDto membersJoinRequestDto){
+    public ResponseEntity<ApiCommonResponse<String>> join(@Valid @RequestBody MembersJoinRequestDto membersJoinRequestDto){
         Provider provider = Provider.findByValue(membersJoinRequestDto.getProvider());
         oAuthService.join(provider, membersJoinRequestDto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+
+        ApiCommonResponse<String> response = new ApiCommonResponse<>(201, "회원가입이 성공적으로 처리되었어요");
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @Operation(summary = "회원가입시 이메일 인증 메서드", description = "")
@@ -81,10 +83,7 @@ public class MembersController {
         if(membersService.checkMembers(email)){
             throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
         }
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
-                .result("인증번호 확인 이메일을 전송하였습니다.")
-                .build();
+        ApiCommonResponse<String> response = new ApiCommonResponse<>(200, "인증번호 확인 이메일을 전송하였어요.");
         return ResponseEntity.ok(response);
     }
 
@@ -98,10 +97,7 @@ public class MembersController {
     public ResponseEntity<ApiCommonResponse<RefreshAccessTokenResponseDto>> refreshAccessToken(@RequestHeader(value = "Authorization") String refreshToken){
         RefreshAccessTokenResponseDto responseDto = jwtService.renewAccessToken(refreshToken);
 
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
-                .result(responseDto)
-                .build();
+        ApiCommonResponse<RefreshAccessTokenResponseDto> response = new ApiCommonResponse<>(200, responseDto);
         return ResponseEntity.ok(response);
     }
 
@@ -117,10 +113,8 @@ public class MembersController {
         String password = membersService.passwordResetToTmp(sendEmailRequestDto.getEmail());
         sendEmailRequestDto.setTmpPassword(password);
         membersService.sendPasswordResetEmail(sendEmailRequestDto);
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
-                .result("해당 이메일로 임시 비밀번호를 전송하였습니다.")
-                .build();
+
+        ApiCommonResponse<String> response = new ApiCommonResponse<>(200, "해당 이메일로 임시 비밀번호를 전송하였어요.");
         return ResponseEntity.ok(response);
     }
 
@@ -131,12 +125,14 @@ public class MembersController {
     })
     @PatchMapping("/password")
     @ResponseBody
-    public ResponseEntity updatePassword(
+    public ResponseEntity<ApiCommonResponse<String>> updatePassword(
             @RequestBody
             @Valid
             ResetPasswordRequestDto resetPasswordRequestDto){
         membersService.updatePassword(resetPasswordRequestDto);
-        return ResponseEntity.noContent().build();
+
+        ApiCommonResponse<String> response = new ApiCommonResponse<>(204, "비밀번호가 성공적으로 재설정 되었어요");
+        return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
 
     // refresh token만 db에서 삭제
@@ -147,9 +143,11 @@ public class MembersController {
     })
     @PostMapping("/member/logout")
     @ResponseBody
-    public ResponseEntity logout(@RequestHeader(value = "Authorization") String refreshToken){
+    public ResponseEntity<ApiCommonResponse<String>> logout(@RequestHeader(value = "Authorization") String refreshToken){
         oAuthService.logout(refreshToken);
-        return ResponseEntity.noContent().build();
+
+        ApiCommonResponse<String> response = new ApiCommonResponse<>(204, "로그아웃이 정상적으로 처리되었어요.");
+        return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
 
     // 닉네임을 이용한 사용자 검색용 메서드
@@ -159,7 +157,7 @@ public class MembersController {
     })
     @GetMapping("/members")
     @ResponseBody
-    public ResponseEntity<ApiCommonResponse<MembersResponseDto>> searchMembers(@RequestParam String searchWord, @RequestParam int limit){
+    public ResponseEntity<ApiCommonResponse<List<MembersResponseDto>>> searchMembers(@RequestParam String searchWord, @RequestParam int limit){
         SearchMembersRequestDto searchMembersRequestDto = SearchMembersRequestDto.builder()
                 .limit(limit)
                 .searchWord(searchWord)
@@ -167,10 +165,7 @@ public class MembersController {
 
         List<MembersResponseDto> searchMembers = membersService.searchMembers(searchMembersRequestDto);
 
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
-                .result(searchMembers)
-                .build();
+        ApiCommonResponse<List<MembersResponseDto>> response = new ApiCommonResponse<>(200, searchMembers);
         return ResponseEntity.ok(response);
     }
 }

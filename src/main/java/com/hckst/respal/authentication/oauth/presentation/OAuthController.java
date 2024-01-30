@@ -89,10 +89,7 @@ public class OAuthController {
             @Parameter(description = "해당 UID를 받아오며 리다이렉트 되었던 타입 입니다.", schema = @Schema(type = "string", allowableValues = {"signup","callback"}))
             @RequestParam String type){
         RedirectResponse responseDto = oAuthTmpService.getOauthTmp(uid,type);
-        ApiCommonResponse response = ApiCommonResponse.builder()
-                .statusCode(200)
-                .result(responseDto)
-                .build();
+        ApiCommonResponse<RedirectResponse> response = new ApiCommonResponse<>(200, responseDto);
         return ResponseEntity.ok(response);
     }
 }
