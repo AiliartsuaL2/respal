@@ -22,4 +22,12 @@ public class Token {
         String encodedToken = URLEncoder.encode(this.toString());
         return "?token="+encodedToken;
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                ", accessToken='" + accessToken + '\'' +
+                ", refreshToken='" + refreshToken + '\'' +
+                '}';
+    }
 }
