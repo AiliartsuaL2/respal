@@ -5,6 +5,7 @@ import com.hckst.respal.authentication.jwt.application.JwtTokenCreator;
 import com.hckst.respal.authentication.jwt.application.TokenCreator;
 import com.hckst.respal.authentication.jwt.dto.Token;
 import com.hckst.respal.authentication.oauth.domain.OauthTmp;
+import com.hckst.respal.authentication.oauth.domain.RedirectType;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthRepository;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepository;
 import com.hckst.respal.authentication.oauth.presentation.dto.response.info.UserInfo;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URI;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -91,12 +93,13 @@ class OAuthServiceTest {
         void 가입_되지_않은_회원의_경우_로그인_예외를_발생시킨다() {
             // given & when
             String code = INVALID_CODE;
+            String redirectUrl = WEB_PROD.getUidRedirectUrl(RedirectType.SIGN_UP, UID);
 
             // then
             assertThatThrownBy(() -> oAuthService.login(GOOGLE, WEB_PROD, code, UID))
                     .isInstanceOf(OAuthLoginException.class)
-                    .hasMessage(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION.getMsg());
+                    .hasMessage(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION.getMsg())
+                    .hasFieldOrPropertyWithValue("redirectUrl", URI.create(redirectUrl));
         }
     }
-
 }
