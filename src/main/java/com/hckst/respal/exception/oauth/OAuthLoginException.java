@@ -7,14 +7,14 @@ import org.springframework.http.HttpStatus;
 import java.net.URI;
 
 @Getter
-public class OAuthAppLoginException extends RuntimeException {
+public class OAuthLoginException extends RuntimeException {
     private final String errorCode;
     private final Integer statusCode;
     private final String uid;
     private final HttpStatus httpStatus;
     private final URI redirectUrl;
 
-    public OAuthAppLoginException(ErrorMessage errorMessage, String uid, URI redirectUrl) {
+    public OAuthLoginException(ErrorMessage errorMessage, String uid, URI redirectUrl) {
         super(errorMessage.getMsg());
         this.errorCode = errorMessage.getErrorCode();
         this.statusCode = errorMessage.getCode();

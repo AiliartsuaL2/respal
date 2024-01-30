@@ -49,7 +49,7 @@ public class OAuthController {
     })
     @GetMapping("/{client}/login/{provider}")
     @ResponseBody
-    public ResponseEntity oAuthLogin(
+    public ResponseEntity<?> oAuthLogin(
             @Parameter(description = "해당 API를 호출하는 클라이언트 타입입니다.", schema = @Schema(type = "string", allowableValues = {"web-dev","wev-staging","web-prod","app"}))
             @PathVariable String client,
             @Parameter(description = "인증을 받아올 OAuth 서버 타입 입니다.", schema = @Schema(type = "string", allowableValues = {"kakao","google","github"}))

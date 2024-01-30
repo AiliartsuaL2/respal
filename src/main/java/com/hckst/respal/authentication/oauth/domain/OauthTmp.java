@@ -49,4 +49,5 @@ public class OauthTmp {
         this.accessToken = token.getAccessToken();
         this.refreshToken = token.getRefreshToken();
     }
+
 }

@@ -1,8 +1,6 @@
 package com.hckst.respal.exception;
 
-import com.hckst.respal.exception.oauth.OAuthAppLoginException;
-import com.hckst.respal.exception.oauth.OAuthWebLoginException;
-import com.hckst.respal.exception.oauth.dto.OAuthLoginErrorResponse;
+import com.hckst.respal.exception.oauth.OAuthLoginException;
 import com.hckst.respal.global.dto.ApiErrorMessageAndCode;
 import com.hckst.respal.global.dto.ApiErrorResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -69,9 +67,9 @@ public class GlobalExceptionHandler {
                 .build();
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }
-    // App 로그인 실패시 회원가입창으로 이동
-    @ExceptionHandler(OAuthAppLoginException.class)
-    public ResponseEntity<ApiErrorResponse> oauthAppLoginException(OAuthAppLoginException ex){
+    // 로그인 실패시 회원가입창으로 이동
+    @ExceptionHandler(OAuthLoginException.class)
+    public ResponseEntity<ApiErrorResponse> oauthLoginException(OAuthLoginException ex){
         int statusCode = ex.getStatusCode();
         log.warn(
                 LOG_FORMAT,
@@ -81,23 +79,5 @@ public class GlobalExceptionHandler {
                 ex.getErrorCode()
         );
         return ResponseEntity.status(HttpStatus.FOUND).location(ex.getRedirectUrl()).build();
-
-    }
-    @ExceptionHandler(OAuthWebLoginException.class)
-    public ResponseEntity<ApiErrorResponse> oauthWebLoginException(OAuthWebLoginException ex){
-        int statusCode = ex.getStatusCode();
-        log.warn(
-                LOG_FORMAT,
-                ex.getClass().getSimpleName(),
-                statusCode,
-                ex.getMessage(),
-                ex.getErrorCode()
-        );
-        return ResponseEntity
-                .status(ex.getHttpStatus())
-                .body(ApiErrorResponse.builder()
-                        .statusCode(statusCode)
-                        .result(new OAuthLoginErrorResponse(ex.getMessage(), ex.getErrorCode(), ex.getUid()))
-                        .build());
     }
 }

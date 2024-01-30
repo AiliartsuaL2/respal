@@ -18,7 +18,7 @@ import com.hckst.respal.converter.Client;
 import com.hckst.respal.converter.Provider;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
-import com.hckst.respal.exception.oauth.OAuthAppLoginException;
+import com.hckst.respal.exception.oauth.OAuthLoginException;
 import com.hckst.respal.global.Utils;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.repository.MembersRepository;
@@ -26,7 +26,7 @@ import com.hckst.respal.members.domain.repository.dto.MembersOAuthDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 
 import java.net.URI;
-import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -55,7 +55,7 @@ public class OAuthServiceImpl implements OAuthService {
      *      - 예외처리하여 회원가입 url로 Redirect
      */
     @Override
-    @Transactional(noRollbackFor = {OAuthAppLoginException.class})
+    @Transactional(noRollbackFor = {OAuthLoginException.class})
     public Token login(Provider provider, Client client, String code, String uid) {
         // OAuth 서버와 통신
         UserInfo userInfo = getUserInfo(provider, client, code);
@@ -68,14 +68,14 @@ public class OAuthServiceImpl implements OAuthService {
 
                     String redirectUrl = client.getUidRedirectUrl(RedirectType.SIGN_UP, oauthTmp.getUid());
                     URI redirectUri = URI.create(redirectUrl);
-                    return new OAuthAppLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION, oauthTmp.getUid(), redirectUri);
+                    return new OAuthLoginException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION, oauthTmp.getUid(), redirectUri);
                 });
 
         // 기존 회원인 경우 -> token 응답
         return jwtService.login(membersOAuthDto.getId());
     }
 
-    private UserInfo getUserInfo(Provider provider, Client client, String code) {
+    UserInfo getUserInfo(Provider provider, Client client, String code) {
         Info info = oAuthConfig.getInfoByProvider(provider);
         String oauthRedirectUri = getOAuthRedirectUri(client.getEnvironment(), provider.getValue());
         OAuthToken accessToken = getAccessTokenFromOAuth(info, code, oauthRedirectUri);
@@ -98,7 +98,7 @@ public class OAuthServiceImpl implements OAuthService {
     public void logout(String refreshToken) {
     }
 
-    OAuthToken getAccessTokenFromOAuth(Info providerInfo, String code, String redirectUrl) {
+    private OAuthToken getAccessTokenFromOAuth(Info providerInfo, String code, String redirectUrl) {
         WebClient webClient = WebClient.builder()
                 .baseUrl(providerInfo.getTokenUrl())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
