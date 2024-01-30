@@ -19,11 +19,7 @@ public class MembersLoginRequestDto extends CommonRequestDto {
 
     @Override
     public void checkRequiredFieldIsNull() {
-        if(ObjectUtils.isEmpty(this.email)) {
-            throw new IllegalArgumentException(ErrorMessage.NOT_EXIST_MEMBER_EMAIL_EXCEPTION.getMsg());
-        }
-        if(ObjectUtils.isEmpty(this.password)) {
-            throw new IllegalArgumentException(ErrorMessage.NOT_EXIST_MEMBER_PASSWORD_EXCEPTION.getMsg());
-        }
+        checkNull(this.email, ErrorMessage.NOT_EXIST_MEMBER_EMAIL_EXCEPTION);
+        checkNull(this.password, ErrorMessage.NOT_EXIST_MEMBER_PASSWORD_EXCEPTION);
     }
 }

@@ -2,10 +2,14 @@ package com.hckst.respal.resume.presentation.dto.request;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hckst.respal.exception.ApplicationException;
+import com.hckst.respal.exception.ErrorMessage;
+import com.hckst.respal.global.dto.CommonRequestDto;
 import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.resume.domain.ResumeFile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.apache.commons.lang3.ObjectUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -16,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @Setter
 @Schema(description = "이력서 작성 요청 DTO")
-public class CreateResumeRequestDto {
+public class CreateResumeRequestDto extends CommonRequestDto {
     @Schema(description = "이력서 제목 입니다.")
     @NotNull(message = "제목은 필수 입력값이에요")
     private String title;
@@ -42,5 +46,12 @@ public class CreateResumeRequestDto {
     public void setResumeFileAndWriter(ResumeFile resumeFile, Members writer) {
         this.resumeFile = resumeFile;
         this.writer = writer;
+    }
+
+    @Override
+    public void checkRequiredFieldIsNull() {
+        checkNull(this.title, ErrorMessage.NOT_EXIST_RESUME_TITLE_EXCEPTION);
+        checkNull(this.resumeFileId, ErrorMessage.NOT_EXIST_RESUME_FILE_ID_EXCEPTION);
+        checkNull(this.resumeType, ErrorMessage.NOT_EXIST_RESUME_TYPE_EXCEPTION);
     }
 }

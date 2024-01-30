@@ -24,7 +24,6 @@ public enum ErrorMessage {
     NOT_EXIST_MEMBER_EMAIL_EXCEPTION(HttpStatus.BAD_REQUEST,"이메일은 필수 입력값이에요.","R201"),
     NOT_EXIST_MEMBER_PASSWORD_EXCEPTION(HttpStatus.BAD_REQUEST,"비밀번호는 필수 입력값이에요.","R201"),
     NOT_EXIST_NICKNAME_EXCEPTION(HttpStatus.BAD_REQUEST,"닉네임은 필수 입력값이에요.","R201"),
-
     DUPLICATE_EMAIL_EXCEPTION(HttpStatus.BAD_REQUEST,"이미 존재하는 이메일이에요.","R201"),
     NOT_EXIST_PASSWORD_EXCEPTION(HttpStatus.BAD_REQUEST,"일반 회원은 비밀번호 설정이 필수에요.","R201"),
     INVALID_MEMBER_EXCEPTION(HttpStatus.BAD_REQUEST,"유효하지 않은 사용자에요.","R201"),
@@ -35,16 +34,20 @@ public enum ErrorMessage {
     PERMISSION_DENIED_TO_DELETE_EXCEPTION(HttpStatus.BAD_REQUEST,"삭제 권한이 없어요.","R201"),
 
     // 202번대 Resume 관련 오류
+    NOT_EXIST_RESUME_TITLE_EXCEPTION(HttpStatus.BAD_REQUEST,"이력서 제목은 필수 입력 값이에요.","R202"),
     NOT_EXIST_RESUME_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 이력서가 존재하지 않아요.","R202"),
     NOT_EXIST_RESUME_FILE_ID_EXCEPTION(HttpStatus.BAD_REQUEST,"해당 이력서 파일이 존재하지 않아요.","R202"),
     FAILED_FILE_UPLOAD_TO_S3_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR,"파일 업로드 중 문제가 발생했어요.","R202"),
     FAILED_FILE_DELETE_TO_S3_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR,"파일 삭제 중 문제가 발생했어요.","R202"),
-    NOT_EXIST_RESUME_TYPE(HttpStatus.BAD_REQUEST,"이력서 공개 설정이 지정되지 않았어요.","R202"),
+    NOT_EXIST_RESUME_TYPE_EXCEPTION(HttpStatus.BAD_REQUEST,"이력서 공개 설정이 지정되지 않았어요.","R202"),
     PERMISSION_DENIED_TO_VIEW_EXCEPTION(HttpStatus.FORBIDDEN, "조회 권한이 없어요", "R202"),
 
     // 203번대 Comment 관련 오류
     NOT_EXIST_COMMENT_EXCEPTION(HttpStatus.BAD_REQUEST,"존재하지 않는 댓글이에요.","R203"),
-    ILLEGAL_COMMENT_ARGUMENT_EXCEPTION(HttpStatus.BAD_REQUEST, "댓글 내용을 입력해주세요", "R203"),
+    NOT_EXIST_CONTENT_EXCEPTION(HttpStatus.BAD_REQUEST, "댓글 내용은 필수 입력 값이에요", "R203"),
+    NOT_EXIST_LOCATION_X_EXCEPTION(HttpStatus.BAD_REQUEST, "댓글의 X좌표는 필수 입력 값이에요", "R203"),
+    NOT_EXIST_LOCATION_Y_EXCEPTION(HttpStatus.BAD_REQUEST, "댓글의 Y좌표는 필수 입력 값이에요", "R203"),
+
 
     // 204번대 Tag 관련 오류
     PERMISSION_DENIED_TO_TAG_EXCEPTION(HttpStatus.BAD_REQUEST,"태그 권한이 없어요", "R204"),

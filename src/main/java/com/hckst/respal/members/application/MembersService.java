@@ -1,7 +1,6 @@
 package com.hckst.respal.members.application;
 
 import com.hckst.respal.authentication.jwt.application.JwtService;
-import com.hckst.respal.authentication.jwt.application.TokenProvider;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.members.domain.Members;
@@ -91,13 +90,13 @@ public class MembersService {
     }
 
     @Transactional
-    public void updatePassword(PasswordPatchRequestDto passwordPatchRequestDto) {
-        Members members = membersRepository.findCommonMembersByEmail(passwordPatchRequestDto.getEmail()).orElseThrow(
+    public void updatePassword(ResetPasswordRequestDto resetPasswordRequestDto) {
+        Members members = membersRepository.findCommonMembersByEmail(resetPasswordRequestDto.getEmail()).orElseThrow(
                 () -> new ApplicationException(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION));
         // 비밀번호 검증
-        members.checkPassword(passwordPatchRequestDto.getExistPassword());
+        members.checkPassword(resetPasswordRequestDto.getExistPassword());
         // 비밀번호 변경
-        members.updatePassword(passwordPatchRequestDto.getNewPassword());
+        members.updatePassword(resetPasswordRequestDto.getNewPassword());
     }
 
     @Transactional

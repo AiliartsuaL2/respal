@@ -20,5 +20,6 @@ public class SearchMembersRequestDto extends CommonRequestDto {
 
     @Override
     public void checkRequiredFieldIsNull() {
+        checkNull(searchWord, ErrorMessage.NOT_EXIST_MEMBER_EMAIL_EXCEPTION);
     }
 }

@@ -44,17 +44,9 @@ public class MembersJoinRequestDto extends CommonRequestDto {
 
     @Override
     public void checkRequiredFieldIsNull() {
-        if(ObjectUtils.isEmpty(this.email)) {
-            throw new IllegalArgumentException(ErrorMessage.NOT_EXIST_MEMBER_EMAIL_EXCEPTION.getMsg());
-        }
-        if(ObjectUtils.isEmpty(this.password)) {
-            throw new IllegalArgumentException(ErrorMessage.NOT_EXIST_PASSWORD_EXCEPTION.getMsg());
-        }
-        if(ObjectUtils.isEmpty(this.nickname)) {
-            throw new IllegalArgumentException(ErrorMessage.NOT_EXIST_NICKNAME_EXCEPTION.getMsg());
-        }
-        if(ObjectUtils.isEmpty(this.provider)) {
-            throw new IllegalArgumentException(ErrorMessage.NOT_EXIST_PROVIDER_TYPE_EXCEPTION.getMsg());
-        }
+        checkNull(this.email, ErrorMessage.NOT_EXIST_MEMBER_EMAIL_EXCEPTION);
+        checkNull(this.password, ErrorMessage.NOT_EXIST_PASSWORD_EXCEPTION);
+        checkNull(this.nickname, ErrorMessage.NOT_EXIST_NICKNAME_EXCEPTION);
+        checkNull(this.provider, ErrorMessage.NOT_EXIST_PROVIDER_TYPE_EXCEPTION);
     }
 }

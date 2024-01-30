@@ -61,6 +61,7 @@ public class Resume {
     private List<Tag> tagList;
 
     public static Resume create(CreateResumeRequestDto requestDto) {
+        requestDto.checkRequiredFieldIsNull();
         Resume resume = new Resume();
         resume.title = requestDto.getTitle();
         resume.resumeType = ResumeType.findByType(requestDto.getResumeType());

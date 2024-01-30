@@ -51,9 +51,7 @@ public class Comment {
     }
 
     private void validationForCreate(CreateCommentRequestDto dto, Resume resume, Members members) {
-        if(dto == null || dto.getContent() == null) {
-            throw new ApplicationException(ErrorMessage.ILLEGAL_COMMENT_ARGUMENT_EXCEPTION);
-        }
+        dto.checkRequiredFieldIsNull();
         if(resume == null) {
             throw new ApplicationException(ErrorMessage.NOT_EXIST_RESUME_EXCEPTION);
         }

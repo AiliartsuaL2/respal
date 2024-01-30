@@ -12,8 +12,8 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
-@Schema(description = "비밀번호 재설정 요청")
-public class PasswordPatchRequestDto extends CommonRequestDto {
+@Schema(description = "비밀번호 재설정 요청 DTO")
+public class ResetPasswordRequestDto extends CommonRequestDto {
     @Schema(description = "이메일", nullable = false)
     @NotNull(message = "이메일은 필수 입력 항목이에요")
     private String email;
@@ -26,14 +26,8 @@ public class PasswordPatchRequestDto extends CommonRequestDto {
 
     @Override
     public void checkRequiredFieldIsNull() {
-        if(ObjectUtils.isEmpty(this.email)) {
-            throw new IllegalArgumentException(ErrorMessage.NOT_EXIST_MEMBER_EMAIL_EXCEPTION.getMsg());
-        }
-        if(ObjectUtils.isEmpty(this.existPassword)) {
-            throw new IllegalArgumentException(ErrorMessage.NOT_EXIST_MEMBER_PASSWORD_EXCEPTION.getMsg());
-        }
-        if(ObjectUtils.isEmpty(this.newPassword)) {
-            throw new IllegalArgumentException(ErrorMessage.NOT_EXIST_MEMBER_PASSWORD_EXCEPTION.getMsg());
-        }
+        checkNull(this.email, ErrorMessage.NOT_EXIST_MEMBER_EMAIL_EXCEPTION);
+        checkNull(this.existPassword, ErrorMessage.NOT_EXIST_MEMBER_PASSWORD_EXCEPTION);
+        checkNull(this.newPassword, ErrorMessage.NOT_EXIST_MEMBER_PASSWORD_EXCEPTION);
     }
 }

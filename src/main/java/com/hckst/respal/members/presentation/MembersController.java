@@ -134,8 +134,8 @@ public class MembersController {
     public ResponseEntity updatePassword(
             @RequestBody
             @Valid
-            PasswordPatchRequestDto passwordPatchRequestDto){
-        membersService.updatePassword(passwordPatchRequestDto);
+            ResetPasswordRequestDto resetPasswordRequestDto){
+        membersService.updatePassword(resetPasswordRequestDto);
         return ResponseEntity.noContent().build();
     }
 
