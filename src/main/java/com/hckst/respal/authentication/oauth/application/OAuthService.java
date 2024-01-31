@@ -7,6 +7,6 @@ import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
 
 public interface OAuthService {
     Token login(Provider provider, Client client, String code, String uid);
-    void join(Provider provider, MembersJoinRequestDto membersJoinRequestDto);
+    void join(MembersJoinRequestDto membersJoinRequestDto);
     void logout(String refreshToken);
 }

@@ -65,8 +65,7 @@ public class MembersController {
     @PostMapping("/member/join")
     @ResponseBody
     public ResponseEntity<ApiCommonResponse<String>> join(@Valid @RequestBody MembersJoinRequestDto membersJoinRequestDto){
-        Provider provider = Provider.findByValue(membersJoinRequestDto.getProvider());
-        oAuthService.join(provider, membersJoinRequestDto);
+        oAuthService.join(membersJoinRequestDto);
 
         ApiCommonResponse<String> response = new ApiCommonResponse<>(201, "회원가입이 성공적으로 처리되었어요");
         return new ResponseEntity<>(response, HttpStatus.CREATED);

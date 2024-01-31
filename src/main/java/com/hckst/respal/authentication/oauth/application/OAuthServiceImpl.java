@@ -84,7 +84,9 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Override
     @Transactional
-    public void join(Provider provider, MembersJoinRequestDto membersJoinRequestDto) {
+    public void join(MembersJoinRequestDto membersJoinRequestDto) {
+        membersJoinRequestDto.checkRequiredFieldIsNull();
+        Provider provider = Provider.findByValue(membersJoinRequestDto.getProvider());
         checkDuplicatedEmail(provider, membersJoinRequestDto.getEmail());
         Members members = Members.create(membersJoinRequestDto);
         membersRepository.save(members);
@@ -96,6 +98,7 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Override
     public void logout(String refreshToken) {
+        jwtService.logout(refreshToken);
     }
 
     private OAuthToken getAccessTokenFromOAuth(Info providerInfo, String code, String redirectUrl) {
@@ -144,7 +147,7 @@ public class OAuthServiceImpl implements OAuthService {
         return gson.fromJson(json, OAuthToken.class);
     }
 
-    public void checkDuplicatedEmail(Provider provider, String email) {
+    private void checkDuplicatedEmail(Provider provider, String email) {
         if(Provider.COMMON.equals(provider)) {
             if(membersRepository.existsMembersByEmail(email)) {
                 throw new ApplicationException(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION);
