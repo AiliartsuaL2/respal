@@ -1,7 +1,12 @@
 package com.hckst.respal.authentication.oauth.application;
 
 import com.hckst.respal.authentication.jwt.application.JwtService;
+import com.hckst.respal.authentication.jwt.application.JwtTokenCreator;
+import com.hckst.respal.authentication.jwt.application.JwtTokenProvider;
+import com.hckst.respal.authentication.jwt.application.UserDetailsServiceImpl;
+import com.hckst.respal.authentication.jwt.domain.RefreshToken;
 import com.hckst.respal.authentication.jwt.dto.Token;
+import com.hckst.respal.authentication.jwt.repository.RefreshTokenRepository;
 import com.hckst.respal.authentication.oauth.domain.RedirectType;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthRepository;
 import com.hckst.respal.authentication.oauth.domain.repository.OauthTmpRepository;
@@ -40,6 +45,8 @@ class OAuthServiceTest {
     OAuthService oAuthService;
     @Autowired
     MembersRepository membersRepository;
+    @Autowired
+    RefreshTokenRepository refreshTokenRepository;
 
     private static final Provider COMMON = Provider.COMMON;
     private static final Provider GOOGLE = Provider.GOOGLE;
@@ -443,6 +450,29 @@ class OAuthServiceTest {
             assertThatThrownBy(() -> oAuthService.join(dto))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage(ErrorMessage.NOT_EXIST_PROVIDER_TYPE_EXCEPTION.getMsg());
+        }
+    }
+
+    @Nested
+    @DisplayName("로그아웃 테스트")
+    class Logout {
+        private static final String SECRET_KEY = "secretKey";
+        @Test
+        @DisplayName("로그아웃시 RefreshToken이 제거된다.")
+        void 로그아웃시_RefreshToken이_제거된다() {
+            // given
+            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, 1000000L, 1000000L, new UserDetailsServiceImpl(membersRepository));
+            Long memberId = 0L;
+
+            String token = jwtTokenProvider.createRefreshToken(String.valueOf(memberId));
+            RefreshToken refreshToken = new RefreshToken(token, memberId);
+            refreshTokenRepository.save(refreshToken);
+
+            // when
+            oAuthService.logout(token);
+
+            // then
+            assertThat(refreshTokenRepository.findByRefreshToken(token)).isEmpty();
         }
     }
 }
