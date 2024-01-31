@@ -12,6 +12,7 @@ import com.hckst.respal.converter.Provider;
 import com.hckst.respal.exception.ApplicationException;
 import com.hckst.respal.exception.ErrorMessage;
 import com.hckst.respal.exception.oauth.OAuthLoginException;
+import com.hckst.respal.members.domain.Members;
 import com.hckst.respal.members.domain.repository.MembersRepository;
 import com.hckst.respal.members.domain.repository.dto.MembersOAuthDto;
 import com.hckst.respal.members.presentation.dto.request.MembersJoinRequestDto;
@@ -40,6 +41,7 @@ class OAuthServiceTest {
     @Autowired
     MembersRepository membersRepository;
 
+    private static final Provider COMMON = Provider.COMMON;
     private static final Provider GOOGLE = Provider.GOOGLE;
     private static final Provider GITHUB = Provider.GITHUB;
     private static final Client WEB_PROD = Client.WEB_PROD;
@@ -179,11 +181,35 @@ class OAuthServiceTest {
 
             // when
             oAuthService.join(dto);
-
-            // then
             Optional<MembersOAuthDto> members = membersRepository.findMembersOauthForLogin(EMAIL, GOOGLE);
 
+            // then
             assertThat(members).isPresent();
+        }
+
+        @Test
+        @DisplayName("같은 provider,email 중복 가입의 경우 예외가 발생한다.")
+        void 다른_provider_email_중복_가입의_경우_정상_가입_처리() {
+            // given
+            MembersJoinRequestDto dto = MembersJoinRequestDto.builder()
+                    .email(EMAIL)
+                    .nickname(NICK_NAME)
+                    .password(PASSWORD)
+                    .provider(GOOGLE.getValue())
+                    .build();
+            oAuthService.join(dto);
+
+            dto.setProvider(GITHUB.getValue());
+
+            // when
+            oAuthService.join(dto);
+
+            Optional<MembersOAuthDto> googleMember = membersRepository.findMembersOauthForLogin(EMAIL, GITHUB);
+            Optional<MembersOAuthDto> githubMembers = membersRepository.findMembersOauthForLogin(EMAIL, GOOGLE);
+
+            // then
+            assertThat(googleMember).isPresent();
+            assertThat(githubMembers).isPresent();
         }
 
         @Test
@@ -205,28 +231,25 @@ class OAuthServiceTest {
         }
 
         @Test
-        @DisplayName("같은 provider,email 중복 가입의 경우 예외가 발생한다.")
-        void 다른_provider_email_중복_가입의_경우_정상_가입_처리() {
+        @DisplayName("같은 이메일 일반회원 가입 후 같은 이메일의 OAuth 가입의 경우 예외가 발생한다.")
+        void 같은_이메일_일반회원_가입_후_같은_이메일의_OAuth_가입의_경우_예외가_발생한다() {
             // given
+            // 일반 회원 가입
             MembersJoinRequestDto dto = MembersJoinRequestDto.builder()
                     .email(EMAIL)
                     .nickname(NICK_NAME)
                     .password(PASSWORD)
-                    .provider(GOOGLE.getValue())
+                    .provider(COMMON.getValue())
                     .build();
             oAuthService.join(dto);
 
-            dto.setProvider(GITHUB.getValue());
+            // when & then
+            // 같은 이메일로 OAuth 가입
+            dto.setProvider(GOOGLE.getValue());
 
-            // when
-            oAuthService.join(dto);
-
-            // then
-            Optional<MembersOAuthDto> googleMember = membersRepository.findMembersOauthForLogin(EMAIL, GITHUB);
-            Optional<MembersOAuthDto> githubMembers = membersRepository.findMembersOauthForLogin(EMAIL, GOOGLE);
-
-            assertThat(googleMember).isPresent();
-            assertThat(githubMembers).isPresent();
+            assertThatThrownBy(() -> oAuthService.join(dto))
+                    .isInstanceOf(ApplicationException.class)
+                    .hasMessage(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION.getMsg());
         }
 
         @Test
@@ -298,54 +321,128 @@ class OAuthServiceTest {
     @Nested
     @DisplayName("일반 회원가입 테스트")
     class CommonJoin {
-        private OAuthServiceImpl oAuthService;
-
-        @BeforeEach
-        public void init() {
-            MembersOAuthDto membersOAuth = new MembersOAuthDto(ID, EMAIL);
-            UserInfo userInfo = new UserInfo();
-            userInfo.setEmail(EMAIL);
-            UserInfo invalidUserInfo = new UserInfo();
-            invalidUserInfo.setEmail(INVALID_EMAIL);
-
-            MembersRepository membersRepository = mock(MembersRepository.class);
-            OauthTmpRepository oauthTmpRepository = spy(OauthTmpRepository.class);
-            OauthRepository oauthRepository = mock(OauthRepository.class);
-
-            when(membersRepository.findMembersOauthForLogin(EMAIL, GOOGLE)).thenReturn(Optional.of(membersOAuth));
-
-            oAuthService = spy(new OAuthServiceImpl(oAuthConfig, membersRepository, oauthTmpRepository, oauthRepository, jwtService));
-            doReturn(userInfo).when(oAuthService).getUserInfo(GOOGLE, APP, CODE);
-            doReturn(invalidUserInfo).when(oAuthService).getUserInfo(GOOGLE, APP, INVALID_CODE);
-        }
-
         @Test
-        @DisplayName("가입된 회원의 경우 토큰을 응답 한다")
-        void 가입된_회원의_경우_토큰을_응답_한다() {
+        @DisplayName("정상 케이스")
+        void 정상_케이스() {
             // given
-            String code = CODE;
+            MembersJoinRequestDto dto = MembersJoinRequestDto.builder()
+                    .email(EMAIL)
+                    .nickname(NICK_NAME)
+                    .password(PASSWORD)
+                    .provider(COMMON.getValue())
+                    .build();
 
             // when
-            Token token = oAuthService.login(GOOGLE, APP, code, UID);
+            oAuthService.join(dto);
+            Optional<Members> members = membersRepository.findCommonMembersByEmail(EMAIL);
 
             // then
-            assertThat(token.getAccessToken().split("\\.").length).isEqualTo(3);
-            assertThat(token.getRefreshToken().split("\\.").length).isEqualTo(3);
-            assertThat(jwtService.findMemberId(token.getAccessToken())).isEqualTo(ID);
+
+            assertThat(members).isPresent();
         }
 
         @Test
-        @DisplayName("가입 되지 않은 회원의 경우 로그인 예외를 발생시킨다.")
-        void 가입_되지_않은_회원의_경우_로그인_예외를_발생시킨다() {
-            // given & when
-            String code = INVALID_CODE;
-            String redirectUrl = APP.getUidRedirectUrl(RedirectType.SIGN_UP, UID);
+        @DisplayName("같은 email의 일반 회원이 존재하는 경우 예외가 발생한다.")
+        void 같은_email의_일반_회원이_존재하는_경우_예외가_발생한다() {
+            // given
+            MembersJoinRequestDto dto = MembersJoinRequestDto.builder()
+                    .email(EMAIL)
+                    .nickname(NICK_NAME)
+                    .password(PASSWORD)
+                    .provider(COMMON.getValue())
+                    .build();
+            oAuthService.join(dto);
 
-            // then
-            assertThatThrownBy(() -> oAuthService.login(GOOGLE, APP, code, UID))
-                    .isInstanceOf(OAuthLoginException.class)
-                    .hasMessage(ErrorMessage.NOT_EXIST_MEMBER_EXCEPTION.getMsg())
-                    .hasFieldOrPropertyWithValue("redirectUrl", URI.create(redirectUrl));
+            // when & then
+            assertThatThrownBy(() -> oAuthService.join(dto))
+                    .isInstanceOf(ApplicationException.class)
+                    .hasMessage(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION.getMsg());
+        }
+
+        @Test
+        @DisplayName("같은 email의 OAuth 회원이 존재하는 경우 예외가 발생한다.")
+        void 같은_email의_OAuth_회원이_존재하는_경우_예외가_발생한다() {
+            // given
+            // OAuth가입
+            MembersJoinRequestDto dto = MembersJoinRequestDto.builder()
+                    .email(EMAIL)
+                    .nickname(NICK_NAME)
+                    .password(PASSWORD)
+                    .provider(GOOGLE.getValue())
+                    .build();
+            oAuthService.join(dto);
+
+            dto.setProvider(COMMON.getValue());
+
+            // when & then
+            assertThatThrownBy(() -> oAuthService.join(dto))
+                    .isInstanceOf(ApplicationException.class)
+                    .hasMessage(ErrorMessage.DUPLICATE_EMAIL_EXCEPTION.getMsg());
+        }
+
+        @Test
+        @DisplayName("필수 파라미터(이메일)가 없는경우 예외가 발생한다.")
+        void 필수_파라미터_이메일_가_없는경우_예외가_발생한다() {
+            // given
+            MembersJoinRequestDto dto = MembersJoinRequestDto.builder()
+                    .nickname(NICK_NAME)
+                    .password(PASSWORD)
+                    .provider(COMMON.getValue())
+                    .build();
+
+            // when & then
+            assertThatThrownBy(() -> oAuthService.join(dto))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage(ErrorMessage.NOT_EXIST_MEMBER_EMAIL_EXCEPTION.getMsg());
+        }
+
+        @Test
+        @DisplayName("필수 파라미터(비밀번호)가 없는경우 예외가 발생한다.")
+        void 필수_파라미터_비밀번호_가_없는경우_예외가_발생한다() {
+            // given
+            MembersJoinRequestDto dto = MembersJoinRequestDto.builder()
+                    .email(EMAIL)
+                    .nickname(NICK_NAME)
+                    .provider(COMMON.getValue())
+                    .build();
+
+            // when & then
+            assertThatThrownBy(() -> oAuthService.join(dto))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage(ErrorMessage.NOT_EXIST_PASSWORD_EXCEPTION.getMsg());
+        }
+
+        @Test
+        @DisplayName("필수 파라미터(닉네임)가 없는경우 예외가 발생한다.")
+        void 필수_파라미터_닉네임_가_없는경우_예외가_발생한다() {
+            // given
+            MembersJoinRequestDto dto = MembersJoinRequestDto.builder()
+                    .email(EMAIL)
+                    .password(PASSWORD)
+                    .provider(COMMON.getValue())
+                    .build();
+
+            // when & then
+            assertThatThrownBy(() -> oAuthService.join(dto))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage(ErrorMessage.NOT_EXIST_NICKNAME_EXCEPTION.getMsg());
+        }
+
+
+        @Test
+        @DisplayName("필수 파라미터(provider)가 없는경우 예외가 발생한다.")
+        void 필수_파라미터_provider_가_없는경우_예외가_발생한다() {
+            // given
+            MembersJoinRequestDto dto = MembersJoinRequestDto.builder()
+                    .email(EMAIL)
+                    .nickname(NICK_NAME)
+                    .password(PASSWORD)
+                    .build();
+
+            // when & then
+            assertThatThrownBy(() -> oAuthService.join(dto))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage(ErrorMessage.NOT_EXIST_PROVIDER_TYPE_EXCEPTION.getMsg());
         }
     }
 }
