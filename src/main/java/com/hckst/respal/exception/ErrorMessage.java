@@ -9,11 +9,12 @@ public enum ErrorMessage {
     // 0번대 JWT 관련 오류
     PERMISSION_DENIED_EXCEPTION( HttpStatus.FORBIDDEN, "접근 권한이 없어요","R001"),
     EXPIRED_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"만료된 토큰 정보에요.","R001"),
-    INCORRECT_REFRESH_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"일치하지 않는 Refresh Token 이에요.","R002"),
-    MALFORMED_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"지원하지 않는 토큰이에요.","R003"),
-    NOT_EXIST_REFRESH_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"존재하지 않는 Refresh Token 이에요","R004"),
-    NOT_EXIST_TOKEN_INFO_EXCEPTION(HttpStatus.FORBIDDEN,"토큰 정보가 존재하지 않아요.","R005"),
-    SIGNATURE_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"잘못된 토큰 정보에요.","R006"),
+    INCORRECT_REFRESH_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"일치하지 않는 Refresh Token 이에요.","R001"),
+    MALFORMED_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"지원하지 않는 토큰이에요.","R001"),
+    NOT_EXIST_REFRESH_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"존재하지 않는 Refresh Token 이에요","R001"),
+    NOT_EXIST_TOKEN_INFO_EXCEPTION(HttpStatus.FORBIDDEN,"토큰 정보가 존재하지 않아요.","R001"),
+    NOT_EXIST_ACCESS_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED, "존재하지 않는 Access Token 이에요", "R001"),
+    SIGNATURE_TOKEN_EXCEPTION(HttpStatus.UNAUTHORIZED,"잘못된 토큰 정보에요.","R001"),
 
     // 100번대 OAuth 관련 오류
     NO_SUCH_OAUTH_CODE_EXCEPTION(HttpStatus.BAD_REQUEST,"OAuth Code값이 존재하지 않아요.","R101"),
@@ -21,6 +22,7 @@ public enum ErrorMessage {
     INCORRECT_OAUTH_TYPE_EXCEPTION(HttpStatus.BAD_REQUEST,"OAuth type 설정이 잘못되었어요.","R103"),
 
     // 201번대 Members 관련 오류
+    NOT_EXIST_MEMBER_ID_EXCEPTION(HttpStatus.BAD_REQUEST, "회원 ID가 존재하지 않아요", "R201"),
     NOT_EXIST_MEMBER_EMAIL_EXCEPTION(HttpStatus.BAD_REQUEST,"이메일은 필수 입력값이에요.","R201"),
     NOT_EXIST_MEMBER_PASSWORD_EXCEPTION(HttpStatus.BAD_REQUEST,"비밀번호는 필수 입력값이에요.","R201"),
     NOT_EXIST_NICKNAME_EXCEPTION(HttpStatus.BAD_REQUEST,"닉네임은 필수 입력값이에요.","R201"),
