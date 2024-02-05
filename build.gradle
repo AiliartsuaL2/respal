@@ -34,7 +34,7 @@ dependencies {
 	implementation 'mysql:mysql-connector-java:8.0.28'
 
 	// h2
-	runtimeOnly 'com.h2database:h2'
+	testImplementation 'com.h2database:h2'
 
 	// email
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
