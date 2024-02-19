@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .antMatchers("/swagger-ui/**").permitAll()
                         .antMatchers("/v3/api-docs/**").permitAll()
                         .antMatchers("/actuator/**").permitAll()
+                        .antMatchers("/ai/analysis").permitAll()
                         .anyRequest().authenticated())
                 // stateless 이기 때문에 disable
                 .csrf().disable()
