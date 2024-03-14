@@ -37,6 +37,8 @@ public class SecurityConfig {
                         .antMatchers("/ai/analysis").permitAll()
                         .anyRequest().authenticated())
                 // stateless 이기 때문에 disable
+                .cors()
+                .and()
                 .csrf().disable()
                 .exceptionHandling()
                 .accessDeniedHandler(jwtAccessDeniedHandler)

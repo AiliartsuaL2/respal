@@ -3,7 +3,6 @@ package com.hckst.respal.exception;
 import com.hckst.respal.exception.oauth.OAuthLoginException;
 import com.hckst.respal.global.dto.ApiErrorMessageAndCode;
 import com.hckst.respal.global.dto.ApiErrorResponse;
-import com.hckst.respal.test.TestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,20 +34,6 @@ public class GlobalExceptionHandler {
                                 .message(ex.getMessage())
                                 .build())
                         .build());
-    }
-
-    @ExceptionHandler(TestException.class)
-    public ResponseEntity<ApiErrorResponse> TestException(TestException ex) {
-        StackTraceElement[] stackTraceElements = ex.getStackTrace();
-        String message = ex.getMessage();
-        log.error(message,stackTraceElements[0]);
-        ApiErrorResponse response = ApiErrorResponse.builder()
-                .statusCode(500)
-                .result(ApiErrorMessageAndCode.builder()
-                        .message(message)
-                        .build())
-                .build();
-        return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(RuntimeException.class)

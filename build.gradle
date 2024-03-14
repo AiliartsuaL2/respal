@@ -34,6 +34,8 @@ dependencies {
 	implementation 'mysql:mysql-connector-java:8.0.28'
 
 	// h2
+	implementation 'com.h2database:h2'
+	implementation 'io.r2dbc:r2dbc-h2'
 	testImplementation 'com.h2database:h2'
 
 	// email
@@ -101,6 +103,7 @@ task copyPrivate(type: Copy) {
 	copy {
 		from './respal-private'
 		include "application-prod.yml"
+		include "application-test.yml"
 		into 'src/main/resources'
 	}
 }
