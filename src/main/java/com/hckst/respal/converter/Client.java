@@ -16,7 +16,7 @@ public enum Client implements BaseEnumCode<String> {
     NULL("","");
 
     private static final String UID_PREFIX = "?uid=";
-    public static final String WEB_LOGIN_PATH = "/main";
+    public static final String WEB_LOGIN_PATH = "/callback";
     public static final String WEB_SIGN_UP_PATH = "/signup/social";
 
     private final String environment;
